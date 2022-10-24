@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "85793544772",
+    "project_id": "athelo-i2a",
+    "storage_bucket": "athelo-i2a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85793544772:android:9a5b0251a82f60d0f0fa11",
+        "android_client_info": {
+          "package_name": "com.i2asolutions.athelo.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85793544772-5l6d8nibk5j152shv4md9pi7ssjvjhev.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.i2asolutions.athelo.dev",
+            "certificate_hash": "d092c6046e0f252ea7edc03b5ce8665639b7cedf"
+          }
+        },
+        {
+          "client_id": "85793544772-k6vubtpevir49p5ih85rt5743vn23079.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpxdLrc0SjEHKO6qb2EJE2ddHI2Uk7tn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85793544772-k6vubtpevir49p5ih85rt5743vn23079.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "85793544772-bkqhurad28k7fh783qvkhjthamegochq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.i2asolutions.athelo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85793544772:android:e9278e9a16e3a5d7f0fa11",
+        "android_client_info": {
+          "package_name": "com.i2asolutions.athelo.qa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85793544772-q18v4is5ov7jjbikchahdqvp9cm5iud6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.i2asolutions.athelo.qa",
+            "certificate_hash": "d092c6046e0f252ea7edc03b5ce8665639b7cedf"
+          }
+        },
+        {
+          "client_id": "85793544772-k6vubtpevir49p5ih85rt5743vn23079.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpxdLrc0SjEHKO6qb2EJE2ddHI2Uk7tn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85793544772-k6vubtpevir49p5ih85rt5743vn23079.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "85793544772-bkqhurad28k7fh783qvkhjthamegochq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.i2asolutions.athelo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

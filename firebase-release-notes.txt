@@ -1,0 +1,3 @@
+MVP Sprint 5:
+- Fix small screens issues,
+- Fix typo in steps screen

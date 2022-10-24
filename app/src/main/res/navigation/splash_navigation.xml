@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/splash_navigation"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.splash.SplashFragment"
+        android:label="SplashFragment">
+        <action
+            android:id="@+id/action_splashFragment_to_tutorialFragment"
+            app:destination="@id/tutorialFragment"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashFragment_to_authorizationLandingFragment"
+            app:destination="@id/authorizationLandingFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashFragment_to_additionalInfoFragment"
+            app:destination="@id/additionalInfoFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+        <deepLink
+            android:id="@+id/deepLink5"
+            app:uri="atheloapp://launch" />
+        <deepLink
+            android:id="@+id/deepLink6"
+            app:uri="athelo://success" />
+    </fragment>
+    <fragment
+        android:id="@+id/tutorialFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.tutorial.TutorialFragment"
+        android:label="TutorialFragment">
+        <action
+            android:id="@+id/action_tutorialFragment_to_authorizationLandingFragment"
+            app:destination="@id/authorizationLandingFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/authorizationLandingFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.authorization.landing.AuthorizationLandingFragment"
+        android:label="AuthorizationLandingFragment">
+        <action
+            android:id="@+id/action_authorizationLandingFragment_to_signInWithEmailFragment"
+            app:destination="@id/signInWithEmailFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+        <action
+            android:id="@+id/action_authorizationLandingFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+        <action
+            android:id="@+id/action_authorizationLandingFragment_to_additionalInfoFragment"
+            app:destination="@id/additionalInfoFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@+id/main_navigation"
+            app:popUpToInclusive="true" />
+        <deepLink
+            android:id="@+id/deepLink2"
+            app:uri="atheloapp://authorization" />
+        <action
+            android:id="@+id/action_authorizationLandingFragment_to_appInfoFragment"
+            app:destination="@id/appInfoFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInWithEmailFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.authorization.signInWithEmail.SignInWithEmailFragment"
+        android:label="SignInWithEmailFragment">
+        <action
+            android:id="@+id/action_signInWithEmailFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+        <action
+            android:id="@+id/action_signInWithEmailFragment_to_additionalInfoFragment"
+            app:destination="@id/additionalInfoFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signInWithEmailFragment_to_appInfoFragment"
+            app:destination="@id/appInfoFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.authorization.forgotPassword.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment">
+        <argument
+            android:name="email"
+            android:defaultValue=''
+            app:argType="string" />
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_appInfoFragment"
+            app:destination="@id/appInfoFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.authorization.signUpWithEmail.SignUpFragment"
+        android:label="SignUpFragment">
+        <action
+            android:id="@+id/action_signUpFragment_to_additionalInfoFragment"
+            app:destination="@id/additionalInfoFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_pop_enter"
+            app:popExitAnim="@anim/fragment_pop_exit"
+            app:popUpTo="@id/main_navigation"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/additionalInfoFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.authorization.additionalInformation.AdditionalInfoFragment"
+        android:label="AdditionalInfoFragment">
+        <deepLink
+            android:id="@+id/deepLink21"
+            app:uri="atheloapp://additionalInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/appInfoFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.appInfo.AppInfoFragment"
+        android:label="AppInfoFragment">
+        <argument
+            android:name="screenType"
+            app:argType="com.i2asolutions.athelo.presentation.model.AppInfoScreenType" />
+        <deepLink
+            android:id="@+id/deepLink20"
+            app:uri="atheloapp://info?type={screenType}" />
+    </fragment>
+</navigation>

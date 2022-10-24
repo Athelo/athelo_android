@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF181717</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#FFF9F9F9</color>
+    <color name="lightGrey">#FFFAFAFA</color>
+    <color name="gray">#FF6D6D6D</color>
+    <color name="disableGray">#FFEEEEEE</color>
+
+    <color name="lightGreen">#FFB5DE71</color>
+    <color name="green">#FF8FCC25</color>
+    <color name="pastelGreen">#FF81B821</color>
+    <color name="lightOlivaceous">#FF68951B</color>
+    <color name="olivaceous">#FF456212</color>
+
+    <color name="lightPurple">#FF988098</color>
+    <color name="purple">#FF80627F</color>
+    <color name="darkPurple">#FF623E61</color>
+    <color name="lightGray">#AFAFAF</color>
+
+    <color name="remSleepColor">@color/lightOlivaceous</color>
+    <color name="lightSleepColor">#FF7FC704</color>
+    <color name="deepSleepColor">#FFDEEEC3</color>
+    <color name="totalSleepGradientStart">#FF2B4302</color>
+    <color name="totalSleepGradientEnd">#FF7B9157</color>
+</resources>

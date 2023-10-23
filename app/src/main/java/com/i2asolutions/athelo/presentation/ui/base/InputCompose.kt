@@ -209,7 +209,7 @@ fun SearchInputTextField(
     textFormatter: (TextFieldValue) -> TextFieldValue = { it },
     disabledBackgroundColor: Color = gray,
     hint: String,
-    tailingIconClick: () -> Unit = {},
+    tailingIconClick: (() -> Unit)? = null,
     hideShadow: Boolean = false
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -297,17 +297,19 @@ fun SearchInputTextField(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = {
-                        tailingIconClick()
-                    }) {
-                        Icon(
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .size(24.dp),
-                            painter = painterResource(R.drawable.ic_filter),
-                            contentDescription = null,
-                            tint = gray
-                        )
+                    tailingIconClick?.let {
+                        IconButton(onClick = {
+                            it()
+                        }) {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(24.dp),
+                                painter = painterResource(R.drawable.ic_filter),
+                                contentDescription = null,
+                                tint = gray
+                            )
+                        }
                     }
                 },
             )

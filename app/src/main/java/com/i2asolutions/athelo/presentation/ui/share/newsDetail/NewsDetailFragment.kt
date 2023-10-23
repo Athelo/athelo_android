@@ -14,7 +14,7 @@ class NewsDetailFragment : BaseComposeFragment<NewsDetailViewModel>() {
     override val viewModel: NewsDetailViewModel by viewModels()
 
     override val composeContent: @Composable () -> Unit = {
-        NewsDetailScreen(viewModel)
+        ContentfulNewsDetailScreen(viewModel)
     }
 
     override fun setupObservers() {

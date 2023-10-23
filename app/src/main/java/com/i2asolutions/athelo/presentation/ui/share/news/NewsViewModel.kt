@@ -2,6 +2,7 @@ package com.i2asolutions.athelo.presentation.ui.share.news
 
 import com.i2asolutions.athelo.presentation.model.base.InputType
 import com.i2asolutions.athelo.presentation.model.news.Category
+import com.i2asolutions.athelo.presentation.model.news.NewsData
 import com.i2asolutions.athelo.presentation.model.news.NewsListType
 import com.i2asolutions.athelo.presentation.ui.base.BaseViewModel
 import com.i2asolutions.athelo.useCase.member.LoadCachedUserUseCase
@@ -10,6 +11,7 @@ import com.i2asolutions.athelo.useCase.member.StoreUserUseCase
 import com.i2asolutions.athelo.useCase.news.LoadFavouriteNewsUseCase
 import com.i2asolutions.athelo.useCase.news.LoadNewsUseCase
 import com.i2asolutions.athelo.utils.AuthorizationException
+import com.i2asolutions.athelo.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +24,7 @@ class NewsViewModel @Inject constructor(
     private val storeProfile: StoreUserUseCase,
     private val loadFavouriteNews: LoadFavouriteNewsUseCase,
     private val loadCachedUserUseCase: LoadCachedUserUseCase,
+    private val contentfulClient: ContentfulClient,
 ) :
     BaseViewModel<NewsEvent, NewsEffect>() {
 
@@ -29,6 +32,10 @@ class NewsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(currentState)
     val viewState = _state.asStateFlow()
+    private var newsList: List<NewsData> = listOf()
+
+    private val _contentfulViewState = MutableStateFlow(listOf<NewsData>())
+    val contentfulViewState = _contentfulViewState.asStateFlow()
 
     private var newsNextUrl: String? = null
     private var selectedCategories = listOf<Category>()
@@ -37,26 +44,25 @@ class NewsViewModel @Inject constructor(
 
     override fun loadData() {
         notifyStateChanged(currentState.copy(isLoading = true))
+        updateUI()
         launchRequest {
             val user =
                 loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
-            val news = if (currentScreenType == NewsListType.List) loadNews(
-                newsNextUrl,
-                selectedCategories.map { it.id },
-                query
-            ) else loadFavouriteNews(
-                newsNextUrl,
-                selectedCategories.map { it.id },
-                query
-            )
+//            val news = if (currentScreenType == NewsListType.List) loadNews(
+//                newsNextUrl,
+//                selectedCategories.map { it.id },
+//                query
+//            ) else loadFavouriteNews(
+//                newsNextUrl,
+//                selectedCategories.map { it.id },
+//                query
+//            )
             notifyStateChanged(
                 currentState.copy(
                     initialized = true,
                     isLoading = false,
-                    news = news.result,
                     currentUser = user,
-                    screenType = currentScreenType,
-                    canLoadMore = !news.next.isNullOrBlank(),
+                    screenType = currentScreenType
                 )
             )
         }
@@ -83,6 +89,9 @@ class NewsViewModel @Inject constructor(
             }
             NewsEvent.LoadFirstPage -> {
                 resetAndLoad()
+            }
+            is NewsEvent.NewsDetails -> {
+                notifyEffectChanged(NewsEffect.OpenContentfulNewsDetailScreen(newsId = event.newsId))
             }
         }
     }
@@ -127,4 +136,25 @@ class NewsViewModel @Inject constructor(
             loadData()
         }
     }
+
+    private fun updateUI() {
+        launchRequest {
+            newsList = contentfulClient.getAllNews()
+            _contentfulViewState.emit(newsList)
+        }
+    }
+
+    fun updateNewsList(title: String) {
+        launchRequest {
+            if (title.isEmpty()) {
+                _contentfulViewState.emit(newsList)
+            } else {
+                _contentfulViewState.emit(newsList.filter {
+                    it.title.contains(title, ignoreCase = true)
+                })
+            }
+        }
+    }
+
+
 }

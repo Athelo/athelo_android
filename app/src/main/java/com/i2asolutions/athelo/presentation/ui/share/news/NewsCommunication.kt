@@ -32,6 +32,7 @@ sealed interface NewsEvent : BaseEvent {
     class InputValueChanged(val inputValue: InputType) : NewsEvent
     class SearchCategoriesUpdate(val selectedCategory: List<Category>) : NewsEvent
     class NewsItemClick(val news: News) : NewsEvent
+    class NewsDetails(val newsId: String) : NewsEvent
 }
 
 sealed interface NewsEffect : BaseEffect {
@@ -39,4 +40,5 @@ sealed interface NewsEffect : BaseEffect {
     object ShowMyProfileScreen : NewsEffect
     class OpenNewsDetailScreen(val news: News) : NewsEffect
     class ShowCategoryFilter(val initialSelection: List<Category>) : NewsEffect
+    class OpenContentfulNewsDetailScreen(val newsId: String) : NewsEffect
 }

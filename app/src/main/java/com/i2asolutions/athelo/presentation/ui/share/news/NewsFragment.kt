@@ -14,7 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NewsFragment : BaseComposeFragment<NewsViewModel>() {
     override val composeContent: @Composable () -> Unit = {
-        NewsScreen(viewModel = viewModel)
+        ContentfulNewsScreen(viewModel = viewModel)
     }
     override val viewModel: NewsViewModel by viewModels()
 
@@ -22,7 +22,7 @@ class NewsFragment : BaseComposeFragment<NewsViewModel>() {
         viewModel.effect.onEachCollect(viewLifecycleOwner) { effect ->
             when (effect) {
                 NewsEffect.ShowMenuScreen -> openMenu()
-                is NewsEffect.OpenNewsDetailScreen -> routeToNewsDetail(effect.news.id)
+                is NewsEffect.OpenNewsDetailScreen -> routeToNewsDetail(effect.news.id.toString())
                 is NewsEffect.ShowCategoryFilter -> {
                     (requireActivity() as? MainActivity)?.setupSingleUseCallback<List<Category>>("selected_categories") {
                         viewModel.handleEvent(NewsEvent.SearchCategoriesUpdate(it ?: emptyList()))
@@ -30,6 +30,7 @@ class NewsFragment : BaseComposeFragment<NewsViewModel>() {
                     routeToCategoryFilterPicker(effect.initialSelection)
                 }
                 NewsEffect.ShowMyProfileScreen -> routeToMyProfile()
+                is NewsEffect.OpenContentfulNewsDetailScreen -> routeToNewsDetail(effect.newsId)
             }
         }
     }

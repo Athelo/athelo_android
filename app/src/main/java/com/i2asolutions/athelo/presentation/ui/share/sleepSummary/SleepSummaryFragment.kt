@@ -19,7 +19,7 @@ class SleepSummaryFragment : BaseComposeFragment<SleepSummaryViewModel>() {
             when (it) {
                 SleepEffect.ShowMenuScreen -> openMenu()
                 SleepEffect.ShowMyProfileScreen -> routeToMyProfile()
-                is SleepEffect.ShowArticle -> routeToNewsDetail(it.articleId)
+                is SleepEffect.ShowArticle -> routeToNewsDetail(it.articleId.toString())
                 SleepEffect.ShowConnectSmartWatchScreen -> routeToConnectFitbitScreen(false)
                 SleepEffect.ShowSleepDetailsScreen -> routeToSleepDetails()
                 SleepEffect.ShowLostCaregiverScreen -> routeToLostCaregiverAccess()

@@ -2,10 +2,12 @@ package com.i2asolutions.athelo.presentation.ui.share.newsDetail
 
 import androidx.lifecycle.SavedStateHandle
 import com.i2asolutions.athelo.presentation.model.news.News
+import com.i2asolutions.athelo.presentation.model.news.NewsData
 import com.i2asolutions.athelo.presentation.ui.base.BaseViewModel
 import com.i2asolutions.athelo.useCase.news.AddToFavouriteUseCase
 import com.i2asolutions.athelo.useCase.news.LoadNewsDetailUseCase
 import com.i2asolutions.athelo.useCase.news.RemoveFromFavouriteUseCase
+import com.i2asolutions.athelo.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,14 +18,17 @@ class NewsDetailViewModel @Inject constructor(
     private val loadNewsDetail: LoadNewsDetailUseCase,
     private val addToFavourite: AddToFavouriteUseCase,
     private val removeFromFavourite: RemoveFromFavouriteUseCase,
+    private val contentfulClient: ContentfulClient,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel<NewsDetailEvent, NewsDetailEffect>() {
-    private val newsId: Int = NewsDetailFragmentArgs.fromSavedStateHandle(savedStateHandle).newsId
+    private val newsId: String = NewsDetailFragmentArgs.fromSavedStateHandle(savedStateHandle).newsId
     private lateinit var news: News
     private var currentState = NewsDetailViewState(true, News())
 
     private val _state = MutableStateFlow(currentState)
     val state = _state.asStateFlow()
+    private val _contentfulViewState = MutableStateFlow(NewsData())
+    val contentfulViewState = _contentfulViewState.asStateFlow()
 
     override fun handleError(throwable: Throwable) {
         notifyStateChanged(currentState.copy(isLoading = false))
@@ -32,8 +37,9 @@ class NewsDetailViewModel @Inject constructor(
 
     override fun loadData() {
         launchRequest {
-            news = loadNewsDetail(newsId)
-            notifyStateChanged(currentState.copy(isLoading = false, news = news))
+//            news = loadNewsDetail(newsId)
+            _contentfulViewState.emit(contentfulClient.getNewsById(newsId))
+            notifyStateChanged(currentState.copy(isLoading = false))
         }
     }
 
@@ -52,9 +58,9 @@ class NewsDetailViewModel @Inject constructor(
     private fun toggleFavouriteState() = launchRequest {
         notifyStateChanged(currentState.copy(isLoading = true))
         news = if (news.isFavourite) {
-            removeFromFavourite(newsId)
+            removeFromFavourite(0)
         } else {
-            addToFavourite(newsId)
+            addToFavourite(0)
         }
         notifyStateChanged(currentState.copy(isLoading = false, news = news))
     }

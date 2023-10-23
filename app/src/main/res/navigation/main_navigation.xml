@@ -109,7 +109,7 @@
         android:label="NewsDetailFragment">
         <argument
             android:name="newsId"
-            app:argType="integer" />
+            app:argType="string" />
         <deepLink
             android:id="@+id/deepLink13"
             app:uri="atheloapp://newsDetail?id={newsId}" />

@@ -7,10 +7,11 @@ import java.util.*
 import javax.inject.Inject
 
 class LoadSleepEntriesForDataRangeUseCase @Inject constructor(private val repository: HealthRepository) {
-    suspend operator fun invoke(startDate: Date, endDate: Date): List<SleepEntry> {
+    suspend operator fun invoke(startDate: Date, endDate: Date, patientId: Int?): List<SleepEntry> {
         return repository.getSleepRecordsForPeriod(
             SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
             SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
+            patientId = patientId,
         ).map { it.toSleepEntry() }
     }
 }

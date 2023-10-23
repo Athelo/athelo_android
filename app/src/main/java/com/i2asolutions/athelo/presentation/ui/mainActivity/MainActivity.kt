@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
@@ -15,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.i2asolutions.athelo.databinding.ActivityMainBinding
 import com.i2asolutions.athelo.extensions.debugPrint
 import com.i2asolutions.athelo.extensions.showSystemUI
+import com.i2asolutions.athelo.presentation.ui.base.BoxScreen
 import com.i2asolutions.athelo.utils.fitbit.FitbitConnectionHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -39,6 +41,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         setupNavigation()
+        binding.messageBox.setContent {
+            BoxScreen(
+                viewModel = viewModel,
+                showProgressProvider = { false },
+                backgroundColor = Color.Transparent
+            ) {
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {

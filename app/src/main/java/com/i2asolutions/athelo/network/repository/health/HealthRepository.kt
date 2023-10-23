@@ -19,8 +19,7 @@ interface HealthRepository {
     suspend fun loadWellbeingForDay(nextUrl: String): PageResponseDto<WellbeingDto>
 
     suspend fun createWellbeingForDay(
-        date: String,
-        @IntRange(from = 1L, to = 1L) feeling: Int
+        date: String, @IntRange(from = 1L, to = 1L) feeling: Int
     ): WellbeingDto
 
 
@@ -39,37 +38,61 @@ interface HealthRepository {
     suspend fun loadSymptomsChronology(nextUrl: String?): PageResponseDto<SymptomChronologyDto>
 
     suspend fun loadFitbitAccount(): PageResponseDto<FitbitProfileDto>
-    suspend fun disconnectFitbitAccount(id: Int): Boolean
+    suspend fun disconnectFitbitAccount(id: Int, force: Boolean? = null): Boolean
 
-    suspend fun getSleepRecordsForDay(date: String): List<SleepEntryDto>
-    suspend fun getSleepRecordsForPeriod(startDate: String, endDate: String): List<SleepEntryDto>
+    suspend fun getSleepRecordsForDay(date: String, patientId: Int? = null): List<SleepEntryDto>
+    suspend fun getSleepRecordsForPeriod(
+        startDate: String,
+        endDate: String,
+        patientId: Int? = null,
+    ): List<SleepEntryDto>
 
-    suspend fun getStepRecordsForDay(date: String): List<StepEntryDto>
+    suspend fun getStepRecordsForDay(
+        date: String,
+        patientId: Int? = null,
+    ): List<StepEntryDto>
+
     suspend fun getStepRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String = ""
+        intervalFunction: String = "",
+        patientId: Int? = null,
     ): List<StepEntryDto>
 
-    suspend fun getHeartRateRecordsForDay(date: String): List<HeartRateEntryDto>
+    suspend fun getHeartRateRecordsForDay(
+        date: String,
+        patientId: Int? = null,
+    ): List<HeartRateEntryDto>
+
     suspend fun getHeartRateRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String = ""
+        intervalFunction: String = "",
+        patientId: Int? = null,
     ): List<HeartRateEntryDto>
-    suspend fun getHeartRateSingleRecordsForDay(date: String): PageResponseDto<HeartRateRecordDto>
-    suspend fun getHeartRateSingleRecordsForUrl(url: String): PageResponseDto<HeartRateRecordDto>
 
-    suspend fun getHrvRecordsForDay(date: String): List<HrvEntryDto>
+    suspend fun getHeartRateSingleRecordsForDay(
+        date: String,
+        patientId: Int? = null,
+    ): PageResponseDto<HeartRateRecordDto>
+
+    suspend fun getHeartRateSingleRecordsForUrl(
+        url: String,
+        patientId: Int? = null,
+    ): PageResponseDto<HeartRateRecordDto>
+
+    suspend fun getHrvRecordsForDay(date: String, patientId: Int? = null): List<HrvEntryDto>
     suspend fun getHrvRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String = ""
+        intervalFunction: String = "",
+        patientId: Int? = null,
     ): List<HrvEntryDto>
 
     suspend fun getExerciseRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String = ""
+        intervalFunction: String = "",
+        patientId: Int? = null,
     ): ExerciseListDto
 }

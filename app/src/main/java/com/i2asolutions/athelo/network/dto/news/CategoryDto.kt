@@ -7,10 +7,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CategoryDto(
-    @SerialName("id")
-    val id: Int? = null,
-    @SerialName("name")
-    val name: String? = null
+    @SerialName("id") val id: Int? = null,
+    @SerialName("name") val name: String? = null
 ) {
     fun toCategory(): Category {
         return Category(id ?: -1, name ?: "")

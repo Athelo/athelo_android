@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.i2asolutions.athelo.extensions.onEachCollect
 import com.i2asolutions.athelo.presentation.ui.mainActivity.MainActivity
-import com.i2asolutions.athelo.presentation.ui.splash.SplashActivity
+import com.i2asolutions.athelo.presentation.ui.share.splash.SplashActivity
 
 abstract class BaseFragment<VM> :
     Fragment() where VM : BaseViewModel<*, *> {
@@ -23,10 +23,6 @@ abstract class BaseFragment<VM> :
 
     fun takeOverBackPress(): Boolean {
         return false
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
     protected abstract fun createContentView(

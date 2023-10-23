@@ -63,7 +63,7 @@ internal fun createMockImage(size: Int): Image =
     )
 
 internal fun createMockSimpleUser(index: Int) =
-    SimpleUser(createMockImage(index * 10), "Test $index")
+    SimpleUser(createMockImage(index * 10), "Test $index", id = index)
 
 internal fun createMockUser(index: Int) =
     User(displayName = "Test $index", id = index, photo = createMockImage(index * 10))

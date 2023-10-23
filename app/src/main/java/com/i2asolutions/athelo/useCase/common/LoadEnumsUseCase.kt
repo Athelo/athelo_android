@@ -15,5 +15,6 @@ class LoadEnumsUseCase @Inject constructor(
         enums.inappropriateContentReason = it.inappropriateContentReason
         enums.reportedChatMessageType = it.reportedChatMessageType
         enums.feedbackCategory = it.feedbackCategory
+        enums.caregiverRelations = it.caregiverRelations
     }
 }

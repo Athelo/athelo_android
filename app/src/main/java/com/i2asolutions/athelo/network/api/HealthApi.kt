@@ -63,10 +63,13 @@ interface HealthApi {
     suspend fun getSymptomChronology(@Url url: String = "api/v1/health/user_feelings_and_symptoms_per_day/?by_symptoms=true"): PageResponseDto<SymptomChronologyDto>
 
     @GET("api/v1/health/integrations/fitbit/profile/")
-    suspend fun getFitbitProfile(): PageResponseDto<FitbitProfileDto>
+    suspend fun getFitbitProfile(@Query("force") force: Boolean? = null): PageResponseDto<FitbitProfileDto>
 
-    @DELETE("api/v1/health/integrations/fitbit/profile/{id}/")
-    suspend fun deleteFitbitProfile(@Path("id") id: Int): Response<Unit>
+    @HTTP(method = "DELETE", path = "api/v1/health/integrations/fitbit/profile/{id}/", hasBody = true)
+    suspend fun deleteFitbitProfile(
+        @Path("id") id: Int,
+        @Body body: Map<String, Boolean>
+    ): Response<Unit>
 
     @POST("api/v1/health/sleep_record/generate-level-aggregation-dashboard/")
     suspend fun getSleepRecords(
@@ -75,9 +78,10 @@ interface HealthApi {
         @Query("collected_at_date__lte") endDate: String? = null,
         @Query("collected_at_date__gt") afterDate: String? = null,
         @Query("collected_at_date__lt") beforeDate: String? = null,
+        @Query("_patient_id") patientId: Int? = null,
         @Body body: Map<String, String> = mapOf(
             "aggregation_function" to "SUM",
-            "interval_function" to "DAY"
+            "interval_function" to "DAY",
         )
     ): List<SleepEntryDto>
 
@@ -88,9 +92,10 @@ interface HealthApi {
         @Query("collected_at_date__lte") endDate: String? = null,
         @Query("collected_at_date__gt") afterDate: String? = null,
         @Query("collected_at_date__lt") beforeDate: String? = null,
+        @Query("_patient_id") patientId: Int? = null,
         @Body body: Map<String, String> = mapOf(
             "aggregation_function" to "SUM",
-            "interval_function" to "DAY"
+            "interval_function" to "DAY",
         )
     ): List<StepEntryDto>
 
@@ -101,9 +106,10 @@ interface HealthApi {
         @Query("collected_at_date__lte") endDate: String? = null,
         @Query("collected_at_date__gt") afterDate: String? = null,
         @Query("collected_at_date__lt") beforeDate: String? = null,
+        @Query("_patient_id") patientId: Int? = null,
         @Body body: Map<String, String> = mapOf(
             "aggregation_function" to "SUM",
-            "interval_function" to "DAY"
+            "interval_function" to "DAY",
         )
     ): List<HeartRateEntryDto>
 
@@ -114,9 +120,10 @@ interface HealthApi {
         @Query("collected_at_date__lte") endDate: String? = null,
         @Query("collected_at_date__gt") afterDate: String? = null,
         @Query("collected_at_date__lt") beforeDate: String? = null,
+        @Query("_patient_id") patientId: Int? = null,
         @Body body: Map<String, String> = mapOf(
             "aggregation_function" to "SUM",
-            "interval_function" to "DAY"
+            "interval_function" to "DAY",
         )
     ): List<HrvEntryDto>
 
@@ -124,18 +131,23 @@ interface HealthApi {
     suspend fun getHeartRateSingleRecordsForDate(
         @Query("collected_at_date") date: String,
         @Query("page_size") pageSize: Int = 100,
+        @Query("_patient_id") patientId: Int? = null,
     ): PageResponseDto<HeartRateRecordDto>
 
     @GET
-    suspend fun getHeartRateSingleRecordsForUrl(@Url url: String): PageResponseDto<HeartRateRecordDto>
+    suspend fun getHeartRateSingleRecordsForUrl(
+        @Url url: String,
+        @Query("_patient_id") patientId: Int? = null,
+    ): PageResponseDto<HeartRateRecordDto>
 
     @POST("api/v1/health/activity/generate-dashboard/")
     suspend fun getExerciseRecords(
         @Query("start_date") startDate: String? = null,
         @Query("end_date") endDate: String? = null,
+        @Query("_patient_id") patientId: Int? = null,
         @Body body: Map<String, String> = mapOf(
             "aggregation_function" to "SUM",
-            "interval_function" to "DAY"
+            "interval_function" to "DAY",
         )
     ): ExerciseListDto
 }

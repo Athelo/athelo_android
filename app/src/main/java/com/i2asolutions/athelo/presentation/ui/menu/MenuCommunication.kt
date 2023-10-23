@@ -24,8 +24,9 @@ sealed interface MenuEffect: BaseEffect {
     object ShowMyProfileScreen: MenuEffect
     object ShowMessagesScreen: MenuEffect
     object ShowMySymptomsScreen: MenuEffect
-    object ShowMyCaregiversScreen: MenuEffect
-    object ShowInviteCaregiver: MenuEffect
+    object ShowMyCaregiversScreen : MenuEffect
+    object ShowMyWardsScreen : MenuEffect
+    object ShowInviteCaregiver : MenuEffect
     object ShowSettingsScreen: MenuEffect
     class ShowConnectSmartWatchScreen(val url: String) : MenuEffect
     object ShowAskAtheloScreen: MenuEffect

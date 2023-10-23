@@ -10,3 +10,5 @@ data class HrvChartEntry(val date: Date, val steps: Int) :
     ) {
     constructor(date: Date, entry: HrvEntry?) : this(date = date, steps = entry?.value ?: 0)
 }
+
+data class EmptyHrvChartEntry(val date: Date) : LineChartEntry(0f, 0)

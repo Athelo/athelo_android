@@ -6,11 +6,11 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.home.HomeFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.home.HomeFragment"
         android:label="HomeFragment" />
     <fragment
         android:id="@+id/newsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.news.NewsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.news.NewsFragment"
         android:label="NewsFragment">
         <deepLink
             android:id="@+id/deepLink18"
@@ -18,11 +18,11 @@
     </fragment>
     <fragment
         android:id="@+id/activityFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.activity.ActivityFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.activity.ActivityFragment"
         android:label="ActivityFragment" />
     <fragment
         android:id="@+id/communityFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.community.CommunityFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.community.CommunityFragment"
         android:label="CommunityFragment" >
         <action
             android:id="@+id/action_communityFragment_to_chatListFragment"
@@ -30,11 +30,11 @@
     </fragment>
     <fragment
         android:id="@+id/sleepFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.sleepSummary.SleepSummaryFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.sleepSummary.SleepSummaryFragment"
         android:label="SleepFragment" />
     <fragment
         android:id="@+id/chatListFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.chats.ChatListFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.chats.ChatListFragment"
         android:label="ChatListFragment">
         <deepLink
             android:id="@+id/deepLink9"

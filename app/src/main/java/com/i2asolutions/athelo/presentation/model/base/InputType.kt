@@ -12,4 +12,6 @@ sealed interface InputType {
     data class Calendar(override val value: String) : InputType
     data class PhoneNumber(override val value: String) : InputType
     data class Text(override val value: String) : InputType
+    data class Number(override val value: String) : InputType
+    data class Pin(override val value: String) : InputType
 }

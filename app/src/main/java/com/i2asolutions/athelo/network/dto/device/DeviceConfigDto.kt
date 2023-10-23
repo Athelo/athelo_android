@@ -1,6 +1,6 @@
 package com.i2asolutions.athelo.network.dto.device
 
-import com.i2asolutions.athelo.presentation.ui.device.DeviceConfig
+import com.i2asolutions.athelo.presentation.ui.patient.device.DeviceConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

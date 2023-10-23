@@ -12,4 +12,4 @@ fun HttpException.parseMessage(): String =
         }
         ?: NOT_AVAILABLE_CONTENT_ERROR_MESSAGE
 val Throwable.errorMessageOrUniversalMessage: String
-    get() = localizedMessage ?: UNIVERSAL_ERROR_MESSAGE
+    get() = localizedMessage?.ifEmpty { UNIVERSAL_ERROR_MESSAGE } ?: UNIVERSAL_ERROR_MESSAGE

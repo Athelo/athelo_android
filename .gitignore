@@ -1,0 +1,11 @@
+/.idea/*
+/.gradle/*
+/build/*
+/app/build/*
+local.properties
+athelo-dev.json
+*.iml
+/captures
+/app/captures
+.externalNativeBuild
+.cxx

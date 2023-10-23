@@ -19,7 +19,9 @@ class NewsRepositoryImpl(userManager: UserManager) :
             service.getPosts(nextUrl)
         } else {
             service.getPosts(
-                categories = selectedCategories.joinToString(","),
+                categories = if (selectedCategories.isEmpty()) null else selectedCategories.joinToString(
+                    ","
+                ),
                 searchQuery = query,
             )
         }
@@ -38,7 +40,9 @@ class NewsRepositoryImpl(userManager: UserManager) :
             service.getPosts(nextUrl, true)
         } else {
             service.getPosts(
-                categories = selectedCategories.joinToString(","),
+                categories = if (selectedCategories.isEmpty()) null else selectedCategories.joinToString(
+                    ","
+                ),
                 searchQuery = query,
                 favourite = true
             )

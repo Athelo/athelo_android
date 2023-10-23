@@ -35,7 +35,7 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.myProfile.MyProfileFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.myProfile.MyProfileFragment"
         android:label="ProfileFragment">
         <deepLink
             android:id="@+id/deepLink"
@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.editProfile.EditProfileFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.editProfile.EditProfileFragment"
         android:label="EditProfileFragment">
         <deepLink
             android:id="@+id/deepLink3"
@@ -58,7 +58,7 @@
     </fragment>
     <fragment
         android:id="@+id/changePasswordFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.changePassword.ChangePasswordFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.changePassword.ChangePasswordFragment"
         android:label="ChangePasswordFragment">
         <deepLink
             android:id="@+id/deepLink4"
@@ -66,7 +66,7 @@
     </fragment>
     <fragment
         android:id="@+id/askAtheloFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.askAthelo.AskAtheloFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.askAthelo.AskAtheloFragment"
         android:label="AskAtheloFragment">
         <deepLink
             android:id="@+id/deepLink7"
@@ -74,7 +74,7 @@
     </fragment>
     <fragment
         android:id="@+id/feedbackFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.feedback.FeedbackFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.feedback.FeedbackFragment"
         android:label="FeedbackFragment">
         <deepLink
             android:id="@+id/deepLink8"
@@ -85,7 +85,7 @@
     </fragment>
     <fragment
         android:id="@+id/connectFitbitFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.connectFitbit.ConnectFitbitFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.connectFitbit.ConnectFitbitFragment"
         android:label="ConnectFitbitFragment">
         <deepLink
             android:id="@+id/deepLink10"
@@ -97,7 +97,7 @@
     </fragment>
     <dialog
         android:id="@+id/categoryFilterDialog"
-        android:name="com.i2asolutions.athelo.presentation.ui.categoryFilter.CategoryFilterDialog"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.categoryFilter.CategoryFilterDialog"
         android:label="CategoryFilterDialog">
         <argument
             android:name="initial"
@@ -105,7 +105,7 @@
     </dialog>
     <fragment
         android:id="@+id/newsDetailFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.newsDetail.NewsDetailFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.newsDetail.NewsDetailFragment"
         android:label="NewsDetailFragment">
         <argument
             android:name="newsId"
@@ -116,18 +116,22 @@
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.chat.ChatFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.chat.ChatFragment"
         android:label="ChatFragment">
         <argument
             android:name="conversationId"
             app:argType="integer" />
+        <argument
+            android:name="group"
+            android:defaultValue="true"
+            app:argType="boolean" />
         <deepLink
             android:id="@+id/deepLink12"
-            app:uri="atheloapp://chat?conversationId={conversationId}" />
+            app:uri="atheloapp://chat?conversationId={conversationId}&amp;group={group}" />
     </fragment>
     <fragment
         android:id="@+id/wellbeingFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.wellbeing.WellbeingFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.wellbeing.WellbeingFragment"
         android:label="WellbeingFragment">
         <deepLink
             android:id="@+id/deepLink14"
@@ -141,7 +145,7 @@
     </fragment>
     <dialog
         android:id="@+id/addSymptomDialogFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomAdd.AddSymptomDialogFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomAdd.AddSymptomDialogFragment"
         android:label="AddSymptomDialogFragment">
         <argument
             android:name="symptom"
@@ -152,7 +156,7 @@
     </dialog>
     <dialog
         android:id="@+id/infoSymptomDialogFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomInfo.InfoSymptomDialogFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomInfo.InfoSymptomDialogFragment"
         android:label="InfoSymptomDialogFragment">
         <argument
             android:name="symptom"
@@ -160,7 +164,7 @@
     </dialog>
     <fragment
         android:id="@+id/recommendationSymptomFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomRecommendation.RecommendationSymptomFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomRecommendation.RecommendationSymptomFragment"
         android:label="RecommendationSymptomFragment">
         <argument
             android:name="symptomId"
@@ -171,7 +175,7 @@
     </fragment>
     <fragment
         android:id="@+id/mySymptomsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomSummary.MySymptomsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomSummary.MySymptomsFragment"
         android:label="MySymptomsFragment">
         <deepLink
             android:id="@+id/deepLink16"
@@ -179,7 +183,7 @@
     </fragment>
     <fragment
         android:id="@+id/mySymptomDetailsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomDetail.SymptomDetailsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomDetail.SymptomDetailsFragment"
         android:label="MySymptomDetailsFragment">
         <argument
             android:name="symptomId"
@@ -190,7 +194,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.settings.SettingsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.settings.SettingsFragment"
         android:label="SettingsFragment">
         <deepLink
             android:id="@+id/deepLink19"
@@ -198,7 +202,7 @@
     </fragment>
     <fragment
         android:id="@+id/symptomChronologyFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.symptomChronology.SymptomChronologyFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.symptomChronology.SymptomChronologyFragment"
         android:label="SymptomChronologyFragment">
         <deepLink
             android:id="@+id/deepLink22"
@@ -206,7 +210,7 @@
     </fragment>
     <fragment
         android:id="@+id/myDeviceFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.myDevice.MyDeviceFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.myDevice.MyDeviceFragment"
         android:label="MyDeviceFragment">
         <deepLink
             android:id="@+id/deepLink23"
@@ -214,7 +218,7 @@
     </fragment>
     <fragment
         android:id="@+id/sleepDetailsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.sleepDetails.SleepDetailsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.sleepDetails.SleepDetailsFragment"
         android:label="SleepDetailsFragment">
         <deepLink
             android:id="@+id/deepLink24"
@@ -222,7 +226,7 @@
     </fragment>
     <fragment
         android:id="@+id/stepsFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.steps.StepsFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.steps.StepsFragment"
         android:label="StepsFragment">
         <deepLink
             android:id="@+id/deepLink25"
@@ -230,7 +234,7 @@
     </fragment>
     <fragment
         android:id="@+id/hrvFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.hrv.HrvFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.hrv.HrvFragment"
         android:label="HrvFragment">
         <deepLink
             android:id="@+id/deepLink26"
@@ -238,7 +242,7 @@
     </fragment>
     <fragment
         android:id="@+id/heartRateFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.heartRate.HeartRateFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.heartRate.HeartRateFragment"
         android:label="HeartRateFragment">
         <deepLink
             android:id="@+id/deepLink27"
@@ -246,10 +250,87 @@
     </fragment>
     <fragment
         android:id="@+id/exerciseFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.exercise.ExerciseFragment"
-        android:label="ExerciseFragment" >
+        android:name="com.i2asolutions.athelo.presentation.ui.share.exercise.ExerciseFragment"
+        android:label="ExerciseFragment">
         <deepLink
             android:id="@+id/deepLink28"
             app:uri="atheloapp://activityExercise" />
     </fragment>
+    <fragment
+        android:id="@+id/myWardFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.caregiver.myWard.MyWardFragment"
+        android:label="MyWardFragment">
+        <deepLink
+            android:id="@+id/deepLink30"
+            app:uri="atheloapp://myWards" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientListFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.caregiver.patientList.PatientListFragment"
+        android:label="PatientListFragment">
+        <deepLink
+            android:id="@+id/deepLink31"
+            app:uri="atheloapp://patientList?initialFlow={initialFlow}" />
+        <argument
+            android:name="initialFlow"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/messageFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.messages.MessageFragment"
+        android:label="MessageFragment">
+        <deepLink
+            android:id="@+id/deepLink32"
+            app:uri="atheloapp://messages" />
+    </fragment>
+    <fragment
+        android:id="@+id/findCaregiverFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.addCaregiver.FindCaregiverFragment"
+        android:label="FindCaregiverFragment">
+        <deepLink
+            android:id="@+id/deepLink33"
+            app:uri="atheloapp://findCaregiver" />
+    </fragment>
+    <fragment
+        android:id="@+id/caregiverListFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.caregiverList.CaregiverListFragment"
+        android:label="CaregiverListFragment">
+        <deepLink
+            android:id="@+id/deepLink34"
+            app:uri="atheloapp://caregiverList?initialFlow={initialFlow}" />
+        <argument
+            android:name="initialFlow"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectRoleFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.selectRole.SelectRoleFragment"
+        android:label="SelectRoleFragment">
+        <deepLink
+            android:id="@+id/deepLink35"
+            app:uri="atheloapp://selectRole?initialFlow={initialFlow}" />
+        <argument
+            android:name="initialFlow"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+    <dialog
+        android:id="@+id/lostCaregiverFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.caregiver.lostCaregiver.LostCaregiverDialog"
+        android:label="LostCaregiverFragment">
+        <deepLink
+            android:id="@+id/deepLink36"
+            app:uri="atheloapp://lost_caregiver_access" />
+    </dialog>
+    <fragment
+        android:id="@+id/myCaregiversFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.patient.myCaregivers.MyCaregiversFragment"
+        android:label="MyCaregiversFragment">
+        <deepLink
+            android:id="@+id/deepLink37"
+            app:uri="atheloapp://myCaregiversList" />
+    </fragment>
+
 </navigation>

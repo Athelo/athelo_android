@@ -40,7 +40,7 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
         return service.postCreateMyProfile(
             mapOf(
                 "email" to email,
-                "athelo_user_type" to atheloUserProfile,
+                /* Todo: Removed from server"athelo_user_type" to atheloUserProfile,*/
                 "display_name" to displayName,
             )
         )

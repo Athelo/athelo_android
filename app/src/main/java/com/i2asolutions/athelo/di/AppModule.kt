@@ -8,6 +8,7 @@ import com.i2asolutions.athelo.useCase.websocket.WebSocketSessionUseCases
 import com.i2asolutions.athelo.utils.DeviceManager
 import com.i2asolutions.athelo.utils.PreferenceHelper
 import com.i2asolutions.athelo.utils.UserManager
+import com.i2asolutions.athelo.utils.app.AppManager
 import com.i2asolutions.athelo.utils.fitbit.FitbitConnectionHelper
 import com.i2asolutions.athelo.websocket.WebSocketManager
 import dagger.Module
@@ -54,4 +55,8 @@ object AppModule {
     @Provides
     fun provideWebSocketManager(webSocketUseCases: WebSocketSessionUseCases) =
         WebSocketManager(webSocketUseCases)
+
+    @Singleton
+    @Provides
+    fun provideAppManager(@ApplicationContext context: Context) = AppManager(context)
 }

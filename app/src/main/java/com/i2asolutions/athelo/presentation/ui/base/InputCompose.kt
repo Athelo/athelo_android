@@ -169,8 +169,8 @@ fun InputTextField(
                         visualTransformation else
                         PasswordVisualTransformation('*')
                 },
-                trailingIcon = {
-                    if (isPasswordField) {
+                trailingIcon = if (isPasswordField) {
+                    {
                         IconButton(onClick = {
                             passwordVisibility.value = !passwordVisibility.value
                         }) {
@@ -187,7 +187,7 @@ fun InputTextField(
                             )
                         }
                     }
-                },
+                } else null,
             )
         }
     }

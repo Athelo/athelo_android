@@ -10,12 +10,14 @@ class LoadHeartRateEntriesForDataRangeUseCase @Inject constructor(private val re
     suspend operator fun invoke(
         startDate: Date,
         endDate: Date,
-        intervalFunction: String = "DAY"
+        intervalFunction: String = "DAY",
+        patientId: Int?,
     ): List<HeartRateEntry> {
         return repository.getHeartRateRecordsForPeriod(
-            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
-            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
-            intervalFunction
+            startDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
+            endDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
+            intervalFunction = intervalFunction,
+            patientId = patientId,
         ).map { it.toHeartRateEntry() }
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i2asolutions.athelo.R
@@ -87,19 +88,24 @@ private fun RowScope.StepCell(step: SelectorStep, modifier: Modifier = Modifier)
                 modifier = Modifier.size(32.dp)
             )
         }
+        step.name?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.body1.copy(
+                    color = gray,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .padding(top = 3.dp)
+                    .sizeIn(minWidth = 32.dp)
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.step_line),
             contentDescription = null,
             modifier = Modifier.padding(vertical = 3.dp),
             tint = gray
         )
-        step.name?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.body1.copy(color = gray),
-                modifier = Modifier.padding(bottom = 3.dp)
-            )
-        }
     }
 }
 
@@ -114,9 +120,13 @@ fun WellBeingSelectorPrev() {
         var selectValue by remember { mutableStateOf(0f) }
         Selector(
             steps = arrayOf(
-                SelectorStep(iconId = R.drawable.face_smile),
-                SelectorStep(iconId = R.drawable.face_ill),
-                SelectorStep(iconId = R.drawable.face_sad)
+                SelectorStep(name = "1"),
+                SelectorStep(name = "2"),
+                SelectorStep(name = "3"),
+                SelectorStep(name = "4"),
+                SelectorStep(name = "5"),
+                SelectorStep(name = "6"),
+                SelectorStep(name = "7"),
             ),
             onValueChange = {
                 selectValue = it.toFloat()
@@ -137,9 +147,13 @@ fun DisabledWellBeingSelectorPrev() {
         var selectValue by remember { mutableStateOf(0f) }
         Selector(
             steps = arrayOf(
-                SelectorStep(iconId = R.drawable.face_smile),
-                SelectorStep(iconId = R.drawable.face_ill),
-                SelectorStep(iconId = R.drawable.face_sad),
+                SelectorStep(name = "1"),
+                SelectorStep(name = "2"),
+                SelectorStep(name = "3"),
+                SelectorStep(name = "4"),
+                SelectorStep(name = "5"),
+                SelectorStep(name = "6"),
+                SelectorStep(name = "7"),
             ),
             onValueChange = {
                 selectValue = it.toFloat()

@@ -7,12 +7,12 @@ import java.util.*
 import javax.inject.Inject
 
 class LoadSingleHeartRateEntriesForDayUseCase @Inject constructor(private val repository: HealthRepository) {
-    suspend operator fun invoke(day: Date): List<HeartRateEntry> {
+    suspend operator fun invoke(day: Date, patientId: Int?): List<HeartRateEntry> {
         val results = arrayListOf<HeartRateEntry>()
         var url: String? = null
         do {
             val result = if (url == null) repository.getHeartRateSingleRecordsForDay(
-                SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day)
+                date = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(day), patientId = patientId
             ) else repository.getHeartRateSingleRecordsForUrl(url)
 
             url = result.nextUrl

@@ -25,7 +25,8 @@ data class User(
     val status: UserStatus? = null,
     val profileId: Int? = null,
     val privateProfile: Boolean? = null,
-    val fitBitConnected: Boolean = false
+    val fitBitConnected: Boolean = false,
+    val isCaregiver: Boolean = false
 ) : Parcelable {
 
 

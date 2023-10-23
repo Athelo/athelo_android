@@ -19,9 +19,9 @@ android {
 
         release {
             storeFile file('keystore')
-            storePassword props.getProperty("debugStorePassword")
-            keyAlias props.getProperty("debugAlias")
-            keyPassword props.getProperty("debugKeyPassword")
+            storePassword props.getProperty("prodStorePassword")
+            keyAlias props.getProperty("prodAlias")
+            keyPassword props.getProperty("prodKeyPassword")
         }
 
         debug {
@@ -36,7 +36,7 @@ android {
         minSdk 21
         targetSdk 32
         versionCode 1
-        versionName "1.0.37"
+        versionName "1.1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,6 +50,7 @@ android {
             debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
         }
 
         debug {
@@ -82,7 +83,8 @@ android {
         viewBinding true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion kotlin_version
+        kotlinCompilerExtensionVersion "1.3.0-rc01"
     }
     packagingOptions {
         resources {
@@ -94,7 +96,7 @@ android {
         dev {
             dimension 'server'
             applicationIdSuffix ".dev"
-            buildConfigField "String", "BASE_URL", "\"https://i2a-social-api-qa.i2asolutions.com/\""
+            buildConfigField "String", "BASE_URL", "\"https://app-stg.athelohealth.com/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
             buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-5l6d8nibk5j152shv4md9pi7ssjvjhev.apps.googleusercontent.com\""
@@ -104,7 +106,7 @@ android {
         qa {
             dimension 'server'
             applicationIdSuffix ".qa"
-            buildConfigField "String", "BASE_URL", "\"https://i2a-social-api-qa.i2asolutions.com/\""
+            buildConfigField "String", "BASE_URL", "\"https://app-stg.athelohealth.com/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
             buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-q18v4is5ov7jjbikchahdqvp9cm5iud6.apps.googleusercontent.com\""
@@ -113,13 +115,14 @@ android {
         }
         prod {
             dimension 'server'
-            buildConfigField "String", "BASE_URL", "\"https://i2a-social-api-qa.i2asolutions.com/\""
-            //todo: Change when ready
+            applicationId "com.athelohealth.mobile"
+            signingConfig signingConfigs.release
+            buildConfigField "String", "BASE_URL", "\"https://app.athelohealth.com\""
+            buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-PROD\""
-            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-k6vubtpevir49p5ih85rt5743vn23079.apps.googleusercontent.com\""
-// todo: Change when ready
+            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"864070173721-bvf1gjcom5bcnbdfl0o6fhfj3vv8ou9r.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo\""
-            manifestPlaceholders = ['appAuthRedirectScheme': 'com.i2asolutions.athelo']
+            manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
     }
 }
@@ -127,7 +130,7 @@ android {
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.security:security-crypto:1.1.0-alpha03'
 
     // Compose
@@ -138,7 +141,7 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.activity:activity-compose:1.5.0'
+    implementation 'androidx.activity:activity-compose:1.5.1'
     implementation "com.google.accompanist:accompanist-swiperefresh:0.24.13-rc"
     implementation "com.google.accompanist:accompanist-flowlayout:0.24.13-rc"
 
@@ -173,7 +176,7 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     //Coil for Compose
-    implementation("io.coil-kt:coil-compose:2.0.0-rc02")
+    implementation("io.coil-kt:coil-compose:2.1.0")
     // Constraint layout compose
     implementation "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha03"
 
@@ -194,7 +197,7 @@ dependencies {
     //Chrome Tabs
     implementation "androidx.browser:browser:1.4.0"
     //Splash
-    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+    implementation 'androidx.core:core-splashscreen:1.0.0'
     // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

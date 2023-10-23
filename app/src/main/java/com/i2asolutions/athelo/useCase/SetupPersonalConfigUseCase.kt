@@ -7,11 +7,13 @@ import com.i2asolutions.athelo.useCase.member.LoadMyProfileUseCase
 import com.i2asolutions.athelo.useCase.member.StoreSessionUseCase
 import com.i2asolutions.athelo.useCase.member.StoreUserEmailUseCase
 import com.i2asolutions.athelo.useCase.member.StoreUserUseCase
+import com.i2asolutions.athelo.useCase.websocket.ConnectWebSocketUseCase
 import com.i2asolutions.athelo.utils.PreferenceHelper
 import javax.inject.Inject
 
 class SetupPersonalConfigUseCase @Inject constructor(
     private val preferenceHelper: PreferenceHelper,
+    private val connectWebSocketUseCase: ConnectWebSocketUseCase,
     private val loadConversations: LoadConversationsUseCase,
     private val storeSessionUseCase: StoreSessionUseCase,
     private val storeUserUseCase: StoreUserUseCase,
@@ -22,6 +24,7 @@ class SetupPersonalConfigUseCase @Inject constructor(
     suspend operator fun invoke(token: Token, username: String? = null): User? {
         storeSessionUseCase(token)
         storeUserEmailUseCase(username)
+        connectWebSocketUseCase()
         val profile = loadProfile()
         storeUserUseCase(profile)
         preferenceHelper.showChatGroupLanding = preferenceHelper.showChatGroupLanding &&

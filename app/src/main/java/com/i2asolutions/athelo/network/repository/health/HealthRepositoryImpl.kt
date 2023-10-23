@@ -105,24 +105,36 @@ class HealthRepositoryImpl constructor(userManager: UserManager) :
         return service.getFitbitProfile()
     }
 
-    override suspend fun disconnectFitbitAccount(id: Int): Boolean {
-        return service.deleteFitbitProfile(id).parseResponseWithoutBody()
+    override suspend fun disconnectFitbitAccount(id: Int, force: Boolean?): Boolean {
+        return service.deleteFitbitProfile(
+            id,
+            if (force == true) mapOf("force" to true) else emptyMap()
+        ).parseResponseWithoutBody()
     }
 
-    override suspend fun getSleepRecordsForDay(date: String): List<SleepEntryDto> {
-        return service.getSleepRecords(date = date)
+    override suspend fun getSleepRecordsForDay(
+        date: String,
+        patientId: Int?,
+    ): List<SleepEntryDto> {
+        return service.getSleepRecords(date = date, patientId = patientId)
     }
 
     override suspend fun getSleepRecordsForPeriod(
         startDate: String,
-        endDate: String
+        endDate: String,
+        patientId: Int?,
     ): List<SleepEntryDto> {
-        return service.getSleepRecords(startDate = startDate, endDate = endDate)
+        return service.getSleepRecords(
+            startDate = startDate,
+            endDate = endDate,
+            patientId = patientId,
+        )
     }
 
-    override suspend fun getStepRecordsForDay(date: String): List<StepEntryDto> {
+    override suspend fun getStepRecordsForDay(date: String, patientId: Int?): List<StepEntryDto> {
         return service.getStepRecords(
             date = date,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "SUM", "interval_function" to "HOUR")
         )
     }
@@ -130,18 +142,24 @@ class HealthRepositoryImpl constructor(userManager: UserManager) :
     override suspend fun getStepRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String
+        intervalFunction: String,
+        patientId: Int?,
     ): List<StepEntryDto> {
         return service.getStepRecords(
             startDate = startDate,
             endDate = endDate,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "SUM", "interval_function" to intervalFunction)
         )
     }
 
-    override suspend fun getHeartRateRecordsForDay(date: String): List<HeartRateEntryDto> {
+    override suspend fun getHeartRateRecordsForDay(
+        date: String,
+        patientId: Int?,
+    ): List<HeartRateEntryDto> {
         return service.getHeartRateRecords(
             date = date,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "AVG", "interval_function" to "HOUR")
         )
     }
@@ -149,26 +167,38 @@ class HealthRepositoryImpl constructor(userManager: UserManager) :
     override suspend fun getHeartRateRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String
+        intervalFunction: String,
+        patientId: Int?,
     ): List<HeartRateEntryDto> {
         return service.getHeartRateRecords(
             startDate = startDate,
             endDate = endDate,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "AVG", "interval_function" to intervalFunction)
         )
     }
 
-    override suspend fun getHeartRateSingleRecordsForDay(date: String): PageResponseDto<HeartRateRecordDto> {
-        return service.getHeartRateSingleRecordsForDate(date = date)
+    override suspend fun getHeartRateSingleRecordsForDay(
+        date: String,
+        patientId: Int?,
+    ): PageResponseDto<HeartRateRecordDto> {
+        return service.getHeartRateSingleRecordsForDate(date = date, patientId = patientId)
     }
 
-    override suspend fun getHeartRateSingleRecordsForUrl(url: String): PageResponseDto<HeartRateRecordDto> {
-        return service.getHeartRateSingleRecordsForUrl(url = url)
+    override suspend fun getHeartRateSingleRecordsForUrl(
+        url: String,
+        patientId: Int?,
+    ): PageResponseDto<HeartRateRecordDto> {
+        return service.getHeartRateSingleRecordsForUrl(url = url, patientId = patientId)
     }
 
-    override suspend fun getHrvRecordsForDay(date: String): List<HrvEntryDto> {
+    override suspend fun getHrvRecordsForDay(
+        date: String,
+        patientId: Int?,
+    ): List<HrvEntryDto> {
         return service.getHrvRecords(
             date = date,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "SUM", "interval_function" to "HOUR")
         )
     }
@@ -177,10 +207,12 @@ class HealthRepositoryImpl constructor(userManager: UserManager) :
         startDate: String,
         endDate: String,
         intervalFunction: String,
+        patientId: Int?,
     ): List<HrvEntryDto> {
         return service.getHrvRecords(
             startDate = startDate,
             endDate = endDate,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "AVG", "interval_function" to intervalFunction)
         )
     }
@@ -188,11 +220,13 @@ class HealthRepositoryImpl constructor(userManager: UserManager) :
     override suspend fun getExerciseRecordsForPeriod(
         startDate: String,
         endDate: String,
-        intervalFunction: String
+        intervalFunction: String,
+        patientId: Int?,
     ): ExerciseListDto {
         return service.getExerciseRecords(
             startDate = startDate,
             endDate = endDate,
+            patientId = patientId,
             body = mapOf("aggregation_function" to "SUM", "interval_function" to intervalFunction)
         )
     }

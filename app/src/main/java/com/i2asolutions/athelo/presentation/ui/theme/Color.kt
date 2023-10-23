@@ -16,6 +16,7 @@ val neutral100 = Color(0xFF1B1B1B)
 val lightGreen = Color(0xFFB5DE71)
 
 val green = Color(0xFF8FCC25)
+val greenStatusBar = Color(0xFFEDF4E2)
 val pastelGreen = Color(0xFF81B821)
 val lightOlivaceous = Color(0xFF68951B)
 val olivaceous = Color(0xFF456212)

@@ -42,6 +42,8 @@ import com.i2asolutions.athelo.R
 import com.i2asolutions.athelo.presentation.model.chart.EmptyChartEntry
 import com.i2asolutions.athelo.presentation.model.chart.LineChartDataSet
 import com.i2asolutions.athelo.presentation.model.chart.LineChartEntry
+import com.i2asolutions.athelo.presentation.model.heartRate.EmptyHeartRateChartEntry
+import com.i2asolutions.athelo.presentation.model.hrv.EmptyHrvChartEntry
 import com.i2asolutions.athelo.presentation.ui.theme.gray
 import com.i2asolutions.athelo.presentation.ui.theme.lightGray
 import com.i2asolutions.athelo.presentation.ui.theme.white
@@ -63,6 +65,7 @@ fun LineChart(
     val measurements: LineChartMeasurement = remember { LineChartMeasurement() }
     var clickedEntry: LineChartEntry? by remember(chartData) { mutableStateOf(null) }
     var cloudSize: IntSize by remember { mutableStateOf(IntSize(0, 0)) }
+    val singleItemWidth = with(LocalDensity.current) { 9.dp.toPx() }
     Box(modifier = modifier.fillMaxWidth()) {
         Canvas(modifier = Modifier
             .fillMaxSize()
@@ -78,11 +81,12 @@ fun LineChart(
                 shouldRecalculate = false
                 measurements.setupDefault(this, chartData)
                 path = prepareDataSet(
-                    chartData,
-                    measurements.graphHeight,
-                    measurements.yAxisLabelWidth + measurements.axisLineWidth / 2,
-                    measurements.hourRowHeight,
-                    measurements.entryWidth,
+                    dataSet = chartData,
+                    graphHeight = measurements.graphHeight,
+                    graphLeft = measurements.yAxisLabelWidth + measurements.axisLineWidth / 2,
+                    unitPixels = measurements.hourRowHeight,
+                    placeForSingleBar = measurements.entryWidth,
+                    singleItemWidth = singleItemWidth,
                 )
                 bgPath = prepareBgPath(path, measurements.graphHeight)
             }
@@ -245,7 +249,6 @@ fun LineChart(
             Card(
                 modifier = Modifier
                     .height(heightDp)
-                    .width(100.dp)
                     .offset(x = xDp, y = yDp)
                     .clip(RoundedCornerShape(12.dp))
                     .onSizeChanged {
@@ -253,9 +256,9 @@ fun LineChart(
                     },
                 colors = CardDefaults.cardColors(white),
                 elevation = CardDefaults.cardElevation(4.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Center) {
                     popupContent(ce)
                 }
             }
@@ -294,25 +297,34 @@ private fun prepareDataSet(
     graphLeft: Float,
     unitPixels: Float,
     placeForSingleBar: Float,
+    singleItemWidth: Float,
 ): Path {
     val path = Path()
     val points = arrayListOf<PointF>()
     val conPoint1 = arrayListOf<PointF>()
     val conPoint2 = arrayListOf<PointF>()
     var valuesStarted = false
+    val isSingleValue =
+        dataSet.values.count { it !is EmptyHeartRateChartEntry && it !is EmptyHrvChartEntry }
     dataSet.values.forEachIndexed { index, chartEntry ->
-        if (chartEntry is EmptyChartEntry || (valuesStarted && chartEntry.value == 0f)) return@forEachIndexed
-        if (chartEntry.value > 0f) valuesStarted = true
+        if (chartEntry !is EmptyHeartRateChartEntry && chartEntry !is EmptyHrvChartEntry) {
+            if (chartEntry is EmptyChartEntry || (valuesStarted && chartEntry.value == 0f)) return@forEachIndexed
 
-        val x = graphLeft + placeForSingleBar * index + placeForSingleBar / 2
-        val y = graphHeight - chartEntry.value * unitPixels
-        points.add(PointF(x, y))
+            if (chartEntry.value > 0f) valuesStarted = true
 
-        chartEntry.clickRect =
-            Rect(
-                Offset(x - placeForSingleBar / 2, y),
-                Offset(x + placeForSingleBar / 2, graphHeight)
-            )
+            val x = graphLeft + placeForSingleBar * index + placeForSingleBar / 2
+            val y = graphHeight - chartEntry.value * unitPixels
+            points.add(PointF(x, y))
+            if (isSingleValue == 1) {
+                points.add(PointF(x + singleItemWidth, y))
+            }
+
+            chartEntry.clickRect =
+                Rect(
+                    Offset(x - placeForSingleBar / 2, y),
+                    Offset(x + placeForSingleBar / 2, graphHeight)
+                )
+        }
     }
     for (i in 1 until points.size) {
         conPoint1.add(PointF((points[i].x + points[i - 1].x) / 2, points[i - 1].y))

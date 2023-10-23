@@ -37,17 +37,17 @@ class MenuFragment : BaseComposeFragment<MenuViewModel>() {
                 }
                 MenuEffect.ShowInviteCaregiver -> {
                     hideMenu {
-
+                        routeToFindCaregiver()
                     }
                 }
                 MenuEffect.ShowMessagesScreen -> {
                     hideMenu {
-
+                        routeToMessages()
                     }
                 }
                 MenuEffect.ShowMyCaregiversScreen -> {
                     hideMenu {
-
+                        routeToMyCaregivers()
                     }
                 }
                 MenuEffect.ShowMyProfileScreen -> {
@@ -71,6 +71,9 @@ class MenuFragment : BaseComposeFragment<MenuViewModel>() {
                     }
                 }
                 MenuEffect.CloseMenuScreen -> hideMenu {}
+                MenuEffect.ShowMyWardsScreen -> hideMenu {
+                    routeToMyWards()
+                }
             }
         }
     }

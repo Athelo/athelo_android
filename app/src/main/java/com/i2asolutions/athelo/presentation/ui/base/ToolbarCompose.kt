@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -24,6 +25,9 @@ import androidx.compose.ui.unit.sp
 import com.i2asolutions.athelo.R
 import com.i2asolutions.athelo.presentation.model.chat.ChatMoreButtonClickAction
 import com.i2asolutions.athelo.presentation.model.chat.Conversation
+import com.i2asolutions.athelo.presentation.model.chat.SimpleUser
+import com.i2asolutions.athelo.presentation.ui.theme.body1
+import com.i2asolutions.athelo.presentation.ui.theme.darkPurple
 import com.i2asolutions.athelo.presentation.ui.theme.gray
 import com.i2asolutions.athelo.presentation.ui.theme.headline20
 
@@ -165,10 +169,14 @@ fun ToolbarWithMenuAndMyProfile(
             }
         },
         rightButton = {
+            val avatar = remember(userAvatar) {
+                userAvatar
+            }
             CircleAvatarImage(
-                avatar = userAvatar,
+                avatar = avatar,
                 displayName = userDisplayName,
                 modifier = Modifier
+                    .size(32.dp)
                     .align(CenterVertically)
                     .clip(CircleShape)
                     .clickable {
@@ -201,6 +209,7 @@ fun ToolbarWithBackAndMyProfile(
                 avatar = userAvatar,
                 displayName = userDisplayName,
                 modifier = Modifier
+                    .size(32.dp)
                     .align(CenterVertically)
                     .clip(CircleShape)
                     .clickable {
@@ -231,6 +240,7 @@ fun ToolbarWithMyProfile(
                 avatar = userAvatar,
                 displayName = userDisplayName,
                 modifier = Modifier
+                    .size(32.dp)
                     .align(CenterVertically)
                     .clip(CircleShape)
                     .clickable {
@@ -285,6 +295,75 @@ fun ToolbarForChat(
         )
     }
 
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+
+@Composable
+fun ToolbarForPrivateChat(
+    modifier: Modifier = Modifier,
+    backClick: () -> Unit = {},
+    conversation: Conversation?,
+) {
+    val user: SimpleUser? = conversation?.users?.firstOrNull()
+    Box(modifier = Modifier.statusBarsPadding()) {
+        Row(
+            modifier = modifier
+                .height(56.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            BackButton(modifier = Modifier) {
+                backClick()
+            }
+            val textSize = remember { mutableStateOf(20.sp) }
+            Column(
+                modifier = Modifier
+                    .align(CenterVertically)
+                    .fillMaxHeight()
+                    .weight(1f),
+                horizontalAlignment = CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = conversation?.name ?: "",
+                    style = MaterialTheme.typography.headline20.copy(color = gray),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f),
+                    maxLines = 1,
+                    fontSize = textSize.value,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { textLayoutResult ->
+                        val maxCurrentLineIndex: Int = textLayoutResult.lineCount - 1
+
+                        if (textLayoutResult.isLineEllipsized(maxCurrentLineIndex)) {
+                            textSize.value = textSize.value.times(0.9f)
+                        }
+                    },
+                )
+                Text(
+                    text = "", // status text Online/offline missing information for now
+                    style = MaterialTheme.typography.body1.copy(color = darkPurple),
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .align(CenterHorizontally)
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxHeight(), contentAlignment = Center
+            ) {
+                user?.let { user ->
+                    CircleAvatarImage(
+                        avatar = user.photo?.image5050,
+                        displayName = user.displayName,
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

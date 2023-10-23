@@ -28,13 +28,13 @@ internal val LightColorScheme = lightColorScheme(
 
 @Composable
 fun AtheloTheme(
-    activity: Activity,
+    activity: Activity? = null,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            activity.window.statusBarColor = LightColorScheme.primary.copy(alpha = 0.0f).toArgb()
+            activity?.window?.statusBarColor = LightColorScheme.primary.copy(alpha = 0.0f).toArgb()
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = true
         }
     }

@@ -102,7 +102,8 @@ fun SecondaryWithImageButton(
         color = textColor,
         textAlign = TextAlign.Center
     ),
-    showShadow: Boolean = true
+    showShadow: Boolean = true,
+    fillTextFullWidth: Boolean = true,
 ) {
     var lastClickTimestamp by remember { mutableStateOf(0L) }
     Button(
@@ -129,12 +130,9 @@ fun SecondaryWithImageButton(
         )
         Text(
             modifier = Modifier
-                .padding(
-                    end = 0.dp,
-                    start = 0.dp
-                )
-                .weight(1f)
-                .align(Alignment.CenterVertically),
+                .padding(end = 0.dp, start = 0.dp)
+                .align(Alignment.CenterVertically)
+                .then(if (fillTextFullWidth) Modifier.weight(1f) else Modifier),
             text = stringResource(id = textRes),
             style = textStyle,
             textAlign = TextAlign.Center
@@ -306,8 +304,8 @@ fun RedButton(
 
 @Composable
 fun BackButton(
-    modifier: Modifier,
-    onBackClick: () -> Unit
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {}
 ) {
     Image(
         painter = painterResource(id = R.drawable.ic_back_arrow),

@@ -2,6 +2,8 @@ package com.i2asolutions.athelo.di
 
 import com.i2asolutions.athelo.network.repository.application.ApplicationRepository
 import com.i2asolutions.athelo.network.repository.application.ApplicationRepositoryImpl
+import com.i2asolutions.athelo.network.repository.caregiver.CaregiverRepository
+import com.i2asolutions.athelo.network.repository.caregiver.CaregiverRepositoryImpl
 import com.i2asolutions.athelo.network.repository.chat.ChatRepository
 import com.i2asolutions.athelo.network.repository.chat.ChatRepositoryImpl
 import com.i2asolutions.athelo.network.repository.common.CommonRepository
@@ -65,5 +67,11 @@ object NetworkModule {
     @Provides
     fun provideDeviceConfigRepository(userManager: UserManager): DeviceConfigRepository {
         return DeviceConfigRepositoryImpl(userManager)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCaregiverRepository(userManager: UserManager): CaregiverRepository {
+        return CaregiverRepositoryImpl(userManager)
     }
 }

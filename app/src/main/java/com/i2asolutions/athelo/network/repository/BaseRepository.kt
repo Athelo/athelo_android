@@ -23,8 +23,6 @@ abstract class BaseRepository<T>(clazz: Class<T>, private val userManager: UserM
     }
     protected val service: T by lazy {
         val httpClient = OkHttpClient.Builder()
-        if (BuildConfig.DEBUG)
-            httpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         httpClient.addInterceptor { chain ->
 //            if (NetWorkManager.isDisconnected) {
 //                throw NetWorkDisconnectedException()
@@ -50,6 +48,8 @@ abstract class BaseRepository<T>(clazz: Class<T>, private val userManager: UserM
             }
             chain.proceed(request.build())
         }
+        if (BuildConfig.DEBUG)
+            httpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))

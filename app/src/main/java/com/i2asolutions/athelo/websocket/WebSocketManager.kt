@@ -4,15 +4,11 @@ package com.i2asolutions.athelo.websocket
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.i2asolutions.athelo.BuildConfig
 import com.i2asolutions.athelo.extensions.debugPrint
 import com.i2asolutions.athelo.presentation.model.chat.ConversationInfo
 import com.i2asolutions.athelo.useCase.websocket.WebSocketSessionUseCases
-import com.i2asolutions.athelo.websocket.constant.GET_HISTORY
-import com.i2asolutions.athelo.websocket.constant.SET_LAST_MESSAGE_READ
-import com.i2asolutions.athelo.websocket.constant.WEB_SOCKET_CLOSE_CODE_NORMAL
-import com.i2asolutions.athelo.websocket.constant.WEB_SOCKET_CLOSE_CODE_PROTOCOL_ERROR
+import com.i2asolutions.athelo.websocket.constant.*
 import com.i2asolutions.athelo.websocket.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -20,7 +16,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.ResponseBody.Companion.toResponseBody
-import java.lang.Exception
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
@@ -127,23 +122,36 @@ class WebSocketManager(private val webSocketUseCases: WebSocketSessionUseCases) 
         webSocket?.send(request)
     }
 
-    fun getLastChatRoomMessage(chatIds: List<String>) {
-        Log.e("WebSocketManager", "getLastChatRoomMessage: $chatIds")
-        val request = jsonConverter.encodeToString(
-            GetLastChatRoomMessageRequestDto(
-                chatRoomIdentifiers = chatIds.toTypedArray()
+    suspend fun getLastChatRoomMessage(chatIds: List<String>): ConversationInfo.ConversationLastMessage {
+        return createSuspendCallback(
+            GET_LAST_CHAT_ROOM_MESSAGE,
+            chatIds,
+            ConversationInfo.ConversationLastMessage::class
+        ) {
+            webSocket?.send(
+                jsonConverter.encodeToString(
+                    GetLastChatRoomMessageRequestDto(
+                        chatRoomIdentifiers = chatIds.toTypedArray()
+                    )
+                )
             )
-        )
-        webSocket?.send(request)
+        }
     }
 
-    fun getUnreadMessagesCount(chatIds: List<String>) {
-        val request = jsonConverter.encodeToString(
-            GetUnreadMessagesCountRequestDto(
-                chatRoomIdentifiers = chatIds.toTypedArray()
+    suspend fun getUnreadMessagesCount(chatIds: List<String>): ConversationInfo.ConversationUnreadMessageCount {
+        return createSuspendCallback(
+            GET_UNREAD_MESSAGES_COUNT,
+            chatIds,
+            ConversationInfo.ConversationUnreadMessageCount::class
+        ) {
+            webSocket?.send(
+                jsonConverter.encodeToString(
+                    GetUnreadMessagesCountRequestDto(
+                        chatRoomIdentifiers = chatIds.toTypedArray()
+                    )
+                )
             )
-        )
-        webSocket?.send(request)
+        }
     }
 
     fun observeNewMessages(chatId: String): Flow<ConversationInfo.ConversationMessage> {
@@ -258,12 +266,14 @@ class WebSocketManager(private val webSocketUseCases: WebSocketSessionUseCases) 
         chatId: List<String>?,
         clazz: KClass<T>,
         crossinline startBlock: () -> Unit
-    ) = suspendCancellableCoroutine<T> { coroutine ->
+    ) = suspendCancellableCoroutine { coroutine ->
         val callback = object : WebSocketSuspendCallback<T>(operation, chatId, clazz) {
             override fun onResult(result: ConversationInfo) {
                 activeCallbacks.remove(this)
                 if (coroutine.isActive && result is T)
                     coroutine.resume(result)
+                else if (coroutine.isActive)
+                    coroutine.resumeWith(Result.failure(ClassNotFoundException()))
             }
         }
         activeCallbacks.add(callback)

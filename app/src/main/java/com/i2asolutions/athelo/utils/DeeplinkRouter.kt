@@ -10,11 +10,12 @@ import com.i2asolutions.athelo.presentation.model.feedback.FeedbackScreenType
 import com.i2asolutions.athelo.presentation.model.health.Symptom
 import com.i2asolutions.athelo.presentation.model.home.Tabs
 import com.i2asolutions.athelo.presentation.model.news.Category
-import com.i2asolutions.athelo.presentation.ui.authorization.landing.AuthorizationLandingFragmentDirections
-import com.i2asolutions.athelo.presentation.ui.authorization.signInWithEmail.SignInWithEmailFragmentDirections
 import com.i2asolutions.athelo.presentation.ui.containerWithTab.TabsFragment
-import com.i2asolutions.athelo.presentation.ui.splash.SplashFragmentDirections
-import com.i2asolutions.athelo.presentation.ui.wellbeing.WellbeingFragmentDirections
+import com.i2asolutions.athelo.presentation.ui.patient.wellbeing.WellbeingFragmentDirections
+import com.i2asolutions.athelo.presentation.ui.share.authorization.landing.AuthorizationLandingFragmentDirections
+import com.i2asolutions.athelo.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailFragmentDirections
+import com.i2asolutions.athelo.presentation.ui.share.splash.SplashFragmentDirections
+import com.i2asolutions.athelo.utils.consts.*
 
 internal const val DEEPLINK_MY_PROFILE = "atheloapp://myProfile"
 internal const val DEEPLINK_LOG_OUT = "atheloapp://logOut"
@@ -29,7 +30,7 @@ internal const val DEEPLINK_CONNECT_FITBIT = "atheloapp://connectFitbit?skip=%b"
 internal const val DEEPLINK_CATEGORY_PICKER = "atheloapp://categoryPicker"
 internal const val DEEPLINK_NEWS_DETAIL = "atheloapp://newsDetail?id=%d"
 internal const val DEEPLINK_WELLBEING = "atheloapp://trackWellbeing"
-internal const val DEEPLINK_CHAT = "atheloapp://chat?conversationId=%s"
+internal const val DEEPLINK_CHAT = "atheloapp://chat?conversationId=%s&group=%b"
 internal const val DEEPLINK_RECOMMENDATION_SYMPTOM = "atheloapp://symptomRecommendation?id=%d"
 internal const val DEEPLINK_MY_SYMPTOMS = "atheloapp://mySymptoms"
 internal const val DEEPLINK_SYMPTOM_DETAIL = "atheloapp://symptomDetail?id=%d"
@@ -38,10 +39,19 @@ internal const val DEEPLINK_SETTINGS = "atheloapp://settings"
 internal const val DEEPLINK_SYMPTOM_CHRONOLOGY = "atheloapp://symptomChronology"
 internal const val DEEPLINK_MY_DEVICE = "atheloapp://myDevice"
 internal const val DEEPLINK_SLEEP_DETAILS = "atheloapp://sleepDetails"
+internal const val DEEPLINK_INVITATION_CODE = "atheloapp://invitationCode"
 internal const val DEEPLINK_ACTIVITY_STEPS = "atheloapp://activitySteps"
 internal const val DEEPLINK_ACTIVITY_HRV = "atheloapp://activityHrv"
 internal const val DEEPLINK_ACTIVITY_HEART_RATE = "atheloapp://activityHeartRate"
 internal const val DEEPLINK_ACTIVITY_EXERCISE = "atheloapp://activityExercise"
+internal const val DEEPLINK_MY_WARDS = "atheloapp://myWards"
+internal const val DEEPLINK_PATIENT_LIST = "atheloapp://patientList?initialFlow=%b"
+internal const val DEEPLINK_CAREGIVER_LIST = "atheloapp://caregiverList?initialFlow=%b"
+internal const val DEEPLINK_MESSAGES = "atheloapp://messages"
+internal const val DEEPLINK_FIND_CAREGIVER = "atheloapp://findCaregiver"
+internal const val DEEPLINK_SELECT_ROLE = "atheloapp://selectRole?initialFlow=%b"
+internal const val LOST_CAREGIVER_ACCESS = "atheloapp://lost_caregiver_access"
+internal const val MY_CAREGIVERS = "atheloapp://myCaregiversList"
 
 fun Fragment.routeToBackScreen() =
     requireActivity().onBackPressed()
@@ -107,8 +117,8 @@ internal fun Fragment.routeToNews() =
 internal fun Fragment.routeToNewsDetail(newsId: Int) =
     navigateTo(DEEPLINK_NEWS_DETAIL.format(newsId))
 
-internal fun Fragment.routeToChat(conversationId: Int) =
-    navigateTo(DEEPLINK_CHAT.format(conversationId))
+internal fun Fragment.routeToChat(conversationId: Int, isGroup: Boolean = true) =
+    navigateTo(DEEPLINK_CHAT.format(conversationId, isGroup))
 
 internal fun Fragment.routeToTrackWellbeing() = navigateTo(DEEPLINK_WELLBEING)
 
@@ -169,6 +179,9 @@ internal fun Fragment.routeToSymptomChronologyScreen() = navigateTo(DEEPLINK_SYM
 internal fun Fragment.routeToMyDevice() = navigateTo(DEEPLINK_MY_DEVICE)
 
 internal fun Fragment.routeToSleepDetails() = navigateTo(DEEPLINK_SLEEP_DETAILS)
+internal fun Fragment.routeToInvitationCode() {
+    navigateTo(DEEPLINK_INVITATION_CODE)
+}
 
 internal fun Fragment.routeToActivitySteps() = navigateTo(DEEPLINK_ACTIVITY_STEPS)
 
@@ -177,3 +190,22 @@ internal fun Fragment.routeToActivityHrv() = navigateTo(DEEPLINK_ACTIVITY_HRV)
 internal fun Fragment.routeToActivityHeartRate() = navigateTo(DEEPLINK_ACTIVITY_HEART_RATE)
 
 internal fun Fragment.routeToActivityExercise() = navigateTo(DEEPLINK_ACTIVITY_EXERCISE)
+internal fun Fragment.routeToMyWards() = navigateTo(DEEPLINK_MY_WARDS)
+internal fun Fragment.routeToCaregiverList(initialFlow: Boolean = false) =
+    navigateTo(DEEPLINK_CAREGIVER_LIST.format(initialFlow))
+
+internal fun Fragment.routeToPatientList(initialFlow: Boolean = false) =
+    navigateTo(DEEPLINK_PATIENT_LIST.format(initialFlow))
+
+internal fun Fragment.routeToMessages() = navigateTo(DEEPLINK_MESSAGES)
+internal fun Fragment.routeToFindCaregiver() {
+    navigateTo(DEEPLINK_FIND_CAREGIVER)
+}
+
+internal fun Fragment.routeToSelectRole(initialFlow: Boolean = false) = navigateTo(
+    DEEPLINK_SELECT_ROLE.format(initialFlow),
+    if (initialFlow) splashNavOptionWithPushAnimation else defaultNavOptionWithPushAnimation.build()
+)
+
+internal fun Fragment.routeToLostCaregiverAccess() = navigateTo(LOST_CAREGIVER_ACCESS)
+internal fun Fragment.routeToMyCaregivers() = navigateTo(MY_CAREGIVERS)

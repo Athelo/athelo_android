@@ -10,12 +10,14 @@ class LoadExerciseForDataRangeUseCase @Inject constructor(private val repository
     suspend operator fun invoke(
         startDate: Date,
         endDate: Date,
-        intervalFunction: String = "DAY"
+        intervalFunction: String = "DAY",
+        patientId: Int?,
     ): List<ExerciseEntry> {
         return repository.getExerciseRecordsForPeriod(
-            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
-            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
-            intervalFunction
+            startDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
+            endDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
+            intervalFunction = intervalFunction,
+            patientId = patientId,
         ).data.map { it.toExerciseEntry() }
     }
 }

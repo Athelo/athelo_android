@@ -15,9 +15,9 @@ import com.i2asolutions.athelo.presentation.ui.theme.subtitle
 
 @Composable
 fun ChartCloudContent(modifier: Modifier = Modifier, data: Pair<String, String>) {
-    Row(modifier = modifier.padding(horizontal = 4.dp)) {
+    Row(modifier = modifier.padding(horizontal = 4.dp), verticalAlignment = CenterVertically) {
         Text(
-            modifier = Modifier.align(CenterVertically),
+            modifier = Modifier,
             text = data.first,
             style = MaterialTheme.typography.subtitle.copy(
                 color = lightOlivaceous,

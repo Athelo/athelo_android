@@ -41,13 +41,13 @@ import kotlin.math.sin
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
-    viewModel: BaseViewModel<*, *>,
+    viewModel: BaseViewModel<*, *>?,
     showProgressProvider: () -> Boolean,
     backgroundColor: Color = background,
     includeStatusBarPadding: Boolean = true,
     content: @Composable @UiComposable BoxScope.() -> Unit
 ) {
-    val errorState = viewModel.errorStateFlow.collectAsState(
+    val errorState = viewModel?.errorStateFlow?.collectAsState(
         initial = if (NetWorkManager.isDisconnected) MessageState.LowConnectivityMessageState(Const.NO_INTERNET_MESSAGE)
         else MessageState.NoMessageState()
     )
@@ -63,7 +63,7 @@ fun BoxScreen(
     ) {
         content()
         debugPrint(errorState)
-        errorState.value.let { error ->
+        errorState?.value.let { error ->
             AnimatedVisibility(
                 modifier = Modifier.composed {
                     if (!includeStatusBarPadding)
@@ -77,20 +77,23 @@ fun BoxScreen(
             ) {
                 when (error) {
                     is MessageState.ErrorMessageState -> ErrorMessage(error = error) {
-                        viewModel.clearError()
+                        viewModel?.clearError()
                     }
                     is MessageState.SuccessMessageState -> SuccessMessage(error = error) {
-                        viewModel.clearError()
+                        viewModel?.clearError()
                     }
                     is MessageState.LowConnectivityMessageState -> TopErrorMessage(error = error)
                     is MessageState.NoMessageState -> {}
                     is MessageState.NormalMessageState -> TopMessage(error = error) {
-                        viewModel.clearError()
+                        viewModel?.clearError()
+                    }
+                    null -> {
+
                     }
                 }
             }
         }
-        if (errorState.value is MessageState.NoMessageState && showProgressProvider()) LoadingPopup()
+        if (errorState?.value is MessageState.NoMessageState && showProgressProvider()) LoadingPopup()
     }
 }
 

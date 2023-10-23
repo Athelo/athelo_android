@@ -118,7 +118,8 @@ fun DeletePopup(
     onConfirmClick: () -> Unit,
     onCancelClick: () -> Unit,
     title: String,
-    description: String
+    description: String,
+    confirmTextRes: Int = R.string.Delete,
 ) {
     Box(
         Modifier
@@ -182,7 +183,7 @@ fun DeletePopup(
                     background = white, border = purple
                 )
                 RedButton(
-                    textId = R.string.Delete,
+                    textId = confirmTextRes,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .weight(0.5f),

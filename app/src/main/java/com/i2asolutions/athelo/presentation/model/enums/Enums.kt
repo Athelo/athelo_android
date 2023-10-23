@@ -11,4 +11,5 @@ data class Enums(
     var reportedChatMessageType: List<EnumItem> = emptyList(),
     var feedbackCategory: List<EnumItem> = emptyList(),
     var thirdPartyAuthorizationType: List<EnumItem> = emptyList(),
+    var caregiverRelations: List<EnumItem> = emptyList(),
 ) : Parcelable

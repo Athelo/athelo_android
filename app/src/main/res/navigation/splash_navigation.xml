@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.splash.SplashFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.splash.SplashFragment"
         android:label="SplashFragment">
         <action
             android:id="@+id/action_splashFragment_to_tutorialFragment"
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/tutorialFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.tutorial.TutorialFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.tutorial.TutorialFragment"
         android:label="TutorialFragment">
         <action
             android:id="@+id/action_tutorialFragment_to_authorizationLandingFragment"
@@ -54,7 +54,7 @@
     </fragment>
     <fragment
         android:id="@+id/authorizationLandingFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.authorization.landing.AuthorizationLandingFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.authorization.landing.AuthorizationLandingFragment"
         android:label="AuthorizationLandingFragment">
         <action
             android:id="@+id/action_authorizationLandingFragment_to_signInWithEmailFragment"
@@ -92,7 +92,7 @@
     </fragment>
     <fragment
         android:id="@+id/signInWithEmailFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.authorization.signInWithEmail.SignInWithEmailFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailFragment"
         android:label="SignInWithEmailFragment">
         <action
             android:id="@+id/action_signInWithEmailFragment_to_forgotPasswordFragment"
@@ -120,7 +120,7 @@
     </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.authorization.forgotPassword.ForgotPasswordFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.authorization.forgotPassword.ForgotPasswordFragment"
         android:label="ForgotPasswordFragment">
         <argument
             android:name="email"
@@ -136,7 +136,7 @@
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.authorization.signUpWithEmail.SignUpFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.authorization.signUpWithEmail.SignUpFragment"
         android:label="SignUpFragment">
         <action
             android:id="@+id/action_signUpFragment_to_additionalInfoFragment"
@@ -150,7 +150,7 @@
     </fragment>
     <fragment
         android:id="@+id/additionalInfoFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.authorization.additionalInformation.AdditionalInfoFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.authorization.additionalInformation.AdditionalInfoFragment"
         android:label="AdditionalInfoFragment">
         <deepLink
             android:id="@+id/deepLink21"
@@ -158,7 +158,7 @@
     </fragment>
     <fragment
         android:id="@+id/appInfoFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.appInfo.AppInfoFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.share.appInfo.AppInfoFragment"
         android:label="AppInfoFragment">
         <argument
             android:name="screenType"
@@ -167,4 +167,13 @@
             android:id="@+id/deepLink20"
             app:uri="atheloapp://info?type={screenType}" />
     </fragment>
+    <fragment
+        android:id="@+id/invitationCodeFragment"
+        android:name="com.i2asolutions.athelo.presentation.ui.caregiver.invitationCode.InvitationCodeFragment"
+        android:label="InvitationCodeFragment">
+        <deepLink
+            android:id="@+id/deepLink25"
+            app:uri="atheloapp://invitationCode" />
+    </fragment>
+
 </navigation>

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -95,7 +96,7 @@ fun ImageWithProgress(
 
 @Composable
 fun CircleAvatarImage(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.size(32.dp),
     avatar: String?,
     displayName: String,
     borderColor: Color = darkPurple,
@@ -111,7 +112,6 @@ fun CircleAvatarImage(
         }.also { debugPrint(it) }
         Box(
             modifier = modifier
-                .size(32.dp)
                 .border(
                     width = borderWidth,
                     color = borderColor,
@@ -137,7 +137,6 @@ fun CircleAvatarImage(
             painter = rememberAsyncImagePainter(model = avatar),
             contentDescription = "",
             modifier = modifier
-                .size(32.dp)
                 .composed {
                     if (includeBorder)
                         Modifier.border(borderWidth, color = borderColor, shape = CircleShape)
@@ -151,7 +150,12 @@ fun CircleAvatarImage(
 }
 
 @Composable
-fun RoundedCornerAvatarImage(modifier: Modifier = Modifier, avatar: String?, displayName: String) {
+fun RoundedCornerAvatarImage(
+    modifier: Modifier = Modifier,
+    avatar: String?,
+    displayName: String,
+    shape: Shape = RoundedCornerShape(25.dp)
+) {
     if (avatar.isNullOrBlank()) {
         val names = displayName.split(" ")
         val nameLetter = when {
@@ -162,14 +166,12 @@ fun RoundedCornerAvatarImage(modifier: Modifier = Modifier, avatar: String?, dis
         Box(
             modifier = modifier
                 .size(88.dp)
-                .background(background, RoundedCornerShape(25.dp))
+                .background(background, shape = shape)
                 .border(
-                    BorderStroke(
-                        1.dp,
-                        darkPurple
-                    ), RoundedCornerShape(25.dp)
+                    border = BorderStroke(1.dp, darkPurple),
+                    shape = shape
                 )
-                .clip(RoundedCornerShape(25.dp))
+                .clip(shape = shape)
         ) {
             Text(
                 text = nameLetter.uppercase(),
@@ -188,7 +190,7 @@ fun RoundedCornerAvatarImage(modifier: Modifier = Modifier, avatar: String?, dis
             contentDescription = "",
             modifier = modifier
                 .size(88.dp)
-                .clip(RoundedCornerShape(25.dp))
+                .clip(shape = shape)
                 .background(background),
         )
     }

@@ -9,4 +9,7 @@ data class HeartRateChartEntry(val date: Date, val steps: Int) :
         bgColor = 0xFF68951B.toInt()
     ) {
     constructor(date: Date, entry: HeartRateEntry?) : this(date = date, steps = entry?.value ?: 0)
+
 }
+
+data class EmptyHeartRateChartEntry(val date: Date) : LineChartEntry(0f, 0)

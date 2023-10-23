@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -49,6 +50,11 @@ fun Fragment.createComposeContainerView(
         )
         setBackgroundColor(ContextCompat.getColor(context, backgroundColorRes))
         setContent { AtheloTheme(activity = requireActivity(), content = content) }
+        setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnLifecycleDestroyed(
+                viewLifecycleOwner
+            )
+        )
     }
 }
 

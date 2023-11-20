@@ -30,6 +30,7 @@ fun String?.toDate(
         this.matches(yyyyMMddRegex) -> toDate(DATE_FORMAT_SIMPLE_DAY, locale)
         this.matches(isoRegex) -> toDate(DATE_FORMAT_ISO, locale)
         this.matches(isoRegex2) -> toDate(DATE_FORMAT_ISO_2, locale)
+        this.matches(isoRegex3) -> toDate(DATE_FORMAT_ISO_3, locale)
         this.matches(isoNoTimezoneRegex) -> toDate(DATE_FORMAT_ISO_NO_TIMEZONE, locale)
         else -> null
     }

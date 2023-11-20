@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
     signingConfigs {
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
@@ -34,7 +34,7 @@ android {
     defaultConfig {
         applicationId "com.i2asolutions.athelo"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.1.5"
 
@@ -43,8 +43,8 @@ android {
             useSupportLibrary true
         }
         manifestPlaceholders = ['appAuthRedirectScheme': 'com.i2asolutions.athelo']
-        buildConfigField "String", "CONTENTFUL_TOKEN_ID", "\"ErSYZQkgvZS_ay_yGO-g31thbchmG0Lxz4n_B6Ba1H8\""
-        buildConfigField "String", "CONTENTFUL_SPACE_ID", "\"74inuolao5zp\""
+        buildConfigField "String", "CONTENTFUL_TOKEN_ID", "\"QuqNdE_HgvDiEm4N1qOWqTxqk9Zzf73YxKtL-gmH4rc\""
+        buildConfigField "String", "CONTENTFUL_SPACE_ID", "\"l655w91l0oq8\""
 
     }
 
@@ -212,6 +212,8 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    implementation 'androidx.browser:browser:1.5.0'
 }
 
 kapt {

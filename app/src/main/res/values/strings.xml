@@ -246,7 +246,7 @@
     <string name="Select_your_ward">Select your ward</string>
     <string name="Switch">Switch</string>
     <string name="Revoke">Revoke</string>
-
+    <string name="invalid_url">Invalid link \n%s</string>
     <plurals name="x_participants">
         <item quantity="zero">No participants</item>
         <item quantity="one">%d participant</item>

@@ -8,8 +8,6 @@ import com.i2asolutions.athelo.presentation.ui.base.BaseViewModel
 import com.i2asolutions.athelo.useCase.member.LoadCachedUserUseCase
 import com.i2asolutions.athelo.useCase.member.LoadMyProfileUseCase
 import com.i2asolutions.athelo.useCase.member.StoreUserUseCase
-import com.i2asolutions.athelo.useCase.news.LoadFavouriteNewsUseCase
-import com.i2asolutions.athelo.useCase.news.LoadNewsUseCase
 import com.i2asolutions.athelo.utils.AuthorizationException
 import com.i2asolutions.athelo.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,10 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-    private val loadNews: LoadNewsUseCase,
     private val loadMyProfileUseCase: LoadMyProfileUseCase,
     private val storeProfile: StoreUserUseCase,
-    private val loadFavouriteNews: LoadFavouriteNewsUseCase,
     private val loadCachedUserUseCase: LoadCachedUserUseCase,
     private val contentfulClient: ContentfulClient,
 ) :
@@ -44,19 +40,11 @@ class NewsViewModel @Inject constructor(
 
     override fun loadData() {
         notifyStateChanged(currentState.copy(isLoading = true))
-        updateUI()
         launchRequest {
             val user =
                 loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
-//            val news = if (currentScreenType == NewsListType.List) loadNews(
-//                newsNextUrl,
-//                selectedCategories.map { it.id },
-//                query
-//            ) else loadFavouriteNews(
-//                newsNextUrl,
-//                selectedCategories.map { it.id },
-//                query
-//            )
+            newsList = contentfulClient.getAllNews()
+            _contentfulViewState.emit(currentNewsList())
             notifyStateChanged(
                 currentState.copy(
                     initialized = true,
@@ -137,24 +125,25 @@ class NewsViewModel @Inject constructor(
         }
     }
 
-    private fun updateUI() {
-        launchRequest {
-            newsList = contentfulClient.getAllNews()
-            _contentfulViewState.emit(newsList)
-        }
-    }
-
     fun updateNewsList(title: String) {
         launchRequest {
             if (title.isEmpty()) {
-                _contentfulViewState.emit(newsList)
+                _contentfulViewState.emit(currentNewsList())
             } else {
-                _contentfulViewState.emit(newsList.filter {
+                _contentfulViewState.emit(currentNewsList().filter {
                     it.title.contains(title, ignoreCase = true)
                 })
             }
         }
     }
+
+    /**
+     * This will check and return if the current selected option is `All News` or `Favourites`
+     */
+    private fun currentNewsList() = if (currentScreenType == NewsListType.List) newsList else {
+        if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
+    }
+
 
 
 }

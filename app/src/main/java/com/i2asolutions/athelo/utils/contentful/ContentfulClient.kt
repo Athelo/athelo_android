@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.contentful.java.cda.CDAAsset
 import com.contentful.java.cda.CDAClient
@@ -11,11 +13,20 @@ import com.contentful.java.cda.CDAEntry
 import com.contentful.java.cda.Logger
 import com.contentful.java.cda.rich.CDARichDocument
 import com.contentful.java.cda.rich.CDARichEmbeddedBlock
+import com.contentful.java.cda.rich.CDARichHyperLink
+import com.contentful.java.cda.rich.CDARichText
 import com.contentful.rich.android.AndroidContext
 import com.contentful.rich.android.AndroidProcessor
+import com.i2asolutions.athelo.extensions.displayAsString
+import com.i2asolutions.athelo.extensions.toDate
 import com.i2asolutions.athelo.presentation.model.community.CommunityData
 import com.i2asolutions.athelo.presentation.model.news.NewsData
+import com.i2asolutions.athelo.utils.consts.DATE_FORMAT_FULL
+import com.i2asolutions.athelo.utils.consts.DATE_FORMAT_SHORT
+import com.i2asolutions.athelo.utils.navigateToInAppBrowser
 import timber.log.Timber
+import java.util.Date
+
 
 class ContentfulClient(
     spaceId: String,
@@ -41,6 +52,32 @@ class ContentfulClient(
                     }
                     Glide.with(context).load("https:" + data.url()).into(imageview)
                     imageview
+                }
+            )
+            viewProcessor.overrideRenderer(
+                // Checker
+                { _, nodeValue ->
+                    nodeValue is CDARichHyperLink &&
+                            nodeValue.content.isNotEmpty() &&
+                            nodeValue.content.first() is CDARichText
+                },
+
+                // Renderer
+                { _, nodeValue ->
+                    val node = nodeValue as CDARichHyperLink
+
+                    LinearLayout(context).apply {
+                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        orientation = LinearLayout.HORIZONTAL
+                        addView(
+                            TextView(context).apply {
+                                this.text = AndroidProcessor.creatingCharSequences().process(AndroidContext(context), node)
+                            }
+                        )
+                        setOnClickListener {
+                            navigateToInAppBrowser(context, node.data.toString())
+                        }
+                    }
                 }
             )
         }
@@ -78,7 +115,7 @@ class ContentfulClient(
 
     fun getAllNews(): List<NewsData> {
         val content = contentClient.fetch(CDAEntry::class.java)
-            .withContentType("atheloContent").all()
+            .withContentType("articleContentModel").all()
         return mutableListOf<NewsData>().apply {
             for (entry in content.entries()) {
                 add(NewsData.getNewsData(entry.key, entry.value))

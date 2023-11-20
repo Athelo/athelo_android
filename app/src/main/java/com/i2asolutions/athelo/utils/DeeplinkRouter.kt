@@ -2,8 +2,14 @@
 
 package com.i2asolutions.athelo.utils
 
+import android.content.Context
+import android.net.Uri
+import android.webkit.URLUtil
+import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import com.i2asolutions.athelo.MainNavigationDirections
+import com.i2asolutions.athelo.R
 import com.i2asolutions.athelo.extensions.*
 import com.i2asolutions.athelo.presentation.model.calendar.Day
 import com.i2asolutions.athelo.presentation.model.feedback.FeedbackScreenType
@@ -209,3 +215,14 @@ internal fun Fragment.routeToSelectRole(initialFlow: Boolean = false) = navigate
 
 internal fun Fragment.routeToLostCaregiverAccess() = navigateTo(LOST_CAREGIVER_ACCESS)
 internal fun Fragment.routeToMyCaregivers() = navigateTo(MY_CAREGIVERS)
+
+internal fun Fragment.navigateToInAppBrowser(url: String) {
+    CustomTabsIntent.Builder().build().launchUrl(requireContext(), Uri.parse(url))
+}
+internal fun navigateToInAppBrowser(context: Context, url: String) {
+    if (!URLUtil.isValidUrl(url)) {
+        Toast.makeText(context,context.getString(R.string.invalid_url, url) ,Toast.LENGTH_SHORT).show()
+        return
+    }
+    CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(url))
+}

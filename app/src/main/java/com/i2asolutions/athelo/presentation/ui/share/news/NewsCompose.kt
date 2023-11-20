@@ -33,6 +33,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.i2asolutions.athelo.R
 import com.i2asolutions.athelo.presentation.model.news.News
 import com.i2asolutions.athelo.presentation.model.news.NewsData
+import com.i2asolutions.athelo.presentation.model.news.NewsListType
 import com.i2asolutions.athelo.presentation.ui.base.*
 import com.i2asolutions.athelo.presentation.ui.theme.*
 import com.i2asolutions.athelo.utils.contentful.ContentfulClient
@@ -66,6 +67,26 @@ private fun Content(
                     handleEvent(NewsEvent.MyProfileClick)
                 })
             val focusManager = LocalFocusManager.current
+            RadioButtonGroup(
+                selectionProvider = {
+                    if (state.value.screenType == NewsListType.Favourites) 1 else 0
+                },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                buttons = arrayOf(
+                    RadioButton(
+                        text = stringResource(id = R.string.All_News),
+                        onClick = {
+                            handleEvent(NewsEvent.ListButtonClick)
+                        }
+                    ),
+                    RadioButton(
+                        text = stringResource(id = R.string.Favorites),
+                        onClick = {
+                            handleEvent(NewsEvent.FavoriteButtonClick)
+                        })
+                )
+            )
             val lazyState = rememberLazyListState()
             LaunchedEffect(key1 = null) {
                 lazyState.scrollToItem(0)

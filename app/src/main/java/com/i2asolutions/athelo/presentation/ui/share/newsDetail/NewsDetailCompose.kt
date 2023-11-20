@@ -14,7 +14,7 @@ import com.i2asolutions.athelo.R
 import com.i2asolutions.athelo.presentation.ui.base.BoxScreen
 import com.i2asolutions.athelo.presentation.ui.base.MainButton
 import com.i2asolutions.athelo.presentation.ui.base.ShowContentfulNews
-import com.i2asolutions.athelo.presentation.ui.base.ToolbarWithNameBack
+import com.i2asolutions.athelo.presentation.ui.base.ToolbarWithNameBackFavourite
 
 @Composable
 fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
@@ -28,9 +28,11 @@ fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
                 .padding(bottom = 50.dp)
                 .navigationBarsPadding()
         }) {
-            ToolbarWithNameBack(
+            ToolbarWithNameBackFavourite(
+                favouriteClick = {  },
                 backClick = { viewModel.handleEvent(NewsDetailEvent.BackButtonClick) },
                 screenName = stringResource(id = R.string.Article),
+                favourite = { false }
             )
             Column(
                 modifier = Modifier
@@ -39,8 +41,6 @@ fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
                     .verticalScroll(rememberScrollState())
             ) {
                 ShowContentfulNews(contentfulViewState.value)
-
-
             }
         }
         if (!state.value.news.articleLink.isNullOrBlank())

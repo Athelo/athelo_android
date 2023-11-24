@@ -1,6 +1,5 @@
 package com.i2asolutions.athelo.presentation.ui.share.news
 
-import com.i2asolutions.athelo.presentation.model.base.InputType
 import com.i2asolutions.athelo.presentation.model.member.User
 import com.i2asolutions.athelo.presentation.model.news.Category
 import com.i2asolutions.athelo.presentation.model.news.News
@@ -29,7 +28,6 @@ sealed interface NewsEvent : BaseEvent {
     object LoadNextPage : NewsEvent
     object RefreshList : NewsEvent
     object SearchClick : NewsEvent
-    class InputValueChanged(val inputValue: InputType) : NewsEvent
     class SearchCategoriesUpdate(val selectedCategory: List<Category>) : NewsEvent
     class NewsItemClick(val news: News) : NewsEvent
     class NewsDetails(val newsId: String) : NewsEvent

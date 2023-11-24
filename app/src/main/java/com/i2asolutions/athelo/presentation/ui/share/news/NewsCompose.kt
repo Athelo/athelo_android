@@ -108,6 +108,7 @@ private fun Content(
                                     .background(background)
                             )
                             SearchInputTextField(
+                                initialValue= viewModel.currentQuery(),
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .padding(bottom = 24.dp, top = 24.dp),

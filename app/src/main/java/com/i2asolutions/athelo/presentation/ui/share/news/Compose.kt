@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.i2asolutions.athelo.R
-import com.i2asolutions.athelo.presentation.model.base.InputType
 import com.i2asolutions.athelo.presentation.model.news.News
 import com.i2asolutions.athelo.presentation.model.news.NewsListType
 import com.i2asolutions.athelo.presentation.ui.base.*
@@ -108,11 +107,7 @@ private fun Content(
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
                                     .padding(bottom = 24.dp, top = 24.dp),
-                                onChange = { value ->
-                                    handleEvent(
-                                        NewsEvent.InputValueChanged(InputType.Text(value.text))
-                                    )
-                                },
+                                onChange = { },
                                 keyboardActions = KeyboardActions(onSearch = {
                                     focusManager.clearFocus()
                                     handleEvent(NewsEvent.SearchClick)

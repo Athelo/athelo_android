@@ -17,15 +17,10 @@ import com.contentful.java.cda.rich.CDARichHyperLink
 import com.contentful.java.cda.rich.CDARichText
 import com.contentful.rich.android.AndroidContext
 import com.contentful.rich.android.AndroidProcessor
-import com.i2asolutions.athelo.extensions.displayAsString
-import com.i2asolutions.athelo.extensions.toDate
 import com.i2asolutions.athelo.presentation.model.community.CommunityData
 import com.i2asolutions.athelo.presentation.model.news.NewsData
-import com.i2asolutions.athelo.utils.consts.DATE_FORMAT_FULL
-import com.i2asolutions.athelo.utils.consts.DATE_FORMAT_SHORT
 import com.i2asolutions.athelo.utils.navigateToInAppBrowser
 import timber.log.Timber
-import java.util.Date
 
 
 class ContentfulClient(

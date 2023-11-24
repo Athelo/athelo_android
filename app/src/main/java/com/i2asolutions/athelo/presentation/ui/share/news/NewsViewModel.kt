@@ -1,6 +1,5 @@
 package com.i2asolutions.athelo.presentation.ui.share.news
 
-import com.i2asolutions.athelo.presentation.model.base.InputType
 import com.i2asolutions.athelo.presentation.model.news.Category
 import com.i2asolutions.athelo.presentation.model.news.NewsData
 import com.i2asolutions.athelo.presentation.model.news.NewsListType
@@ -35,7 +34,7 @@ class NewsViewModel @Inject constructor(
 
     private var newsNextUrl: String? = null
     private var selectedCategories = listOf<Category>()
-    private var query: String? = null
+    private var query: String = ""
     private var currentScreenType: NewsListType = NewsListType.List
 
     override fun loadData() {
@@ -65,7 +64,6 @@ class NewsViewModel @Inject constructor(
             NewsEvent.FilterOptionClick -> {
                 notifyEffectChanged(NewsEffect.ShowCategoryFilter(initialSelection = selectedCategories.toList()))
             }
-            is NewsEvent.InputValueChanged -> handleInputChanged(event.inputValue)
             NewsEvent.LoadNextPage -> loadNextPageIfExist()
             is NewsEvent.NewsItemClick -> notifyEffectChanged(NewsEffect.OpenNewsDetailScreen(event.news))
             NewsEvent.RefreshList -> resetAndLoad()
@@ -87,16 +85,6 @@ class NewsViewModel @Inject constructor(
     private fun updateCategoriesAndReloadList(newCategories: List<Category>) {
         selectedCategories = newCategories
         resetAndLoad()
-    }
-
-    private fun handleInputChanged(inputType: InputType) {
-        when (inputType) {
-            is InputType.Text -> {
-                query = inputType.value
-            }
-            else -> { /*Ignore other types*/
-            }
-        }
     }
 
     private fun displayFavouriteMode() {
@@ -127,23 +115,22 @@ class NewsViewModel @Inject constructor(
 
     fun updateNewsList(title: String) {
         launchRequest {
-            if (title.isEmpty()) {
-                _contentfulViewState.emit(currentNewsList())
-            } else {
-                _contentfulViewState.emit(currentNewsList().filter {
-                    it.title.contains(title, ignoreCase = true)
-                })
-            }
+            query = title
+            _contentfulViewState.emit(currentNewsList())
         }
     }
 
     /**
      * This will check and return if the current selected option is `All News` or `Favourites`
      */
-    private fun currentNewsList() = if (currentScreenType == NewsListType.List) newsList else {
-        if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
+    private fun currentNewsList(): List<NewsData> {
+        return if (currentScreenType == NewsListType.List) newsList else {
+            if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
+        }.filter {
+            if (query.trim().isNotEmpty()) it.title.contains(query.trim(), ignoreCase = true) else true
+        }
     }
 
-
+    fun currentQuery() = query
 
 }

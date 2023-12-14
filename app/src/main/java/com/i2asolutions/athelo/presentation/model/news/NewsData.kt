@@ -11,7 +11,11 @@ data class NewsData(
     val title: String = "",
     val image: String = "",
     val body: CDARichDocument = CDARichDocument(),
-    val date: Date = Date()
+    val date: Date = Date(),
+    val shouldOpenInBrowser: Boolean = false,
+    val browserUrl: String? = null,
+    val bottomLogo: String = "",
+
 ) {
 
     companion object {
@@ -19,13 +23,19 @@ data class NewsData(
             val title: String = data.getField("title")
             val body: CDARichDocument = data.getField("body")
             val image: CDAAsset? = data.getField("articleImage")
+            val shouldOpenInBrowser: Boolean = data.getField("shouldOpenInBrowser") ?: false
+            val browserUrl: String? = data.getField("browserUrl")
+            val bottomLogo: CDAAsset? = data.getField("bottomLogo")
             val date = data.getAttribute<String>("updatedAt").toDate() ?: Date()
             return NewsData(
                 key = key,
                 title = title,
                 image = image?.let { "https:" + it.url() } ?: "",
                 body = body,
-                date = date
+                date = date,
+                shouldOpenInBrowser = shouldOpenInBrowser,
+                browserUrl = browserUrl,
+                bottomLogo = bottomLogo?.let { "https:" + it.url() } ?: ""
             )
         }
     }

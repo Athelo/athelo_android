@@ -2,7 +2,9 @@ package com.i2asolutions.athelo.presentation.ui.base
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -83,6 +85,12 @@ fun ShowContentfulNews(data: NewsData) {
                     ContentfulClient.getDataView(context, data.body)
                 }
             )
+            AsyncImage(
+                model = data.bottomLogo,
+                contentDescription = stringResource(id = R.string.app_name),
+                modifier = Modifier.fillMaxSize()
+            )
+            Spacer(modifier = Modifier.height(76.dp))
         }
     }
 }

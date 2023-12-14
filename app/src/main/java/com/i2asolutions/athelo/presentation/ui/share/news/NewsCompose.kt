@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 package com.i2asolutions.athelo.presentation.ui.share.news
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,6 +49,7 @@ fun ContentfulNewsScreen(viewModel: NewsViewModel) {
     )
 }
 
+@SuppressLint("ComposableNaming")
 @Composable
 private fun Content(
     state: State<NewsViewState>,
@@ -181,7 +183,7 @@ private fun ImageNewsCell(news: NewsData, modifier: Modifier, handleEvent: (News
             .padding(horizontal = 16.dp)
             .height(135.dp)
             .clip(RoundedCornerShape(30.dp))
-            .clickable { handleEvent(NewsEvent.NewsDetails(newsId = news.key)) },
+            .clickable { handleEvent(NewsEvent.NewsDetails(news = news)) },
         colors = CardDefaults.cardColors(containerColor = white),
         shape = RoundedCornerShape(30.dp)
     ) {

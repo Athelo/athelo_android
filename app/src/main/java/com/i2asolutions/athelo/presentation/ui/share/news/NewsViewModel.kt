@@ -77,7 +77,7 @@ class NewsViewModel @Inject constructor(
                 resetAndLoad()
             }
             is NewsEvent.NewsDetails -> {
-                notifyEffectChanged(NewsEffect.OpenContentfulNewsDetailScreen(newsId = event.newsId))
+                notifyEffectChanged(NewsEffect.OpenContentfulNewsDetailScreen(news = event.news))
             }
         }
     }

@@ -3,6 +3,7 @@ package com.i2asolutions.athelo.presentation.ui.share.news
 import com.i2asolutions.athelo.presentation.model.member.User
 import com.i2asolutions.athelo.presentation.model.news.Category
 import com.i2asolutions.athelo.presentation.model.news.News
+import com.i2asolutions.athelo.presentation.model.news.NewsData
 import com.i2asolutions.athelo.presentation.model.news.NewsListType
 import com.i2asolutions.athelo.presentation.ui.base.BaseEffect
 import com.i2asolutions.athelo.presentation.ui.base.BaseEvent
@@ -30,7 +31,7 @@ sealed interface NewsEvent : BaseEvent {
     object SearchClick : NewsEvent
     class SearchCategoriesUpdate(val selectedCategory: List<Category>) : NewsEvent
     class NewsItemClick(val news: News) : NewsEvent
-    class NewsDetails(val newsId: String) : NewsEvent
+    class NewsDetails(val news: NewsData) : NewsEvent
 }
 
 sealed interface NewsEffect : BaseEffect {
@@ -38,5 +39,5 @@ sealed interface NewsEffect : BaseEffect {
     object ShowMyProfileScreen : NewsEffect
     class OpenNewsDetailScreen(val news: News) : NewsEffect
     class ShowCategoryFilter(val initialSelection: List<Category>) : NewsEffect
-    class OpenContentfulNewsDetailScreen(val newsId: String) : NewsEffect
+    class OpenContentfulNewsDetailScreen(val news: NewsData) : NewsEffect
 }

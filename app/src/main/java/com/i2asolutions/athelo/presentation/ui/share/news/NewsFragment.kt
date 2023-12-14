@@ -6,6 +6,7 @@ import com.i2asolutions.athelo.extensions.onEachCollect
 import com.i2asolutions.athelo.presentation.model.news.Category
 import com.i2asolutions.athelo.presentation.ui.base.BaseComposeFragment
 import com.i2asolutions.athelo.presentation.ui.mainActivity.MainActivity
+import com.i2asolutions.athelo.utils.navigateToInAppBrowser
 import com.i2asolutions.athelo.utils.routeToCategoryFilterPicker
 import com.i2asolutions.athelo.utils.routeToMyProfile
 import com.i2asolutions.athelo.utils.routeToNewsDetail
@@ -30,7 +31,13 @@ class NewsFragment : BaseComposeFragment<NewsViewModel>() {
                     routeToCategoryFilterPicker(effect.initialSelection)
                 }
                 NewsEffect.ShowMyProfileScreen -> routeToMyProfile()
-                is NewsEffect.OpenContentfulNewsDetailScreen -> routeToNewsDetail(effect.newsId)
+                is NewsEffect.OpenContentfulNewsDetailScreen -> {
+                    if (effect.news.shouldOpenInBrowser && !effect.news.browserUrl.isNullOrEmpty()) {
+                        navigateToInAppBrowser(effect.news.browserUrl)
+                    } else {
+                        routeToNewsDetail(effect.news.key)
+                    }
+                }
             }
         }
     }

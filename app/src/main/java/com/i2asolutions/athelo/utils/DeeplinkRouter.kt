@@ -217,6 +217,10 @@ internal fun Fragment.routeToLostCaregiverAccess() = navigateTo(LOST_CAREGIVER_A
 internal fun Fragment.routeToMyCaregivers() = navigateTo(MY_CAREGIVERS)
 
 internal fun Fragment.navigateToInAppBrowser(url: String) {
+    if (!URLUtil.isValidUrl(url)) {
+        Toast.makeText(requireContext(),requireContext().getString(R.string.invalid_url, url) ,Toast.LENGTH_SHORT).show()
+        return
+    }
     CustomTabsIntent.Builder().build().launchUrl(requireContext(), Uri.parse(url))
 }
 internal fun navigateToInAppBrowser(context: Context, url: String) {

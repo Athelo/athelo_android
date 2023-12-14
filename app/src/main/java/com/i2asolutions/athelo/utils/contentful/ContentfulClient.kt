@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.contentful.java.cda.CDAAsset
@@ -17,9 +16,7 @@ import com.contentful.java.cda.rich.CDARichHyperLink
 import com.contentful.java.cda.rich.CDARichText
 import com.contentful.rich.android.AndroidContext
 import com.contentful.rich.android.AndroidProcessor
-import com.i2asolutions.athelo.presentation.model.community.CommunityData
 import com.i2asolutions.athelo.presentation.model.news.NewsData
-import com.i2asolutions.athelo.utils.navigateToInAppBrowser
 import timber.log.Timber
 
 
@@ -60,18 +57,8 @@ class ContentfulClient(
                 // Renderer
                 { _, nodeValue ->
                     val node = nodeValue as CDARichHyperLink
-
-                    LinearLayout(context).apply {
-                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                        orientation = LinearLayout.HORIZONTAL
-                        addView(
-                            TextView(context).apply {
-                                this.text = AndroidProcessor.creatingCharSequences().process(AndroidContext(context), node)
-                            }
-                        )
-                        setOnClickListener {
-                            navigateToInAppBrowser(context, node.data.toString())
-                        }
+                    TextView(context).apply {
+                        this.text = AndroidProcessor.creatingCharSequences().process(AndroidContext(context), node)
                     }
                 }
             )
@@ -90,7 +77,6 @@ class ContentfulClient(
         }
     }
 
-
     private val logger = Logger { message ->
         Timber.tag("CONTENTFUL")
             .v(message)
@@ -101,12 +87,6 @@ class ContentfulClient(
         .setLogger(logger)
         .setLogLevel(Logger.Level.BASIC)
         .build()
-
-    fun getAllData(): CDARichDocument {
-        val entry: CDAEntry = contentClient.fetch(CDAEntry::class.java)
-            .one("5hOYnlXbV9FFDfe1qwtNio")
-        return entry.getField("bodyText")
-    }
 
     fun getAllNews(): List<NewsData> {
         val content = contentClient.fetch(CDAEntry::class.java)
@@ -122,12 +102,6 @@ class ContentfulClient(
         val entry: CDAEntry = contentClient.fetch(CDAEntry::class.java)
             .one(id)
         return NewsData.getNewsData(id, entry)
-    }
-
-    fun getDemoData(): CommunityData {
-        val entry: CDAEntry = contentClient.fetch(CDAEntry::class.java)
-            .one("5hOYnlXbV9FFDfe1qwtNio")
-        return CommunityData.getCommunityData(entry)
     }
 
 }

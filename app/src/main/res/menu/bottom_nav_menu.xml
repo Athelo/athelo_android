@@ -5,15 +5,15 @@
         android:icon="@drawable/home"
         android:title="@string/Home" />
 
-    <item
-        android:id="@+id/sleepFragment"
-        android:icon="@drawable/sleep"
-        android:title="@string/Sleep" />
+<!--    <item-->
+<!--        android:id="@+id/sleepFragment"-->
+<!--        android:icon="@drawable/sleep"-->
+<!--        android:title="@string/Sleep" />-->
 
-    <item
-        android:id="@+id/activityFragment"
-        android:icon="@drawable/activity"
-        android:title="@string/Activity" />
+<!--    <item-->
+<!--        android:id="@+id/activityFragment"-->
+<!--        android:icon="@drawable/activity"-->
+<!--        android:title="@string/Activity" />-->
     <item
         android:id="@+id/chatListFragment"
         android:icon="@drawable/community"

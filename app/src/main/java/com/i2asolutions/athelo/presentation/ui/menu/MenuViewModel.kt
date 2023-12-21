@@ -116,7 +116,7 @@ class MenuViewModel @Inject constructor(
             deepLinkInviteCaregiver
         ),
         MenuItem("Settings", R.drawable.ic_menu_settings, deepLinkSettings),
-        MenuItem("Connect smart watch", R.drawable.ic_menu_watch, deepLinkConnectWatch),
+//        MenuItem("Connect smart watch", R.drawable.ic_menu_watch, deepLinkConnectWatch),
 //            MenuItem("Ask Athelo", R.drawable.ic_menu_ask_athelo, deepLinkAskAthelo),
         MenuItem("Ask Athelo", R.drawable.ic_menu_ask_athelo, deepLinkSendFeedback),
     )

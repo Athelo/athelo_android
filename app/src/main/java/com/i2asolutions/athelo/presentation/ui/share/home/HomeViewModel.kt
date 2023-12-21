@@ -175,18 +175,19 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
-            add(HomeItems.HeaderHome("Have you checked your activity and sleep levels today? This new article might be interesting"))
-//            add(HomeItems.ButtonHome(R.drawable.ic_person, "How can we make today a better day?"))
-            if (fitbitState != FitbitState.Connected) {
-                add(
-                    HomeItems.ButtonHome(
-                        R.drawable.watch,
-                        "Let's connect Fitbit to monitor your sleep!",
-                        R.drawable.ic_arrow_gray,
-                        "ShowConnectScreen"
-                    )
-                )
-            }
+      //      add(HomeItems.HeaderHome("Have you checked your activity and sleep levels today? This new article might be interesting"))
+           add(HomeItems.ButtonHome(R.drawable.ic_person, "How can we make today a better day?",
+                   R.drawable.ic_arrow_gray,"ShowTrackWellbeingScreen"))
+//            if (fitbitState != FitbitState.Connected) {
+//                add(
+//                    HomeItems.ButtonHome(
+//                        R.drawable.watch,
+//                        "Let's connect Fitbit to monitor your sleep!",
+//                        R.drawable.ic_arrow_gray,
+//                        "ShowConnectScreen"
+//                    )
+//                )
+//            }
             add(
                 HomeItems.ButtonHome(
                     R.drawable.news_on,

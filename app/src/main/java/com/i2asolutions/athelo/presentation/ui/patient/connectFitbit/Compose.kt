@@ -47,15 +47,15 @@ fun ConnectFitbitScreen(viewModel: ConnectFitbitViewModel) {
                         viewModel.handleEvent(ConnectFitbitEvent.MyProfileClick)
                     })
             }
-            when (state.screenType) {
-                ConnectFitbitScreenType.Landing -> LandingScreen(
-                    handleEvent = viewModel::handleEvent,
-                    displaySkipButton = state.displaySkipButton
-                )
-                ConnectFitbitScreenType.Success -> SuccessScreen(handleEvent = viewModel::handleEvent)
-                ConnectFitbitScreenType.Error -> ErrorScreen(handleEvent = viewModel::handleEvent)
-                ConnectFitbitScreenType.Empty -> {}
-            }
+//            when (state.screenType) {
+//                ConnectFitbitScreenType.Landing -> LandingScreen(
+//                    handleEvent = viewModel::handleEvent,
+//                    displaySkipButton = state.displaySkipButton
+//                )
+//                ConnectFitbitScreenType.Success -> SuccessScreen(handleEvent = viewModel::handleEvent)
+//                ConnectFitbitScreenType.Error -> ErrorScreen(handleEvent = viewModel::handleEvent)
+//                ConnectFitbitScreenType.Empty -> {}
+           // }
         }
     }
 }

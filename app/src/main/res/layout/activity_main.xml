@@ -25,7 +25,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/MenuFragment"
-        android:name="com.i2asolutions.athelo.presentation.ui.menu.MenuFragment"
+        android:name="com.athelohealth.mobile.presentation.ui.menu.MenuFragment"
         android:layout_width="match_parent"
         android:layout_marginEnd="32dp"
         android:layout_gravity="start"

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "143608640465",
+    "project_id": "test-deploy-402816",
+    "storage_bucket": "test-deploy-402816.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143608640465:android:c58061dca348ad415566f0",
+        "android_client_info": {
+          "package_name": "com.athelohealth.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "143608640465-pghia9cib41osb1fgl5dqfbpiq54qnla.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.athelohealth.mobile",
+            "certificate_hash": "726a8254485a10050fa3adbc17b9db7b0de81ca6"
+          }
+        },
+        {
+          "client_id": "143608640465-voavkq0rp7g8gbrrjgpr620cc41r8b4r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDue3hL4BcWSh72vnw9Yo8h0XGDNWGuKiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "143608640465-voavkq0rp7g8gbrrjgpr620cc41r8b4r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "143608640465-45g6sl6ee0hvg5hfcf7ren0eg4f4grkj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.athelohealth.mobile",
+                "app_store_id": "6445944794"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

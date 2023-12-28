@@ -1,4 +1,4 @@
-package com.i2asolutions.athelo.presentation.ui.wellbeing
+package com.athelohealth.mobile.presentation.ui.wellbeing
 
 import org.junit.Test
 

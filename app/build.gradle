@@ -13,26 +13,26 @@ plugins {
 
 android {
     compileSdk 33
-    signingConfigs {
-        def props = new Properties()
-        file("../local.properties").withInputStream { props.load(it) }
-
-        release {
-            storeFile file('keystore')
-            storePassword props.getProperty("prodStorePassword")
-            keyAlias props.getProperty("prodAlias")
-            keyPassword props.getProperty("prodKeyPassword")
-        }
-
-        debug {
-            storeFile file('keystore')
-            storePassword props.getProperty("debugStorePassword")
-            keyAlias props.getProperty("debugAlias")
-            keyPassword props.getProperty("debugKeyPassword")
-        }
-    }
+//    signingConfigs {
+//        def props = new Properties()
+//        file("../local.properties").withInputStream { props.load(it) }
+//
+////        release {
+////            storeFile file('keystore')
+////            storePassword props.getProperty("prodStorePassword")
+////            keyAlias props.getProperty("prodAlias")
+////            keyPassword props.getProperty("prodKeyPassword")
+////        }
+////
+////        debug {
+////            storeFile file('keystore')
+////            storePassword props.getProperty("debugStorePassword")
+////            keyAlias props.getProperty("debugAlias")
+////            keyPassword props.getProperty("debugKeyPassword")
+////        }
+//    }
     defaultConfig {
-        applicationId "com.i2asolutions.athelo"
+        applicationId "com.athelohealth.mobile"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -42,7 +42,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-        manifestPlaceholders = ['appAuthRedirectScheme': 'com.i2asolutions.athelo']
+        manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         buildConfigField "String", "CONTENTFUL_TOKEN_ID", "\"QuqNdE_HgvDiEm4N1qOWqTxqk9Zzf73YxKtL-gmH4rc\""
         buildConfigField "String", "CONTENTFUL_SPACE_ID", "\"l655w91l0oq8\""
 
@@ -98,28 +98,28 @@ android {
     productFlavors {
         dev {
             dimension 'server'
-            applicationIdSuffix ".dev"
+//            applicationIdSuffix ".dev"
             buildConfigField "String", "BASE_URL", "\"https://app-stg.athelohealth.com/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
             buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-5l6d8nibk5j152shv4md9pi7ssjvjhev.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo-Dev\""
-            manifestPlaceholders = ['appAuthRedirectScheme': 'com.i2asolutions.athelo.dev']
+            manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
         qa {
             dimension 'server'
-            applicationIdSuffix ".qa"
-            buildConfigField "String", "BASE_URL", "\"https://app-stg.athelohealth.com/\""
+//            applicationIdSuffix ".qa"
+            buildConfigField "String", "BASE_URL", "\"https://athelo-api-bki2ktapnq-uc.a.run.app/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
             buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-q18v4is5ov7jjbikchahdqvp9cm5iud6.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo-Qa\""
-            manifestPlaceholders = ['appAuthRedirectScheme': 'com.i2asolutions.athelo.qa']
+            manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
         prod {
             dimension 'server'
             applicationId "com.athelohealth.mobile"
-            signingConfig signingConfigs.release
+           // signingConfig signingConfigs.release
             buildConfigField "String", "BASE_URL", "\"https://app.athelohealth.com\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-PROD\""

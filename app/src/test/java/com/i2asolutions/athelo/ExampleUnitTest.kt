@@ -1,4 +1,4 @@
-package com.i2asolutions.athelo
+package com.athelohealth.mobile
 
 import org.junit.Test
 

@@ -6,6 +6,7 @@ import com.athelohealth.mobile.network.dto.base.RetrofitNullableStringParam
 import com.athelohealth.mobile.network.dto.member.*
 import com.athelohealth.mobile.network.repository.BaseRepository
 import com.athelohealth.mobile.utils.UserManager
+import retrofit2.Response
 import javax.inject.Inject
 
 class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
@@ -116,5 +117,14 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
 
     override suspend fun checkAuthorizationIdentity(): List<AuthorizationIdentityDto> {
         return service.getAuthorizationIdentity()
+    }
+
+    override suspend fun postUserProfile(displayName: String): Response<Unit> {
+        val user = UserDto(
+            firstName = "",
+            lastName = "",
+            displayName = displayName
+        )
+        return service.postUserProfile(user)
     }
 }

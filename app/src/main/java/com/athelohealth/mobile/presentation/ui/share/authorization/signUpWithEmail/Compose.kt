@@ -60,6 +60,7 @@ fun SignUpScreen(viewModel: SignUpViewModel) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InputScrollSection(
     viewModel: SignUpViewModel,

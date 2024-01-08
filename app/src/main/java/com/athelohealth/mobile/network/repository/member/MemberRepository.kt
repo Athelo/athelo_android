@@ -2,6 +2,7 @@ package com.athelohealth.mobile.network.repository.member
 
 import com.athelohealth.mobile.network.dto.base.PageResponseDto
 import com.athelohealth.mobile.network.dto.member.*
+import retrofit2.Response
 
 interface MemberRepository {
     suspend fun register(
@@ -49,4 +50,6 @@ interface MemberRepository {
     suspend fun deleteAccount(): Boolean
 
     suspend fun checkAuthorizationIdentity(): List<AuthorizationIdentityDto>
+
+    suspend fun postUserProfile(displayName: String): Response<Unit>
 }

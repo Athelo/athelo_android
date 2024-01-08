@@ -23,6 +23,7 @@ import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.ui.base.*
 import com.athelohealth.mobile.presentation.ui.theme.paragraph
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
     val state = viewModel.viewState.collectAsState()

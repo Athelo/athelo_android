@@ -27,6 +27,9 @@ interface MemberApi {
     @GET("api/v1/users/user-profiles/{id}")
     suspend fun getUserProfile(@Path("id") id: Int): UserDto
 
+    @POST("/api/v1/users/user-profiles/")
+    suspend fun postUserProfile(@Body body: UserDto): Response<Unit>
+
     @PATCH("api/v1/users/me/{id}/")
     suspend fun updateUserProfile(
         @Path("id") id: Int,

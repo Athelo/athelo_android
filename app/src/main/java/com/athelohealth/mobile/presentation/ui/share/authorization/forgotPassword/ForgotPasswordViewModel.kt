@@ -4,11 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.member.SendForgotPasswordRequestUseCase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,11 +36,18 @@ class ForgotPasswordViewModel @Inject constructor(
             ForgotPasswordEvent.ForgotPasswordButtonClick -> selfBlockRun {
                 if (validate()) {
                     launchRequest {
-                        val result = sendForgotPasswordRequestUseCase(username)
-                        withContext(Dispatchers.Main) {
-                            successMessage(result.detail)
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(username).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                    successMessage("Email sent.")
+                            }
                         }
                     }
+//                    launchRequest {
+//                        val result = sendForgotPasswordRequestUseCase(username)
+//                        withContext(Dispatchers.Main) {
+//                            successMessage(result.detail)
+//                        }
+//                    }
                 }
             }
             is ForgotPasswordEvent.InputValueChanged -> when (event.inputType) {

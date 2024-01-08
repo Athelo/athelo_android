@@ -15,7 +15,7 @@ private const val CURRENT_PATIENT_ID = "currentSelectedPatient"
 
 class AppManager(context: Context) {
     private val preferences = context.getSharedPreferences(".appConfig", Context.MODE_PRIVATE)
-    private var currentType: AppType = AppType.Unknown
+    private var currentType: AppType = AppType.Patient
 
     private val _currentType = MutableStateFlow(currentType)
 
@@ -36,9 +36,9 @@ class AppManager(context: Context) {
     }
 
     fun changeAppType(appType: AppType) {
-        currentType = appType
+        currentType = AppType.Patient
         saveType()
-        _currentType.tryEmit(appType)
+        _currentType.tryEmit(currentType)
     }
 
     private fun saveType() {
@@ -50,7 +50,8 @@ class AppManager(context: Context) {
 
     private fun loadType() {
         val patientId = preferences.getString(CURRENT_PATIENT_ID, "")
-        currentType = preferences.getInt(APP_TYPE_KEY, -1).toAppType(patientId ?: "")
+//        currentType = preferences.getInt(APP_TYPE_KEY, -1).toAppType(patientId ?: "")
+        currentType = AppType.Patient
         _currentType.tryEmit(currentType)
     }
 

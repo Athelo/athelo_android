@@ -2,6 +2,7 @@ package com.athelohealth.mobile.network.dto.member
 
 
 import com.athelohealth.mobile.presentation.model.member.AuthorizationIdentity
+import com.athelohealth.mobile.presentation.model.member.IdentityType
 import com.athelohealth.mobile.presentation.model.member.toIdentityType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,6 +15,6 @@ data class AuthorizationIdentityDto(
     val loginType: String? = null,
 ) {
     fun toAuthorizationIdentity(): AuthorizationIdentity {
-        return AuthorizationIdentity(loginType.toIdentityType())
+        return AuthorizationIdentity(IdentityType.Native)
     }
 }

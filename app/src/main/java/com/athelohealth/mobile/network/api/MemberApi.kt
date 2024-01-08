@@ -53,7 +53,4 @@ interface MemberApi {
 
     @DELETE("/api/v1/users/me/delete/")
     suspend fun deleteUser(): Response<Unit>
-
-    @GET("api/v1/users/me/authorization-identities/")
-    suspend fun getAuthorizationIdentity(): List<AuthorizationIdentityDto>
 }

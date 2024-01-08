@@ -86,6 +86,8 @@ class SignInWithEmailViewModel @Inject constructor(
                     val userName = task.result.user?.displayName
                     task.result.user?.getIdToken(true)?.addOnCompleteListener {
                         if (it.isSuccessful) {
+                            currentViewState = currentViewState.copy(isLoading = true)
+                            notifyStateChange()
                             launchRequest {
                                 postUserProfile(userName ?: "")
                                 // Sign in success, update UI with the signed-in user's information
@@ -104,6 +106,8 @@ class SignInWithEmailViewModel @Inject constructor(
                                 else if (appManager.appType.value == AppType.Unknown)
                                     withContext( Dispatchers.Main) { _effect.emit(SignInWithEmailEffect.ShowRoleScreen(true)) }
                                 else withContext(Dispatchers.Main) { _effect.emit(SignInWithEmailEffect.ShowHomeScreen) }
+                                currentViewState = currentViewState.copy(isLoading = false)
+                                notifyStateChange()
                             }
                         } else { errorMessage("Something went wrong.") }
                     } ?: errorMessage("Something went wrong.")

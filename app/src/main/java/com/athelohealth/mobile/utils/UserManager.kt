@@ -11,6 +11,7 @@ import com.athelohealth.mobile.presentation.model.member.AuthorizationState
 import com.athelohealth.mobile.presentation.model.member.Token
 import com.athelohealth.mobile.presentation.model.member.User
 import com.athelohealth.mobile.useCase.member.UserAuthorizationTestUseCase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,6 +96,7 @@ class UserManager internal constructor(
     }
 
     suspend fun logout() {
+        FirebaseAuth.getInstance().signOut()
         clearSession()
         storeOrRemoveUser(null)
         storeUserEmail(null)

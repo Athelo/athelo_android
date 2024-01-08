@@ -2,7 +2,9 @@ package com.athelohealth.mobile.utils.app
 
 import android.content.Context
 import androidx.core.content.edit
+import com.athelohealth.mobile.presentation.model.member.toIdentityType
 import com.athelohealth.mobile.utils.message.LocalMessage
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +18,7 @@ private const val CURRENT_PATIENT_ID = "currentSelectedPatient"
 class AppManager(context: Context) {
     private val preferences = context.getSharedPreferences(".appConfig", Context.MODE_PRIVATE)
     private var currentType: AppType = AppType.Patient
+    val authenticationType get()  = FirebaseAuth.getInstance().currentUser?.providerId.toIdentityType()
 
     private val _currentType = MutableStateFlow(currentType)
 

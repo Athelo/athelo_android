@@ -88,14 +88,13 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
         newPassword: String,
         repeatPassword: String
     ): String {
-        val response = service.postChangePassword(
+        return service.postChangePassword(
             mapOf(
                 "old_password" to oldPassword,
                 "new_password1" to newPassword,
                 "new_password2" to repeatPassword
             )
         )
-        return response
     }
 
     override suspend fun loginSocial(token: String, source: String): AuthorizeResultDto {
@@ -113,10 +112,6 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
 
     override suspend fun deleteAccount(): Boolean {
         return service.deleteUser().isSuccessful
-    }
-
-    override suspend fun checkAuthorizationIdentity(): List<AuthorizationIdentityDto> {
-        return service.getAuthorizationIdentity()
     }
 
     override suspend fun postUserProfile(displayName: String): Response<Unit> {

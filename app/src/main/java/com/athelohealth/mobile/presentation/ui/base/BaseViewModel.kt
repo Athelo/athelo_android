@@ -33,7 +33,6 @@ abstract class BaseViewModel<Ev, Ef> : ViewModel() where Ev : BaseEvent, Ef : Ba
 
     protected val requestExceptionHandler: CoroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
-            throwable.printStackTrace()
             handleError(throwable)
         }
 

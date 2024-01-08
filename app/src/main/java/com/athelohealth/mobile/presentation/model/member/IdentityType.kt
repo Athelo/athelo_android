@@ -1,13 +1,14 @@
 package com.athelohealth.mobile.presentation.model.member
 
-
+private const val FIREBASE = "firebase"
 enum class IdentityType(val value: String) {
-    Native("I2A_IDENTITY"), Social("SOCIAL_IDENTITY"), Unknown("Unknown")
+    Native("NATIVE_IDENTITY"), Social("SOCIAL_IDENTITY"), Unknown("Unknown")
 }
 
 fun String?.toIdentityType(): IdentityType =
-    when (this) {
-        IdentityType.Native.value -> IdentityType.Native
-        IdentityType.Social.value -> IdentityType.Social
-        else -> IdentityType.Unknown
-    }
+    this?.let {
+        when(it) {
+            FIREBASE -> IdentityType.Native
+            else -> IdentityType.Social
+        }
+    } ?: IdentityType.Unknown

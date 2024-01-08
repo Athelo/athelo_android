@@ -11,6 +11,7 @@ import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.common.UploadImageUseCase
 import com.athelohealth.mobile.useCase.member.*
 import com.athelohealth.mobile.utils.AuthorizationException
+import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.consts.Const.UNIVERSAL_ERROR_MESSAGE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,7 @@ class EditProfileViewModel @Inject constructor(
     private val uploadImageUseCase: UploadImageUseCase,
     private val uploadImageProfileUseCase: UpdateProfileImageUseCase,
     private val sendForgotPasswordRequestUseCase: SendForgotPasswordRequestUseCase,
-    private val checkAuthorizationIdentity: CheckAuthorizationIdentityUseCase,
+    private val appManager: AppManager
 ) : BaseViewModel<EditProfileEvent, EditProfileEffect>() {
     private lateinit var originalUser: User
     private var currentState = EditProfileViewState(
@@ -56,8 +57,7 @@ class EditProfileViewModel @Inject constructor(
                 ?: EnumItem.EMPTY
             storeUser(originalUser)
             displayName = originalUser.displayName
-            val showRequestPassword =
-                checkAuthorizationIdentity().any { it.type == IdentityType.Native }
+            val showRequestPassword = appManager.authenticationType == IdentityType.Native
             notifyStateChanged(
                 currentState.copy(
                     isLoading = false,

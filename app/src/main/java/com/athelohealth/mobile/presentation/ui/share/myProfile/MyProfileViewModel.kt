@@ -5,7 +5,6 @@ import com.athelohealth.mobile.presentation.model.member.IdentityType
 import com.athelohealth.mobile.presentation.model.member.User
 import com.athelohealth.mobile.presentation.model.profile.ProfileItems
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
-import com.athelohealth.mobile.useCase.member.CheckAuthorizationIdentityUseCase
 import com.athelohealth.mobile.useCase.member.DeleteUserUseCase
 import com.athelohealth.mobile.useCase.member.LoadMyProfileUseCase
 import com.athelohealth.mobile.useCase.member.StoreUserUseCase
@@ -25,7 +24,6 @@ class MyProfileViewModel @Inject constructor(
     private val storeUser: StoreUserUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val deleteUser: DeleteUserUseCase,
-    private val checkAuthorizationIdentity: CheckAuthorizationIdentityUseCase,
 ) : BaseViewModel<MyProfileEvent, MyProfileEffect>() {
     private var currentState = MyProfileViewState(
         isLoading = true,
@@ -42,8 +40,7 @@ class MyProfileViewModel @Inject constructor(
         launchRequest {
             val user: User = loadMyProfileUseCase()?.also { storeUser(it) }
                 ?: throw AuthorizationException("Session expired")
-            showChangePasswordButton =
-                checkAuthorizationIdentity().any { it.type == IdentityType.Native }
+            showChangePasswordButton = appManager.authenticationType == IdentityType.Native
             showMyDeviceButton = user.fitBitConnected == true
             notifyStateChanged(
                 currentState.copy(

@@ -49,7 +49,5 @@ interface MemberRepository {
     suspend fun loadUserDataFromGoogle(token: String): GoogleUserDto
     suspend fun deleteAccount(): Boolean
 
-    suspend fun checkAuthorizationIdentity(): List<AuthorizationIdentityDto>
-
     suspend fun postUserProfile(displayName: String): Response<Unit>
 }

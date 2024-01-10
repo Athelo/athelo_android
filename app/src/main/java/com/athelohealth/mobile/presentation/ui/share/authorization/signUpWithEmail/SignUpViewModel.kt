@@ -8,8 +8,6 @@ import com.athelohealth.mobile.useCase.member.StoreSessionUseCase
 import com.athelohealth.mobile.useCase.member.StoreUserEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -18,20 +16,11 @@ class SignUpViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val storeSessionUseCase: StoreSessionUseCase,
     private val storeUserEmailUseCase: StoreUserEmailUseCase,
-) : BaseViewModel<SignUpEvent, SignUpEffect>() {
-    private var currentState = SignUpViewState()
+) : BaseViewModel<SignUpEvent, SignUpEffect, SignUpViewState>(SignUpViewState()) {
     private var username = ""
     private var password = ""
     private var confirmPassword = ""
-
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
-
-    override fun handleError(throwable: Throwable) {
-        currentState = currentState.copy(isLoading = false)
-        notifyStateChange()
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {}
 
@@ -66,12 +55,6 @@ class SignUpViewModel @Inject constructor(
         }
         currentState = currentState.copy(enableButton = validate())
         notifyStateChange()
-    }
-
-    private fun notifyStateChange() {
-        launchOnUI {
-            _viewState.emit(currentState)
-        }
     }
 
     private fun signUser() {

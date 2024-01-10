@@ -41,11 +41,11 @@ import com.athelohealth.mobile.utils.contentful.ContentfulClient
 
 @Composable
 fun ContentfulNewsScreen(viewModel: NewsViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier.statusBarsPadding(),
-        viewModel = viewModel, showProgressProvider = { state.value.isLoading },
-        content = Content(state = state, viewModel = viewModel, handleEvent = viewModel::handleEvent)
+        viewModel = viewModel, showProgressProvider = { viewState.value.isLoading },
+        content = Content(state = viewState, viewModel = viewModel, handleEvent = viewModel::handleEvent)
     )
 }
 

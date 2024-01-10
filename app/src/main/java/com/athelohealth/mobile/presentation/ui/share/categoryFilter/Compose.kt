@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun FilterScreen(viewModel: CategoryFilterViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier
             .fillMaxSize(),
@@ -78,10 +78,10 @@ fun FilterScreen(viewModel: CategoryFilterViewModel) {
                     modifier = Modifier.padding(16.dp)
                 )
                 LazyColumn {
-                    items(state.value.allFilters, key = { item: Category -> item.id }) {
+                    items(viewState.value.allFilters, key = { item: Category -> item.id }) {
                         ChooseOptionRow(
                             category = it,
-                            selectionProvider = { state.value.selectedFilters.contains(it) },
+                            selectionProvider = { viewState.value.selectedFilters.contains(it) },
                             handleEvent = viewModel::handleEvent
                         )
                     }

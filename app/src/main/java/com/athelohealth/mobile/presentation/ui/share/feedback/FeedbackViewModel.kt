@@ -9,8 +9,6 @@ import com.athelohealth.mobile.useCase.application.CreateFeedbackUseCase
 import com.athelohealth.mobile.useCase.application.LoadFeedbackTopicUseCase
 import com.athelohealth.mobile.utils.consts.Const
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,27 +17,20 @@ class FeedbackViewModel @Inject constructor(
     private val createFeedback: CreateFeedbackUseCase,
     savedStateHandle: SavedStateHandle
 ) :
-    BaseViewModel<FeedbackEvent, FeedbackEffect>() {
+    BaseViewModel<FeedbackEvent, FeedbackEffect, FeedbackViewState>(FeedbackViewState()) {
     private val type =
         FeedbackScreenType.values()[FeedbackFragmentArgs.fromSavedStateHandle(savedStateHandle).type]
-    private var currentState = FeedbackViewState()
     private var selectedTopic: EnumItem = EnumItem.EMPTY
     private var message: String = ""
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val data = loadFeedbackTopic()
             initialSelectedOption(data)
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(isLoading = false, options = data, selectedOption = selectedTopic)
             )
         }
@@ -70,7 +61,7 @@ class FeedbackViewModel @Inject constructor(
             else -> {/*Ignore other option*/
             }
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 enableSendButton = validate(),
                 selectedOption = selectedTopic,
@@ -82,11 +73,11 @@ class FeedbackViewModel @Inject constructor(
     private fun sendFeedback() {
         if (validate()) {
             launchRequest {
-                notifyStateChanged(currentState.copy(isLoading = true))
+                notifyStateChange(currentState.copy(isLoading = true))
                 createFeedback(selectedTopic.id, message)
                 message = ""
                 initialSelectedOption(currentState.options)
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         isLoading = false,
                         selectedOption = selectedTopic,
@@ -96,7 +87,7 @@ class FeedbackViewModel @Inject constructor(
                 successMessage("Thank you for your feedback!")
             }
         } else {
-            notifyStateChanged(currentState.copy(isLoading = false))
+            notifyStateChange(currentState.copy(isLoading = false))
             val message = buildString {
                 if (!validateTopicSelection()) {
                     append("Please select Topic before sending feedback.")
@@ -116,9 +107,4 @@ class FeedbackViewModel @Inject constructor(
     private fun validateMessage() = message.isNotBlank()
 
     private fun validateTopicSelection() = selectedTopic != EnumItem.EMPTY
-
-    private fun notifyStateChanged(newState: FeedbackViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

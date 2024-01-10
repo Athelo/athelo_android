@@ -36,13 +36,13 @@ import com.athelohealth.mobile.widgets.HtmlText
 
 @Composable
 fun AskAtheloScreen(viewModel: AskAtheloViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding()
     ) {
-        Content(handleEvent = viewModel::handleEvent, questions = state.value.questions)
+        Content(handleEvent = viewModel::handleEvent, questions = viewState.value.questions)
     }
 }
 

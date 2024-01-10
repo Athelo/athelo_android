@@ -41,7 +41,7 @@ import kotlin.math.sin
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
-    viewModel: BaseViewModel<*, *>?,
+    viewModel: BaseViewModel<*, *, *>?,
     showProgressProvider: () -> Boolean,
     backgroundColor: Color = background,
     includeStatusBarPadding: Boolean = true,

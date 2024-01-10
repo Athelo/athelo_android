@@ -1,8 +1,7 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.athelohealth.mobile.presentation.ui.share.myProfile
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,10 +29,10 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun MyProfileScreen(viewModel: MyProfileViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding()
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -47,10 +46,10 @@ fun MyProfileScreen(viewModel: MyProfileViewModel) {
                 item {
                     UserCell(
                         onEditClick = { viewModel.handleEvent(MyProfileEvent.EditMyProfileClick) },
-                        state.value.user
+                        viewState.value.user
                     )
                 }
-                items(state.value.buttons, key = { it.hashCode() }) { item ->
+                items(viewState.value.buttons, key = { it.hashCode() }) { item ->
                     when (item) {
                         is ProfileItems.Header -> HeaderLabel(
                             text = stringResource(id = item.text),
@@ -74,7 +73,7 @@ fun MyProfileScreen(viewModel: MyProfileViewModel) {
                 }
             }
         }
-        if (state.value.showLogoutOutPopup) {
+        if (viewState.value.showLogoutOutPopup) {
             ConfirmPopup(
                 title = stringResource(id = R.string.Log_out),
                 description = stringResource(id = R.string.Log_Out_message),
@@ -85,7 +84,7 @@ fun MyProfileScreen(viewModel: MyProfileViewModel) {
                     viewModel.handleEvent(MyProfileEvent.PopupCancelButtonClick)
                 })
         }
-        if (state.value.showDeletePopup) {
+        if (viewState.value.showDeletePopup) {
             DeletePopup(
                 onConfirmClick = { viewModel.handleEvent(MyProfileEvent.DeleteUserConfirmed) },
                 onCancelClick = {

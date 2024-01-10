@@ -10,8 +10,6 @@ import com.athelohealth.mobile.utils.GoogleOAuthHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import net.openid.appauth.AuthorizationException.GeneralErrors.USER_CANCELED_AUTH_FLOW
 import javax.inject.Inject
 
@@ -21,10 +19,8 @@ class AuthorizationLandingViewModel @Inject constructor(
     private val loginSocial: SignWithSocialUseCase,
     private val setupPersonalConfigUseCase: SetupPersonalConfigUseCase,
     private val loadGoogleUserData: LoadGoogleUserData,
-) : BaseViewModel<AuthorizationLandingEvent, AuthorizationLandingEffect>() {
-    private var currentState = AuthorizationLandingViewState(false, 0)
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+) : BaseViewModel<AuthorizationLandingEvent, AuthorizationLandingEffect, AuthorizationLandingViewState>(AuthorizationLandingViewState(false, 0)) {
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
     override fun loadData() {}
 
     override fun handleError(throwable: Throwable) {
@@ -36,45 +32,33 @@ class AuthorizationLandingViewModel @Inject constructor(
     override fun handleEvent(event: AuthorizationLandingEvent) {
         when (event) {
             AuthorizationLandingEvent.SignWithAppleClick -> selfBlockRun {
-                notifyEffect(
-                    AuthorizationLandingEffect.ShowSignWithAppleScreen
-                )
+                notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithAppleScreen)
             }
             AuthorizationLandingEvent.SignInWithEmailClick -> selfBlockRun {
-                notifyEffect(
-                    AuthorizationLandingEffect.ShowSignInWithEmailScreen
-                )
+                notifyEffectChanged(AuthorizationLandingEffect.ShowSignInWithEmailScreen)
             }
             AuthorizationLandingEvent.SignUpWithEmailClick -> selfBlockRun {
-                notifyEffect(
-                    AuthorizationLandingEffect.ShowSignUpWithEmailScreen
-                )
+                notifyEffectChanged(AuthorizationLandingEffect.ShowSignUpWithEmailScreen)
             }
             AuthorizationLandingEvent.SignWithFacebookClick -> selfBlockRun {
-                notifyEffect(
-                    AuthorizationLandingEffect.ShowSignWithFacebookScreen
-                )
+                notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithFacebookScreen)
             }
             AuthorizationLandingEvent.SignWithGoogleClick -> selfBlockRun {
                 launchOnUI {
-                    notifyEffect(
-                        AuthorizationLandingEffect.ShowSignWithGoogleScreen
-                    )
+                    notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithGoogleScreen)
                 }
             }
             AuthorizationLandingEvent.SignWithTwitterClick -> selfBlockRun {
-                notifyEffect(
-                    AuthorizationLandingEffect.ShowSignWithTwitterScreen
-                )
+                notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithTwitterScreen)
             }
             AuthorizationLandingEvent.PPLinkClick -> selfBlockRun {
-                notifyEffect(AuthorizationLandingEffect.ShowPrivacyPolicyScreen)
+                notifyEffectChanged(AuthorizationLandingEffect.ShowPrivacyPolicyScreen)
             }
             AuthorizationLandingEvent.TosLinkClick -> selfBlockRun {
-                notifyEffect(AuthorizationLandingEffect.ShowTermsOfUseScreen)
+                notifyEffectChanged(AuthorizationLandingEffect.ShowTermsOfUseScreen)
             }
             is AuthorizationLandingEvent.TabClick -> {
-                updateTabIndexAndNotify(event.index)
+                notifyStateChange(currentState.copy(selectedTabIndex = event.index))
             }
             is AuthorizationLandingEvent.SignWithGoogleResult -> {
                 currentState = currentState.copy(isLoading = true)
@@ -99,25 +83,11 @@ class AuthorizationLandingViewModel @Inject constructor(
                     val username = loadGoogleUserData(token)
                     val profile = setupPersonalConfigUseCase(result.tokenData, username)
                     if (profile == null)
-                        notifyEffect(AuthorizationLandingEffect.ShowAdditionalInformationScreen)
-                    else notifyEffect(AuthorizationLandingEffect.ShowHomeScreen)
+                        notifyEffectChanged(AuthorizationLandingEffect.ShowAdditionalInformationScreen)
+                    else notifyEffectChanged(AuthorizationLandingEffect.ShowHomeScreen)
                 }
             }
         }
     }
 
-    private fun updateTabIndexAndNotify(index: Int) {
-        currentState = currentState.copy(selectedTabIndex = index)
-        launchOnUI { _state.emit(currentState) }
-    }
-
-    private fun notifyStateChange() {
-        launchOnUI {
-            _state.emit(currentState)
-        }
-    }
-
-    private fun notifyEffect(effect: AuthorizationLandingEffect) {
-        launchOnUI { _effect.emit(effect) }
-    }
 }

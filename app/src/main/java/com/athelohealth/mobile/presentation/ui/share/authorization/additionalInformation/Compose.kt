@@ -26,10 +26,10 @@ import com.athelohealth.mobile.presentation.ui.theme.headline20
 
 @Composable
 fun ShowAdditionalInfoScreen(viewModel: AdditionalInfoViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding()
     ) {
         val focusController = LocalFocusManager.current
@@ -64,12 +64,12 @@ fun ShowAdditionalInfoScreen(viewModel: AdditionalInfoViewModel) {
                 imeAction = ImeAction.Next,
                 onChange = {
                     viewModel.handleEvent(
-                        com.athelohealth.mobile.presentation.ui.share.authorization.additionalInformation.AdditionalInfoEvent.InputValueChanged(
+                        AdditionalInfoEvent.InputValueChanged(
                             InputType.PersonName(it.text)
                         )
                     )
                 },
-                isErrorShown = state.value.displayNameError,
+                isErrorShown = viewState.value.displayNameError,
                 hint = stringResource(id = R.string.Enter_your_display_name),
                 initialValue = "",
                 errorMessage = stringResource(id = R.string.Not_empty),
@@ -81,12 +81,12 @@ fun ShowAdditionalInfoScreen(viewModel: AdditionalInfoViewModel) {
             Spacer(modifier = Modifier.height(24.dp))
             Column {
                 DropDownMenuInput(
-                    selectedItem = state.value.selectedUserType,
-                    data = state.value.userTypes,
-                    isErrorShown = state.value.userTypeError,
+                    selectedItem = viewState.value.selectedUserType,
+                    data = viewState.value.userTypes,
+                    isErrorShown = viewState.value.userTypeError,
                     onItemSelect = { item ->
                         viewModel.handleEvent(
-                            com.athelohealth.mobile.presentation.ui.share.authorization.additionalInformation.AdditionalInfoEvent.InputValueChanged(
+                            AdditionalInfoEvent.InputValueChanged(
                                 InputType.DropDown(
                                     item.id
                                 )
@@ -99,9 +99,9 @@ fun ShowAdditionalInfoScreen(viewModel: AdditionalInfoViewModel) {
                 textId = R.string.Save,
                 onClick = {
                     focusController.clearFocus()
-                    viewModel.handleEvent(com.athelohealth.mobile.presentation.ui.share.authorization.additionalInformation.AdditionalInfoEvent.SaveButtonClick)
+                    viewModel.handleEvent(AdditionalInfoEvent.SaveButtonClick)
                 },
-                enableButton = state.value.enableButton
+                enableButton = viewState.value.enableButton
             )
             Spacer(modifier = Modifier.height(16.dp))
         }

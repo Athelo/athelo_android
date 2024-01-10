@@ -12,8 +12,6 @@ import com.athelohealth.mobile.useCase.websocket.ConnectWebSocketUseCase
 import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,17 +23,17 @@ class AdditionalInfoViewModel @Inject constructor(
     private val storeUserUseCase: StoreUserUseCase,
     private val storedUserMailUseCase: StoreUserEmailUseCase,
     private val connectWebSocketUseCase: ConnectWebSocketUseCase,
-) : BaseViewModel<AdditionalInfoEvent, AdditionalInfoEffect>() {
+) : BaseViewModel<AdditionalInfoEvent, AdditionalInfoEffect, AdditionalInfoViewState>(
+    AdditionalInfoViewState(
+        enableButton = false,
+        userTypes = enums.userTypes.filter { it.id != "3" }
+    )
+) {
     private var selectedUserTypeId: String = EnumItem.EMPTY.id
     private var displayName: String = ""
-    private var currentState =
-        AdditionalInfoViewState(
-            enableButton = validate(),
-            userTypes = enums.userTypes.filter { it.id != "3" })
     private lateinit var userEmail: String
 
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     init {
         loadData()
@@ -113,10 +111,6 @@ class AdditionalInfoViewModel @Inject constructor(
             else -> {}
         }
         notifyStateChange()
-    }
-
-    private fun notifyStateChange() {
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private fun validateUserType(): Boolean {

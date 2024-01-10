@@ -6,6 +6,7 @@ import com.athelohealth.mobile.presentation.model.chart.BarChartEntry
 import com.athelohealth.mobile.presentation.model.patients.Patient
 import com.athelohealth.mobile.presentation.model.sleep.*
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
+import com.athelohealth.mobile.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailViewState
 import com.athelohealth.mobile.useCase.health.LoadSleepEntriesForDataRangeUseCase
 import com.athelohealth.mobile.useCase.patients.LoadPatientsUseCase
 import com.athelohealth.mobile.utils.app.AppManager
@@ -23,12 +24,7 @@ class SleepDetailsViewModel @Inject constructor(
     private val appManager: AppManager,
     private val loadPatients: LoadPatientsUseCase,
     private val loadSleepEntriesForDataRange: LoadSleepEntriesForDataRangeUseCase,
-) : BaseViewModel<SleepDetailEvent, SleepDetailEffect>() {
-
-    private var currentState = SleepDetailViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
-
+) : BaseViewModel<SleepDetailEvent, SleepDetailEffect, SleepDetailViewState>(SleepDetailViewState(false)) {
     private var datePeriod: Pair<Date, Date> = getDayPeriod()
     private var dateRange: HistoryRange = HistoryRange.Day
 
@@ -36,8 +32,10 @@ class SleepDetailsViewModel @Inject constructor(
     private var selectedPatient: Patient? = null
     private var patients = mutableSetOf<Patient>()
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
     override fun loadData() {
-        notifyStateChanged(currentState.copy(sleepDesc = sleepDesc))
+        notifyStateChange(currentState.copy(sleepDesc = sleepDesc))
         launchRequest {
             if (appManager.appType.value is AppType.Caregiver) {
                 loadPatients()
@@ -52,7 +50,7 @@ class SleepDetailsViewModel @Inject constructor(
     }
 
     override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
         super.handleError(throwable)
     }
 
@@ -81,11 +79,6 @@ class SleepDetailsViewModel @Inject constructor(
                 loadDataForCurrentRangeAndPeriod()
             }
         }
-    }
-
-    private fun notifyStateChanged(newState: SleepDetailViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private suspend fun loadNewPeriod(diff: Int) {
@@ -118,11 +111,11 @@ class SleepDetailsViewModel @Inject constructor(
             canMoveBackward(),
             datePeriod.canMoveForward()
         )
-        notifyStateChanged(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
+        notifyStateChange(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
     }
 
     private suspend fun loadDataForCurrentRangeAndPeriod() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         val entries = runCatching {
             loadSleepEntriesForDataRange(
                 startDate = datePeriod.first,
@@ -159,7 +152,7 @@ class SleepDetailsViewModel @Inject constructor(
             entries.firstOrNull { it.level == SleepLevel.Awake }?.duration.displaySecsAsTime("0h 0m"),
             entries.sumOf { it.duration }.displaySecsAsTime(),
         )
-        notifyStateChanged(currentState.copy(isLoading = false, dailyInformation = dailyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, dailyInformation = dailyInfo))
     }
 
     private fun sendWeekViewToUi(entries: List<SleepEntry>) {
@@ -187,7 +180,7 @@ class SleepDetailsViewModel @Inject constructor(
             ),
             avgSleepTime
         )
-        notifyStateChanged(currentState.copy(isLoading = false, weeklyInformation = weeklyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, weeklyInformation = weeklyInfo))
 
     }
 
@@ -232,7 +225,7 @@ class SleepDetailsViewModel @Inject constructor(
             ),
             avgSleepTime, deepSleepTime, remSleepTime, lightSleepTime
         )
-        notifyStateChanged(currentState.copy(isLoading = false, monthlyInformation = monthlyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, monthlyInformation = monthlyInfo))
 
     }
 
@@ -265,7 +258,7 @@ class SleepDetailsViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
         )
     }

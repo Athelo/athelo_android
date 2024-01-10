@@ -28,15 +28,15 @@ import com.athelohealth.mobile.presentation.ui.theme.purple
 
 @Composable
 fun FindCaregiverScreen(viewModel: FindCaregiverViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Content(
             handleEvent = viewModel::handleEvent,
-            selectedItemProvider = { state.selectedRelationItem },
-            relationsProvider = { state.relations },
-            isButtonEnabledProvider = { state.enableFindButton },
-            emailProvider = { state.email },
-            nameProvider = { state.displayName }
+            selectedItemProvider = { viewState.selectedRelationItem },
+            relationsProvider = { viewState.relations },
+            isButtonEnabledProvider = { viewState.enableFindButton },
+            emailProvider = { viewState.email },
+            nameProvider = { viewState.displayName }
         )
     }
 }

@@ -29,9 +29,9 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun MessageScreen(viewModel: MessageViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
-        Content(handleEvent = viewModel::handleEvent, messages = state.messages)
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
+        Content(handleEvent = viewModel::handleEvent, messages = viewState.messages)
     }
 }
 

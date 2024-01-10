@@ -56,22 +56,22 @@ import com.athelohealth.mobile.widgets.HtmlText
 
 @Composable
 fun SleepDetailsScreen(viewModel: SleepDetailsViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = true
     ) {
         SleepDetailsScreen(
             handleEvent = viewModel::handleEvent,
-            selectedRange = state.selectedRange,
-            periodInfo = state.periodInfo,
-            dailyInformation = state.dailyInformation,
-            weeklyInformation = state.weeklyInformation,
-            monthlyInformation = state.monthlyInformation,
-            sleepDesc = state.sleepDesc,
-            patients = state.patients,
-            selectedPatient = state.selectedPatient,
+            selectedRange = viewState.selectedRange,
+            periodInfo = viewState.periodInfo,
+            dailyInformation = viewState.dailyInformation,
+            weeklyInformation = viewState.weeklyInformation,
+            monthlyInformation = viewState.monthlyInformation,
+            sleepDesc = viewState.sleepDesc,
+            patients = viewState.patients,
+            selectedPatient = viewState.selectedPatient,
         )
     }
 }
@@ -153,7 +153,7 @@ fun SleepDetailsScreen(
                 item {
                     SleepPhaseDescriptionCell()
                 }
-                if (sleepDesc != null && sleepDesc.isNotBlank()) item {
+                if (!sleepDesc.isNullOrBlank()) item {
                     SleepQualityInfoCell(sleepDesc)
                 }
                 item {

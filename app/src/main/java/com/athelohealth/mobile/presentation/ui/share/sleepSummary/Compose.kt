@@ -44,27 +44,27 @@ import com.athelohealth.mobile.utils.createMockUser
 
 @Composable
 fun SleepSummaryScreen(viewModel: SleepSummaryViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier,
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = false
     ) {
-        if (state.showNotConnected) {
+        if (viewState.showNotConnected) {
             SleepSummaryNotConnectedScreen(
                 viewModel::handleEvent,
-                currentUser = state.currentUser
+                currentUser = viewState.currentUser
             )
         } else {
             SleepSummaryScreen(
                 handleEvent = viewModel::handleEvent,
-                currentUser = state.currentUser,
-                idealSleep = state.idealSleep,
-                sleepResult = state.sleepResult,
-                sleepInformation = state.sleepInformation,
-                selectedPatient = state.selectedPatient,
-                patients = state.patients
+                currentUser = viewState.currentUser,
+                idealSleep = viewState.idealSleep,
+                sleepResult = viewState.sleepResult,
+                sleepInformation = viewState.sleepInformation,
+                selectedPatient = viewState.selectedPatient,
+                patients = viewState.patients
             )
         }
     }

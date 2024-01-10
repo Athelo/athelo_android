@@ -11,8 +11,6 @@ import com.athelohealth.mobile.useCase.chat.FindOrCreateConversationIdUseCase
 import com.athelohealth.mobile.utils.consts.Const
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,19 +20,16 @@ class MyCaregiversViewModel @Inject constructor(
     private val deleteCaregiver: DeleteCaregiverUseCase,
     private val loadPendingInvitations: LoadPendingInvitationsUseCase,
     private val cancelInvitation: CancelInvitationUseCase,
-) : BaseViewModel<MyCaregiversEvent, MyCaregiversEffect>() {
+) : BaseViewModel<MyCaregiversEvent, MyCaregiversEffect, MyCaregiversViewState>(MyCaregiversViewState()) {
     private val data = mutableSetOf<Caregiver>()
     private val invitations = mutableSetOf<Invitation>()
     private var nextUrl: String? = null
     private var selectedType: MyCaregiverListType = MyCaregiverListType.MyCaregivers
 
-    private var currentState = MyCaregiversViewState()
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = nextUrl.isNullOrBlank()))
+        notifyStateChange(currentState.copy(isLoading = nextUrl.isNullOrBlank()))
         launchRequest {
             if (nextUrl.isNullOrBlank()) {
                 data.clear()
@@ -48,7 +43,7 @@ class MyCaregiversViewModel @Inject constructor(
     }
 
     override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
         super.handleError(throwable)
     }
 
@@ -56,7 +51,7 @@ class MyCaregiversViewModel @Inject constructor(
         when (event) {
             MyCaregiversEvent.AddCaregiverButtonClick -> notifyEffectChanged(MyCaregiversEffect.ShowInvitationScreen)
             MyCaregiversEvent.BackButtonClick -> notifyEffectChanged(MyCaregiversEffect.ShowPrevScreen)
-            MyCaregiversEvent.CancelClick -> notifyStateChanged(
+            MyCaregiversEvent.CancelClick -> notifyStateChange(
                 currentState.copy(
                     showCaregiverMoreOption = null,
                     showCaregiverDeleteConfirmation = null,
@@ -65,7 +60,7 @@ class MyCaregiversViewModel @Inject constructor(
             )
             is MyCaregiversEvent.CaregiverClick -> {}
             is MyCaregiversEvent.DeleteCaregiverClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showCaregiverMoreOption = null,
                         showCaregiverDeleteConfirmation = event.caregiver,
@@ -73,7 +68,7 @@ class MyCaregiversViewModel @Inject constructor(
                 )
             }
             is MyCaregiversEvent.DeleteCaregiverConfirmationClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showCaregiverMoreOption = null,
                         showCaregiverDeleteConfirmation = null,
@@ -88,7 +83,7 @@ class MyCaregiversViewModel @Inject constructor(
                 }
             }
             is MyCaregiversEvent.SendMessageClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         isLoading = true,
                         showCaregiverMoreOption = null,
@@ -98,7 +93,7 @@ class MyCaregiversViewModel @Inject constructor(
                 )
                 launchRequest {
                     val conversationId = findOrCreateChat(event.caregiver.id.toString())
-                    notifyStateChanged(currentState.copy(isLoading = false))
+                    notifyStateChange(currentState.copy(isLoading = false))
                     if (conversationId != null) {
                         notifyEffectChanged(
                             MyCaregiversEffect.ShowCaregiverConversationScreen(
@@ -110,7 +105,7 @@ class MyCaregiversViewModel @Inject constructor(
                     }
                 }
             }
-            is MyCaregiversEvent.ShowMoreOptionClick -> notifyStateChanged(
+            is MyCaregiversEvent.ShowMoreOptionClick -> notifyStateChange(
                 currentState.copy(
                     showCaregiverMoreOption = event.caregiver
                 )
@@ -123,7 +118,7 @@ class MyCaregiversViewModel @Inject constructor(
                 }
             }
             is MyCaregiversEvent.DeleteInvitationClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showInvitationDeleteConfirmation = event.invitation,
                         showCaregiverMoreOption = null,
@@ -132,7 +127,7 @@ class MyCaregiversViewModel @Inject constructor(
                 )
             }
             is MyCaregiversEvent.DeleteInvitationConfirmationClick -> {
-                notifyStateChanged(currentState.copy(isLoading = true))
+                notifyStateChange(currentState.copy(isLoading = true))
                 launchRequest {
                     val result = cancelInvitation(event.invitation.id)
                     if (result) {
@@ -155,7 +150,7 @@ class MyCaregiversViewModel @Inject constructor(
         if (result.result.isNotEmpty()) {
             data.addAll(result.result)
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 caregivers = data.toList(),
@@ -168,7 +163,7 @@ class MyCaregiversViewModel @Inject constructor(
             )
         )
         delay(800)
-        notifyStateChanged(currentState.copy(canLoadMore = !nextUrl.isNullOrBlank()))
+        notifyStateChange(currentState.copy(canLoadMore = !nextUrl.isNullOrBlank()))
     }
 
     private suspend fun loadInvitations() {
@@ -177,7 +172,7 @@ class MyCaregiversViewModel @Inject constructor(
         if (result.result.isNotEmpty()) {
             invitations.addAll(result.result)
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 caregivers = emptyList(),
@@ -190,11 +185,6 @@ class MyCaregiversViewModel @Inject constructor(
             )
         )
         delay(800)
-        notifyStateChanged(currentState.copy(canLoadMore = !nextUrl.isNullOrBlank()))
-    }
-
-    private fun notifyStateChanged(newState: MyCaregiversViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
+        notifyStateChange(currentState.copy(canLoadMore = !nextUrl.isNullOrBlank()))
     }
 }

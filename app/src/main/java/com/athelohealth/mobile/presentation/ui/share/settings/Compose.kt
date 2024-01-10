@@ -24,15 +24,15 @@ import com.athelohealth.mobile.presentation.ui.theme.lightGray
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Column(Modifier.navigationBarsPadding()) {
             ToolbarWithNameBack(
                 backClick = { viewModel.handleEvent(SettingsEvent.BackButtonClick) },
                 screenName = stringResource(id = R.string.Settings)
             )
             LazyColumn {
-                items(items = state.buttons, key = { item -> item.name }) { button ->
+                items(items = viewState.buttons, key = { item -> item.name }) { button ->
                     when (button) {
                         is SettingButton.SimpleSettingButton -> SimpleButtonCell(
                             button,

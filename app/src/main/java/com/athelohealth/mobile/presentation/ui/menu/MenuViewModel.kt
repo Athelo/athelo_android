@@ -2,7 +2,6 @@ package com.athelohealth.mobile.presentation.ui.menu
 
 import androidx.lifecycle.viewModelScope
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.presentation.model.caregiver.Caregiver
 import com.athelohealth.mobile.presentation.model.menu.MenuItem
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.FitbitAuthorizationUseCase
@@ -11,8 +10,6 @@ import com.athelohealth.mobile.useCase.member.ObserveUserChangeUseCase
 import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -23,27 +20,18 @@ class MenuViewModel @Inject constructor(
     observerUserChange: ObserveUserChangeUseCase,
     private val loadMyProfile: LoadMyProfileUseCase,
     private val fitbitInit: FitbitAuthorizationUseCase,
-) :
-    BaseViewModel<MenuEvent, MenuEffect>() {
-    private var currentStatus = MenuViewState(
-        true,
-        generateItems(appManager.appType.value),
-        "",
-        null,
-        false
-    )
-
-    private fun generateItems(appType: AppType) =
-        if (appType.javaClass == AppType.Caregiver::class.java) generateCaregiverMenu() else generatePatientMenu()
-
-    private val _viewState = MutableStateFlow(currentStatus)
-    val viewState = _viewState.asStateFlow()
-    private var currentAppType: AppType = AppType.Unknown
+) : BaseViewModel<MenuEvent, MenuEffect, MenuViewState>(MenuViewState(
+    true,
+    emptyList(),
+    "",
+    null,
+    false
+)) {
 
     init {
         observerUserChange().onEach { user ->
             notifyStateChange(
-                currentStatus.copy(
+                currentState.copy(
                     displayName = user?.displayName ?: "",
                     image = user?.photo?.image100100
                 )
@@ -53,16 +41,25 @@ class MenuViewModel @Inject constructor(
         appManager.appType.onEach {
             if (currentAppType != it) {
                 currentAppType = it
-                notifyStateChange(currentStatus.copy(items = generateItems(it)))
+                notifyStateChange(currentState.copy(items = generateItems(it)))
             }
         }.launchIn(viewModelScope)
     }
+
+    override fun pauseLoadingState() {
+        notifyStateChange(currentState.copy(isLoading = false))
+    }
+
+    private fun generateItems(appType: AppType) =
+        if (appType.javaClass == AppType.Caregiver::class.java) generateCaregiverMenu() else generatePatientMenu()
+
+    private var currentAppType: AppType = AppType.Unknown
 
     override fun loadData() {
         launchRequest {
             val user = loadMyProfile()
             notifyStateChange(
-                currentStatus.copy(
+                currentState.copy(
                     displayName = user?.displayName ?: "",
                     image = user?.photo?.image100100
                 )
@@ -95,13 +92,6 @@ class MenuViewModel @Inject constructor(
                 }
             }
             MenuEvent.UserClick -> selfBlockRun { notifyEffectChanged(MenuEffect.CloseMenuScreen) }
-        }
-    }
-
-    private fun notifyStateChange(newState: MenuViewState) {
-        currentStatus = newState
-        launchOnUI {
-            _viewState.emit(currentStatus)
         }
     }
 

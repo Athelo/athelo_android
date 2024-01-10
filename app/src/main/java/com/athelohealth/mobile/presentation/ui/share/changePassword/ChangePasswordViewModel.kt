@@ -4,22 +4,13 @@ import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.member.ChangePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class ChangePasswordViewModel @Inject constructor(private val changePasswordUseCase: ChangePasswordUseCase) :
-    BaseViewModel<ChangePasswordEvent, ChangePasswordEffect>() {
-    private var currentState = ChangePasswordViewState()
+    BaseViewModel<ChangePasswordEvent, ChangePasswordEffect, ChangePasswordViewState>(ChangePasswordViewState()) {
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
 
@@ -43,7 +34,7 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
     private fun handleInputChange(input: InputType) {
         when (input) {
             is InputType.ConfirmPassword -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         enableButton = validate(
                             currentPassword = currentState.currentPassword,
@@ -54,7 +45,7 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
                 )
             }
             is InputType.NewPassword -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         enableButton = validate(
                             currentPassword = currentState.currentPassword,
@@ -66,7 +57,7 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
                 )
             }
             is InputType.Password -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         enableButton = validate(
                             currentPassword = input.value,
@@ -91,14 +82,14 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
                 repeatNewPassword = repeatPassword
             )
         ) {
-            notifyStateChanged(currentState.copy(isLoading = true))
+            notifyStateChange(currentState.copy(isLoading = true))
             launchRequest {
                 val result = changePasswordUseCase(
                     newPassword = newPassword,
                     repeatNewPassword = repeatPassword,
                     oldPassword = currentPassword
                 )
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         isLoading = false,
                         currentPassword = "",
@@ -110,10 +101,5 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
                 successMessage(result)
             }
         }
-    }
-
-    private fun notifyStateChanged(state: ChangePasswordViewState) {
-        currentState = state
-        launchOnUI { _state.emit(currentState) }
     }
 }

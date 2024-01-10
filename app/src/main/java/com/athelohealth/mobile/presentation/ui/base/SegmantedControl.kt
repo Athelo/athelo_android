@@ -68,13 +68,13 @@ fun <T : Any> SegmentedControl(
     modifier: Modifier = Modifier,
     content: @Composable (T) -> Unit
 ) {
-    val state = remember { SegmentedControlState() }
-    state.segmentCount = segments.size
-    state.selectedSegment = segments.indexOf(selectedSegment)
-    state.onSegmentSelected = { onSegmentSelected(it) }
+    val viewState = remember { SegmentedControlState() }
+    viewState.segmentCount = segments.size
+    viewState.selectedSegment = segments.indexOf(selectedSegment)
+    viewState.onSegmentSelected = { onSegmentSelected(it) }
 
     // Animate between whole-number indices so we don't need to do pixel calculations.
-    val selectedIndexOffset by animateFloatAsState(state.selectedSegment.toFloat())
+    val selectedIndexOffset by animateFloatAsState(viewState.selectedSegment.toFloat())
 
     // Use a custom layout so that we can measure the thumb using the height of the segments. The thumb
     // is whole composable that draws itself – this layout is just responsible for placing it under
@@ -82,13 +82,13 @@ fun <T : Any> SegmentedControl(
     Layout(
         content = {
             // Each of these produces a single measurable.
-            Thumb(state)
-            Dividers(state)
-            Segments(state, segments, content)
+            Thumb(viewState)
+            Dividers(viewState)
+            Segments(viewState, segments, content)
         },
         modifier = modifier
             .fillMaxWidth()
-            .then(state.inputModifier)
+            .then(viewState.inputModifier)
             .background(TRACK_COLOR, BACKGROUND_SHAPE)
             .padding(TRACK_PADDING)
     ) { measurables, constraints ->
@@ -96,7 +96,7 @@ fun <T : Any> SegmentedControl(
 
         // Measure the segments first so we know how tall to make the thumb.
         val segmentsPlaceable = segmentsMeasurable.measure(constraints)
-        state.updatePressedScale(segmentsPlaceable.height, this)
+        viewState.updatePressedScale(segmentsPlaceable.height, this)
 
         // Now we can measure the thumb and dividers to be the right size.
         val thumbPlaceable = thumbMeasurable.measure(

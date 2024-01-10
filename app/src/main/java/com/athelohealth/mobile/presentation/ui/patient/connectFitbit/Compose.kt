@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.presentation.model.connectFitbit.ConnectFitbitScreenType
 import com.athelohealth.mobile.presentation.ui.base.*
 import com.athelohealth.mobile.presentation.ui.theme.background
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
@@ -22,24 +21,24 @@ import com.athelohealth.mobile.presentation.ui.theme.normalText
 
 @Composable
 fun ConnectFitbitScreen(viewModel: ConnectFitbitViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading }
+        showProgressProvider = { viewState.isLoading }
     ) {
         Column(Modifier.navigationBarsPadding()) {
-            if (state.displaySkipButton) {
+            if (viewState.displaySkipButton) {
                 ToolbarWithMyProfile(
-                    userAvatar = state.currentUser.photo?.image5050,
-                    userDisplayName = state.currentUser.displayName ?: "",
+                    userAvatar = viewState.currentUser.photo?.image5050,
+                    userDisplayName = viewState.currentUser.displayName ?: "",
                     avatarClick = {
                         viewModel.handleEvent(ConnectFitbitEvent.MyProfileClick)
                     }
                 )
             } else {
                 ToolbarWithBackAndMyProfile(
-                    userAvatar = state.currentUser.photo?.image5050,
-                    userDisplayName = state.currentUser.displayName ?: "",
+                    userAvatar = viewState.currentUser.photo?.image5050,
+                    userDisplayName = viewState.currentUser.displayName ?: "",
                     backClick = {
                         viewModel.handleEvent(ConnectFitbitEvent.BackButtonClick)
                     },

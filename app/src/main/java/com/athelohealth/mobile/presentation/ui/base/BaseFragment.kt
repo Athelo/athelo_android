@@ -17,7 +17,7 @@ import com.athelohealth.mobile.presentation.ui.mainActivity.MainActivity
 import com.athelohealth.mobile.presentation.ui.share.splash.SplashActivity
 
 abstract class BaseFragment<VM> :
-    Fragment() where VM : BaseViewModel<*, *> {
+    Fragment() where VM : BaseViewModel<*, *, *> {
     private var currentAlertDialog: AlertDialog? = null
     protected abstract val viewModel: VM
 

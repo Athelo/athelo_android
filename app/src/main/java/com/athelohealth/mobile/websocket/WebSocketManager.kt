@@ -54,15 +54,15 @@ class WebSocketManager(private val webSocketUseCases: WebSocketSessionUseCases) 
         }
 
     suspend fun connect() {
-        runCatching { webSocketUseCases.openChatSession() }
-            .onSuccess {
-                sessionToken = it
-                openChatSession()
-                startListeningToMessages()
-            }
-            .onFailure {
-                scheduleReconnect()
-            }
+//        runCatching { webSocketUseCases.openChatSession() }
+//            .onSuccess {
+//                sessionToken = it
+//                openChatSession()
+//                startListeningToMessages()
+//            }
+//            .onFailure {
+//                scheduleReconnect()
+//            }
     }
 
     suspend fun disconnect() {

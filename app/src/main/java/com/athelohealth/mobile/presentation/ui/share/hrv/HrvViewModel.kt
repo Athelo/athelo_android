@@ -17,8 +17,6 @@ import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.app.patientId
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -28,12 +26,7 @@ class HrvViewModel @Inject constructor(
     private val appManager: AppManager,
     private val loadPatients: LoadPatientsUseCase,
     private val loadHrvForDataRange: LoadHrvForDataRangeUseCase
-) : BaseViewModel<HrvEvent, HrvEffect>() {
-
-    private var currentState = HrvViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
-
+) : BaseViewModel<HrvEvent, HrvEffect, HrvViewState>(HrvViewState(false)) {
     private var datePeriod: Pair<Date, Date> = getDayPeriod()
     private var dateRange: HistoryRange = HistoryRange.Day
 
@@ -41,10 +34,7 @@ class HrvViewModel @Inject constructor(
     private var selectedPatient: Patient? = null
     private var patients = mutableSetOf<Patient>()
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
@@ -55,7 +45,7 @@ class HrvViewModel @Inject constructor(
                 selectedPatient = null
                 patients.clear()
             }
-            notifyStateChanged(currentState.copy(desc = desc))
+            notifyStateChange(currentState.copy(desc = desc))
             submitNewPeriodAndRange()
             loadDataForCurrentRangeAndPeriod()
         }
@@ -82,11 +72,6 @@ class HrvViewModel @Inject constructor(
                 loadDataForCurrentRangeAndPeriod()
             }
         }
-    }
-
-    private fun notifyStateChanged(newState: HrvViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private suspend fun loadNewPeriod(diff: Int) {
@@ -119,11 +104,11 @@ class HrvViewModel @Inject constructor(
             canMoveBackward(),
             datePeriod.canMoveForward()
         )
-        notifyStateChanged(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
+        notifyStateChange(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
     }
 
     private suspend fun loadDataForCurrentRangeAndPeriod() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         val entries = runCatching {
             loadHrvForDataRange(
                 startDate = datePeriod.first,
@@ -155,7 +140,7 @@ class HrvViewModel @Inject constructor(
 
     private fun sendDayViewToUi(entries: List<HrvEntry>) {
         val avg = "%d ms".format(entries.map { it.value }.average().toInt())
-        val max = entries.map { it.value }.maxOrNull() ?: 0
+        val max = entries.maxOfOrNull { it.value } ?: 0
         val yAxiStep = if (max < 300) 50 else if (max < 500) 100 else 250
         val customMaxValue = (max / yAxiStep + 1) * yAxiStep + 100f
 
@@ -192,12 +177,12 @@ class HrvViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = dailyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = dailyInfo))
     }
 
     private fun sendWeekViewToUi(entries: List<HrvEntry>) {
         val avg = "%d ms".format(entries.map { it.value }.average().toInt())
-        val max = entries.map { it.value }.maxOrNull() ?: 0
+        val max = entries.maxOfOrNull { it.value } ?: 0
         val yAxiStep = if (max < 300) 50 else if (max < 500) 100 else 250
         val customMaxValue = (max / yAxiStep + 1) * yAxiStep + 50f
 
@@ -232,12 +217,12 @@ class HrvViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = weeklyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = weeklyInfo))
     }
 
     private fun sendMonthViewToUi(entries: List<HrvEntry>) {
         val avg = "%d ms".format(entries.map { it.value }.average().toInt())
-        val max = entries.map { it.value }.maxOrNull() ?: 0
+        val max = entries.maxOfOrNull { it.value } ?: 0
         val yAxiStep = if (max < 300) 50 else if (max < 500) 100 else 250
         val customMaxValue = (max / yAxiStep + 1) * yAxiStep + 50f
 
@@ -274,7 +259,7 @@ class HrvViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = monthlyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = monthlyInfo))
     }
 
     private fun getCloudDataForDay(entry: LineChartEntry): Pair<String, String> {
@@ -315,7 +300,7 @@ class HrvViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
         )
     }

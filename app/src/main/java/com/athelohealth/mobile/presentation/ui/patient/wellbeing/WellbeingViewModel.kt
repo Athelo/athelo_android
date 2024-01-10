@@ -1,5 +1,7 @@
 package com.athelohealth.mobile.presentation.ui.patient.wellbeing
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.athelohealth.mobile.extensions.normalizeValue
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.model.calendar.Day
@@ -8,8 +10,6 @@ import com.athelohealth.mobile.presentation.model.health.Symptom
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,20 +19,12 @@ class WellbeingViewModel @Inject constructor(
     private val loadMySymptoms: LoadMySymptomsUseCase,
     private val loadSymptoms: LoadSymptomsUseCase,
     private val removeSymptom: RemoveSymptomUseCase,
-) : BaseViewModel<WellbeingEvent, WellbeingEffect>() {
+) : BaseViewModel<WellbeingEvent, WellbeingEffect, WellbeingViewState>(WellbeingViewState()) {
     private val allSymptoms: MutableSet<Symptom> = mutableSetOf()
-
-    private var currentState = WellbeingViewState()
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
     var nextUrl: String? = null
     var newSymptomSelected: Symptom? = null
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         showLoading()
@@ -45,7 +37,7 @@ class WellbeingViewModel @Inject constructor(
             val currentFeeling =
                 response.result.asSequence().sortedBy { it.id }
                     .lastOrNull()?.feeling?.normalizeValue()
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     currentFeeling = currentFeeling ?: 1,
@@ -93,14 +85,14 @@ class WellbeingViewModel @Inject constructor(
     override fun handleEvent(event: WellbeingEvent) {
         when (event) {
             is WellbeingEvent.DayValueChanged -> {
-                notifyStateChanged(currentState.copy(isLoading = true, selectedDay = event.day))
+                notifyStateChange(currentState.copy(isLoading = true, selectedDay = event.day))
                 launchRequest {
                     nextUrl = null
                     loadData()
                 }
             }
             is WellbeingEvent.FeelingValueChanged -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         currentFeeling = event.feeling,
                         feelingButtonEnabled = event.feeling != currentState.initialFeeling
@@ -127,7 +119,7 @@ class WellbeingViewModel @Inject constructor(
             WellbeingEvent.BackButtonClick -> notifyEffectChanged(WellbeingEffect.ShowPrevScreen)
             is WellbeingEvent.SymptomAdded -> {
                 newSymptomSelected = null
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         selectedSymptom = EnumItem.EMPTY,
                         currentSymptoms = currentState.currentSymptoms.toMutableList()
@@ -136,15 +128,15 @@ class WellbeingViewModel @Inject constructor(
                 )
             }
             is WellbeingEvent.SymptomRemovedClick -> {
-                notifyStateChanged(currentState.copy(removeConfirmPopup = event.symptomId))
+                notifyStateChange(currentState.copy(removeConfirmPopup = event.symptomId))
             }
             is WellbeingEvent.SymptomRemovedCancelClick -> {
-                notifyStateChanged(currentState.copy(removeConfirmPopup = null))
+                notifyStateChange(currentState.copy(removeConfirmPopup = null))
             }
             is WellbeingEvent.SymptomRemovedConfirmClick -> launchRequest {
                 showLoading()
                 if (removeSymptom(event.symptomId))
-                    notifyStateChanged(
+                    notifyStateChange(
                         currentState.copy(
                             isLoading = false,
                             currentSymptoms = currentState.currentSymptoms.toMutableList()
@@ -154,7 +146,7 @@ class WellbeingViewModel @Inject constructor(
                         )
                     )
                 else {
-                    notifyStateChanged(
+                    notifyStateChange(
                         currentState.copy(
                             isLoading = false,
                             removeConfirmPopup = null
@@ -175,7 +167,7 @@ class WellbeingViewModel @Inject constructor(
             is InputType.DropDown -> {
                 newSymptomSelected =
                     allSymptoms.firstOrNull { it.id == inputType.value.toInt() }
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         selectedSymptom = newSymptomSelected?.toEnumItem() ?: EnumItem.EMPTY
                     )
@@ -193,7 +185,7 @@ class WellbeingViewModel @Inject constructor(
                 currentState.selectedDay,
                 currentState.currentFeeling.normalizeValue(),
             )
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     initialFeeling = result.feeling.normalizeValue(),
@@ -205,11 +197,7 @@ class WellbeingViewModel @Inject constructor(
     }
 
     private fun showLoading() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
     }
 
-    private fun notifyStateChanged(newState: WellbeingViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

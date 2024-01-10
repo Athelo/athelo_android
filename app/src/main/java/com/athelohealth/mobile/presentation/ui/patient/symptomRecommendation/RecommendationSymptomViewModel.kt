@@ -4,27 +4,23 @@ import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.LoadSymptomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class RecommendationSymptomViewModel @Inject constructor(
     private val loadSymptom: LoadSymptomUseCase,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<RecommendationSymptomEvent, RecommendationSymptomEffect>() {
+) : BaseViewModel<RecommendationSymptomEvent, RecommendationSymptomEffect, RecommendationSymptomViewState>(RecommendationSymptomViewState()) {
     private val symptomId: Int =
         RecommendationSymptomFragmentArgs.fromSavedStateHandle(savedStateHandle).symptomId
-    private var currentState = RecommendationSymptomViewState()
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val symptom = loadSymptom(symptomId = symptomId)
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     name = symptom.name,
@@ -42,8 +38,4 @@ class RecommendationSymptomViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: RecommendationSymptomViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

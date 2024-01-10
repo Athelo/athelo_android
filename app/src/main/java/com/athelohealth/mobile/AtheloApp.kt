@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import com.i2asolutions.sff.utils.internetStatus.provider.ConnectivityProvider
+import com.athelohealth.mobile.utils.conectivity.provider.ConnectivityProvider
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 

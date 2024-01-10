@@ -8,8 +8,6 @@ import com.athelohealth.mobile.useCase.messages.LoadMessagesUseCase
 import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,17 +16,15 @@ class MessageViewModel @Inject constructor(
     private val loadPatientsUseCase: LoadPatientsUseCase,
     private val loadCaregiversUseCase: LoadCaregiversUseCase,
     private val appManager: AppManager,
-) : BaseViewModel<MessageEvent, MessageEffect>() {
+) : BaseViewModel<MessageEvent, MessageEffect, MessageViewState>(MessageViewState()) {
     private var nextUrl: String? = null
     private var nextUserUrl: String? = null
     private val messages: MutableList<PrivateConversation> = mutableListOf()
-    private var currentState = MessageViewState()
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         if (appManager.appType.value::class.java == AppType.Caregiver::class.java) loadMessageForCaregiver()
         else loadMessageForPatient()
     }
@@ -40,7 +36,7 @@ class MessageViewModel @Inject constructor(
             nextUserUrl = patients.next
             val messages = loadMessages(nextUrl, patients.result.mapNotNull { it.userId.toInt() })
             nextUrl = messages.next
-            notifyStateChanged(currentState.copy(isLoading = false, messages = messages.result))
+            notifyStateChange(currentState.copy(isLoading = false, messages = messages.result))
         }
     }
 
@@ -51,7 +47,7 @@ class MessageViewModel @Inject constructor(
             nextUserUrl = caregivers.next
             val messages = loadMessages(nextUrl, caregivers.result.mapNotNull { it.id })
             nextUrl = messages.next
-            notifyStateChanged(currentState.copy(isLoading = false, messages = messages.result))
+            notifyStateChange(currentState.copy(isLoading = false, messages = messages.result))
         }
     }
 
@@ -66,8 +62,4 @@ class MessageViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: MessageViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

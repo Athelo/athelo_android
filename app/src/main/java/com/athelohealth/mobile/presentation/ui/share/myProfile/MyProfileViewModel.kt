@@ -13,8 +13,6 @@ import com.athelohealth.mobile.utils.*
 import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,17 +22,15 @@ class MyProfileViewModel @Inject constructor(
     private val storeUser: StoreUserUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val deleteUser: DeleteUserUseCase,
-) : BaseViewModel<MyProfileEvent, MyProfileEffect>() {
-    private var currentState = MyProfileViewState(
-        isLoading = true,
-        user = User(),
-        emptyList()
-    )
+) : BaseViewModel<MyProfileEvent, MyProfileEffect, MyProfileViewState>(MyProfileViewState(
+    isLoading = true,
+    user = User(),
+    emptyList()
+)) {
     private var showChangePasswordButton = true
     private var showMyDeviceButton = false
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
@@ -42,7 +38,7 @@ class MyProfileViewModel @Inject constructor(
                 ?: throw AuthorizationException("Session expired")
             showChangePasswordButton = appManager.authenticationType == IdentityType.Native
             showMyDeviceButton = user.fitBitConnected == true
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     user = user,
                     isLoading = false,
@@ -52,16 +48,11 @@ class MyProfileViewModel @Inject constructor(
         }
     }
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
-
     override fun handleEvent(event: MyProfileEvent) {
         when (event) {
             is MyProfileEvent.ButtonClick -> handleButtonClick(event.button)
             MyProfileEvent.DeleteButtonClick -> {
-                notifyStateChanged(currentState.copy(showDeletePopup = true))
+                notifyStateChange(currentState.copy(showDeletePopup = true))
             }
             MyProfileEvent.EditMyProfileClick -> notifyEffectChanged(MyProfileEffect.ShowEditProfileScreen)
             MyProfileEvent.GoBackClick -> notifyEffectChanged(MyProfileEffect.ShowPrevScreen)
@@ -70,7 +61,7 @@ class MyProfileViewModel @Inject constructor(
                 notifyEffectChanged(MyProfileEffect.ShowAuthorizationScreen)
             }
             MyProfileEvent.PopupCancelButtonClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showDeletePopup = false,
                         showLogoutOutPopup = false
@@ -78,12 +69,12 @@ class MyProfileViewModel @Inject constructor(
                 )
             }
             MyProfileEvent.DeleteUserConfirmed -> launchRequest {
-                notifyStateChanged(currentState.copy(isLoading = true))
+                notifyStateChange(currentState.copy(isLoading = true))
                 if (deleteUser()) {
                     logOutUseCase()
                     notifyEffectChanged(MyProfileEffect.ShowAuthorizationScreen)
                 } else {
-                    notifyStateChanged(currentState.copy(isLoading = true))
+                    notifyStateChange(currentState.copy(isLoading = true))
                 }
             }
         }
@@ -92,16 +83,11 @@ class MyProfileViewModel @Inject constructor(
     private fun handleButtonClick(button: ProfileItems.Button) {
         when (button.deeplink) {
             DEEPLINK_LOG_OUT -> {
-                notifyStateChanged(currentState.copy(showLogoutOutPopup = true))
+                notifyStateChange(currentState.copy(showLogoutOutPopup = true))
             }
             else -> notifyEffectChanged(MyProfileEffect.ShowScreenFromDeeplink(button.deeplink))
         }
 
-    }
-
-    private fun notifyStateChanged(state: MyProfileViewState = currentState) {
-        currentState = state
-        launchOnUI { _state.emit(currentState) }
     }
 
     private fun generateButtons(): List<ProfileItems> {

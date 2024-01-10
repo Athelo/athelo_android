@@ -44,30 +44,30 @@ import com.athelohealth.mobile.utils.*
 
 @Composable
 fun ActivityScreen(viewModel: ActivityViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier,
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = false
     ) {
-        println(state.selectedPatient)
-        if (state.showNotConnected) {
+        println(viewState.selectedPatient)
+        if (viewState.showNotConnected) {
             ActivityNotConnectedScreen(
                 viewModel::handleEvent,
-                currentUser = state.currentUser
+                currentUser = viewState.currentUser
             )
         } else {
             ActivityScreen(
                 handleEvent = viewModel::handleEvent,
-                currentUser = state.currentUser,
-                topHint = state.topHint,
-                steps = state.stepsInformation,
-                activity = state.activityInformation,
-                heartRate = state.heartRateInformation,
-                hrv = state.hrvInformation,
-                selectedPatient = state.selectedPatient,
-                patients = state.patients,
+                currentUser = viewState.currentUser,
+                topHint = viewState.topHint,
+                steps = viewState.stepsInformation,
+                activity = viewState.activityInformation,
+                heartRate = viewState.heartRateInformation,
+                hrv = viewState.hrvInformation,
+                selectedPatient = viewState.selectedPatient,
+                patients = viewState.patients,
             )
         }
     }

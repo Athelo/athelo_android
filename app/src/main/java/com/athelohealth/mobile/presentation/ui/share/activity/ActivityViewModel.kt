@@ -10,6 +10,7 @@ import com.athelohealth.mobile.presentation.model.member.User
 import com.athelohealth.mobile.presentation.model.patients.Patient
 import com.athelohealth.mobile.presentation.model.step.StepEntry
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
+import com.athelohealth.mobile.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailViewState
 import com.athelohealth.mobile.useCase.health.LoadExerciseForDataRangeUseCase
 import com.athelohealth.mobile.useCase.health.LoadHeartRateEntriesForDataRangeUseCase
 import com.athelohealth.mobile.useCase.health.LoadHrvForDataRangeUseCase
@@ -38,10 +39,9 @@ class ActivityViewModel @Inject constructor(
     private val loadExerciseForDataRange: LoadExerciseForDataRangeUseCase,
     private val loadHeartRateEntriesForDataRange: LoadHeartRateEntriesForDataRangeUseCase,
     private val loadHrvForDataRange: LoadHrvForDataRangeUseCase,
-) : BaseViewModel<ActivityEvent, ActivityEffect>() {
-    private var currentState = ActivityViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
+) : BaseViewModel<ActivityEvent, ActivityEffect, ActivityViewState>(ActivityViewState(false)) {
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     private var datePeriod: Pair<Date, Date> = getLastWeekPeriod()
 
@@ -61,7 +61,7 @@ class ActivityViewModel @Inject constructor(
             } else {
                 selectedPatient = null
                 patients.clear()
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         topHint = topDesc,
                         patients = emptyList(),
@@ -95,11 +95,6 @@ class ActivityViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: ActivityViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
-    }
-
     private suspend fun loadPatients() {
         patients.clear()
         var nextUrl: String? = null
@@ -117,18 +112,18 @@ class ActivityViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
         )
     }
 
     override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
         super.handleError(throwable)
     }
 
     private suspend fun loadDataForCurrentPeriodForPatient(patientId: Int?) {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         user = loadMyProfile().also { storeUser(it) } ?: throw AuthorizationException()
         if (!user.isCaregiver) {
             notifyEffectChanged(ActivityEffect.ShowSelectRoleScreen)
@@ -139,7 +134,7 @@ class ActivityViewModel @Inject constructor(
         val heartRate = loadHeartRate(patientId)
         val hrv = loadHrv()
 
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 currentUser = user,
@@ -155,11 +150,11 @@ class ActivityViewModel @Inject constructor(
 
     private fun loadDataForCurrentPeriod() {
         launchRequest {
-            notifyStateChanged(currentState.copy(isLoading = true))
+            notifyStateChange(currentState.copy(isLoading = true))
 
             user = loadMyProfile().also { storeUser(it) } ?: throw AuthorizationException()
             val fitBitConnected = user.fitBitConnected
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = fitBitConnected,
                     showNotConnected = !fitBitConnected,
@@ -174,7 +169,7 @@ class ActivityViewModel @Inject constructor(
             val heartRate = loadHeartRate(null)
             val hrv = loadHrv()
 
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     stepsInformation = steps,

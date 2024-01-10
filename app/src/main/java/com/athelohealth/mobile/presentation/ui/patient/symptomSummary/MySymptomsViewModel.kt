@@ -5,34 +5,24 @@ import com.athelohealth.mobile.presentation.model.mySymptoms.MySymptomsListType
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.LoadSymptomsSummaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class MySymptomsViewModel @Inject constructor(
     private val loadMySymptomChronology: LoadSymptomsSummaryUseCase
-) : BaseViewModel<MySymptomsEvent, MySymptomsEffect>() {
+) : BaseViewModel<MySymptomsEvent, MySymptomsEffect, MySymptomsViewState>(MySymptomsViewState()) {
     private val allSymptoms = mutableListOf<SymptomSummary>()
-    private var currentState = MySymptomsViewState()
     private var nextUrl: String? = null
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
-
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             allSymptoms.clear()
             val symptoms = loadMySymptomChronology()
             if (symptoms.isNotEmpty())
                 allSymptoms.addAll(symptoms)
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     data = generateList(),
@@ -50,7 +40,7 @@ class MySymptomsViewModel @Inject constructor(
                 )
             )
             is MySymptomsEvent.TabChanged -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         selectedTab = event.tabClicked,
                         data = generateList(event.tabClicked)
@@ -76,8 +66,4 @@ class MySymptomsViewModel @Inject constructor(
             .sortedBy { it.symptom.name.lowercase() }
             .toList()
 
-    private fun notifyStateChanged(newState: MySymptomsViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

@@ -6,20 +6,16 @@ import com.athelohealth.mobile.presentation.model.health.SymptomChronologyItem
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.LoadSymptomsChronologyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class SymptomChronologyViewModel @Inject constructor(
     private val loadChronology: LoadSymptomsChronologyUseCase,
-) : BaseViewModel<SymptomChronologyEvent, SymptomChronologyEffect>() {
+) : BaseViewModel<SymptomChronologyEvent, SymptomChronologyEffect, SymptomChronologyViewState>(SymptomChronologyViewState()) {
     private var nextUrl: String? = null
     private val allData: MutableSet<SymptomChronology> = mutableSetOf()
-    private var currentState = SymptomChronologyViewState()
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest { loadFirstPage() }
@@ -44,7 +40,7 @@ class SymptomChronologyViewModel @Inject constructor(
     }
 
     private suspend fun loadNextPage() {
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = true
             )
@@ -55,7 +51,7 @@ class SymptomChronologyViewModel @Inject constructor(
         if (items.isNotEmpty()) {
             allData.addAll(items)
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 items = generateList(),
@@ -77,8 +73,4 @@ class SymptomChronologyViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: SymptomChronologyViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

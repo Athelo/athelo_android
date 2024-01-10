@@ -29,11 +29,11 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun SelectRoleScreen(viewModel: SelectRoleViewModel) {
-    val state by viewModel.state.collectAsState()
-    val showBack = remember(state.showBackButton) {
-        state.showBackButton
+    val viewState by viewModel.viewState.collectAsState()
+    val showBack = remember(viewState.showBackButton) {
+        viewState.showBackButton
     }
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Image(
             painter = painterResource(id = R.drawable.frame_1640),
             contentDescription = null,

@@ -12,8 +12,6 @@ import com.athelohealth.mobile.useCase.member.StoreUserUseCase
 import com.athelohealth.mobile.utils.fitbit.FitbitState
 import com.athelohealth.mobile.utils.fitbit.toScreenType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -26,18 +24,22 @@ class ConnectFitbitViewModel @Inject constructor(
     private val storeUser: StoreUserUseCase,
     private val fitbitInit: FitbitAuthorizationUseCase,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<ConnectFitbitEvent, ConnectFitbitEffect>() {
-    private var currentState = ConnectFitbitViewState(
-        displaySkipButton = ConnectFitbitFragmentArgs.fromSavedStateHandle(savedStateHandle).showSkipButton
-    )
-    private var sendMessage: Boolean = false
+) : BaseViewModel<ConnectFitbitEvent, ConnectFitbitEffect, ConnectFitbitViewState>(ConnectFitbitViewState(
+    displaySkipButton = false
+)) {
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    init {
+        notifyStateChange(
+            ConnectFitbitViewState(
+                displaySkipButton = ConnectFitbitFragmentArgs.fromSavedStateHandle(savedStateHandle).showSkipButton
+            )
+        )
+    }
+    private var sendMessage: Boolean = false
 
     init {
         listenFitbitConnection().onEach {
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     screenType = it.toScreenType()
@@ -58,10 +60,12 @@ class ConnectFitbitViewModel @Inject constructor(
         }
     }
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
     override fun loadData() {
         showLoading()
         launchRequest {
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     currentUser = loadProfile().also { storeUser(it) } ?: User(),
                     isLoading = false
@@ -76,11 +80,11 @@ class ConnectFitbitViewModel @Inject constructor(
     }
 
     private fun showLoading() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
     }
 
     private fun hideLoading() {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
     }
 
     override fun handleEvent(event: ConnectFitbitEvent) {
@@ -97,10 +101,5 @@ class ConnectFitbitViewModel @Inject constructor(
             ConnectFitbitEvent.SkipButtonClick -> notifyEffectChanged(ConnectFitbitEffect.ShowHomePageScreen)
             ConnectFitbitEvent.BackButtonClick -> notifyEffectChanged(ConnectFitbitEffect.ShowPrevScreen)
         }
-    }
-
-    private fun notifyStateChanged(newState: ConnectFitbitViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
     }
 }

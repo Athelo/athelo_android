@@ -6,39 +6,27 @@ import com.athelohealth.mobile.useCase.health.DisconnectFitbitUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class MyDeviceViewModel @Inject constructor(
     private val disconnectFitbit: DisconnectFitbitUseCase,
     private val checkFitbitConnection: CheckFitbitConnectionStateUseCase,
-) : BaseViewModel<MyDeviceEvent, MyDeviceEffect>() {
-    private var currentState = MyDeviceViewState()
+) : BaseViewModel<MyDeviceEvent, MyDeviceEffect, MyDeviceViewState>(MyDeviceViewState()) {
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
-
-    override fun loadData() {
-
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+    override fun loadData() {}
 
     override fun handleEvent(event: MyDeviceEvent) {
         when (event) {
             MyDeviceEvent.BackButtonClick -> notifyEffectChanged(MyDeviceEffect.ShowPrevScreen)
-            MyDeviceEvent.DisconnectClick -> notifyStateChanged(
+            MyDeviceEvent.DisconnectClick -> notifyStateChange(
                 currentState.copy(
                     showDisconnectConfirmation = true
                 )
             )
             MyDeviceEvent.DisconnectConfirmed -> launchRequest(context = Dispatchers.IO + CoroutineExceptionHandler { _, _ ->
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         isLoading = false,
                         showDisconnectConfirmation = false,
@@ -46,9 +34,9 @@ class MyDeviceViewModel @Inject constructor(
                     )
                 )
             }) {
-                notifyStateChanged(currentState.copy(isLoading = true))
+                notifyStateChange(currentState.copy(isLoading = true))
                 if (!disconnectFitbit()) {
-                    notifyStateChanged(
+                    notifyStateChange(
                         currentState.copy(
                             isLoading = false,
                             showDisconnectConfirmation = false
@@ -60,7 +48,7 @@ class MyDeviceViewModel @Inject constructor(
                     notifyEffectChanged(MyDeviceEffect.ShowPrevScreen)
                 }
             }
-            MyDeviceEvent.PopupCancelButtonClick -> notifyStateChanged(
+            MyDeviceEvent.PopupCancelButtonClick -> notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     showDisconnectConfirmation = false,
@@ -68,9 +56,9 @@ class MyDeviceViewModel @Inject constructor(
                 )
             )
             MyDeviceEvent.ForceDisconnectConfirmed -> launchRequest {
-                notifyStateChanged(currentState.copy(isLoading = true))
+                notifyStateChange(currentState.copy(isLoading = true))
                 if (!disconnectFitbit(true)) {
-                    notifyStateChanged(
+                    notifyStateChange(
                         currentState.copy(
                             isLoading = false,
                             showDisconnectConfirmation = false
@@ -84,9 +72,5 @@ class MyDeviceViewModel @Inject constructor(
             }
         }
     }
-
-    private fun notifyStateChanged(newState: MyDeviceViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }
+

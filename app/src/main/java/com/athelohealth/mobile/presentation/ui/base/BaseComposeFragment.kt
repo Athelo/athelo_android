@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import com.athelohealth.mobile.extensions.createComposeContainerView
 
-abstract class BaseComposeFragment<VM : BaseViewModel<*, *>> : BaseFragment<VM>() {
+abstract class BaseComposeFragment<VM : BaseViewModel<*, *, *>> : BaseFragment<VM>() {
     abstract val composeContent: @Composable () -> Unit
 
     override fun createContentView(

@@ -26,10 +26,10 @@ import com.athelohealth.mobile.presentation.ui.theme.paragraph
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier
             .navigationBarsPadding()
             .imePadding()
@@ -54,9 +54,9 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
                             ForgotPasswordEvent.InputValueChanged(InputType.Email(it.text))
                         )
                     },
-                    isErrorShown = state.value.emailError,
+                    isErrorShown = viewState.value.emailError,
                     hint = stringResource(id = R.string.Enter_your_email),
-                    initialValue = state.value.initialMessage,
+                    initialValue = viewState.value.initialMessage,
                     errorMessage = stringResource(id = R.string.Wrong_email),
                     keyboardActions = KeyboardActions(onDone = {
                         viewModel.handleEvent(ForgotPasswordEvent.ForgotPasswordButtonClick)
@@ -77,7 +77,7 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
                     focusController.clearFocus()
                     viewModel.handleEvent(ForgotPasswordEvent.ForgotPasswordButtonClick)
                 },
-                enableButton = state.value.enableButton.also { debugPrint(it) }
+                enableButton = viewState.value.enableButton.also { debugPrint(it) }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TosPpText(

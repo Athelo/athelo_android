@@ -8,8 +8,6 @@ import com.athelohealth.mobile.useCase.caregiver.SendInvitationCodeUseCase
 import com.athelohealth.mobile.useCase.patients.SendGlobalMessageUseCase
 import com.athelohealth.mobile.utils.message.LocalMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,22 +15,19 @@ class FindCaregiverViewModel @Inject constructor(
     private val loadRelations: LoadRelationsUseCase,
     private val sendInvitation: SendInvitationCodeUseCase,
     private val sendGlobalMessage: SendGlobalMessageUseCase,
-) : BaseViewModel<FindCaregiverEvent, FindCaregiverEffect>() {
+) : BaseViewModel<FindCaregiverEvent, FindCaregiverEffect, FindCaregiverViewState>(FindCaregiverViewState()) {
     private var username: String = ""
     private var emailAddress: String = ""
     private var relation: EnumItem = EnumItem.EMPTY
     private var relations: List<EnumItem> = emptyList()
 
-    private var currentState = FindCaregiverViewState()
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             relations = loadRelations()
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     relations = relations,
@@ -55,7 +50,7 @@ class FindCaregiverViewModel @Inject constructor(
 
     private fun sendRequest() {
         if (validate()) {
-            notifyStateChanged(currentState.copy(isLoading = false))
+            notifyStateChange(currentState.copy(isLoading = false))
             launchRequest {
                 if (sendInvitation(username, emailAddress, relation.id)) {
                     sendGlobalMessage(LocalMessage.Success("Send Invitation Code to caregiver $username."))
@@ -75,7 +70,7 @@ class FindCaregiverViewModel @Inject constructor(
         relation = EnumItem.EMPTY
         username = ""
         emailAddress = ""
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 displayName = username,
@@ -95,7 +90,7 @@ class FindCaregiverViewModel @Inject constructor(
                 /* Ignore other types*/
             }
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 selectedRelationItem = relation,
                 enableFindButton = validate(),
@@ -107,9 +102,4 @@ class FindCaregiverViewModel @Inject constructor(
 
     private fun validate(): Boolean =
         relation.id != EnumItem.EMPTY.id && username.isNotBlank() && emailAddress.isNotBlank()
-
-    private fun notifyStateChanged(newState: FindCaregiverViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

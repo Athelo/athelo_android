@@ -35,26 +35,26 @@ import com.athelohealth.mobile.utils.createMockConversations
 
 @Composable
 fun ChatListScreen(viewModel: ChatListViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         includeStatusBarPadding = false
     ) {
-        if (state.value.showLanding) {
+        if (viewState.value.showLanding) {
             ChatGroupLanding(
                 handleEvent = viewModel::handleEvent,
-                userDisplayName = state.value.currentUser.displayName ?: "",
-                userAvatar = state.value.currentUser.photo?.image5050
+                userDisplayName = viewState.value.currentUser.displayName ?: "",
+                userAvatar = viewState.value.currentUser.photo?.image5050
             )
         } else {
             ChatConversationsScreen(
                 handleEvent = viewModel::handleEvent,
-                yourConversation = state.value.yourConversation,
-                otherConversation = state.value.conversations,
-                userAvatar = state.value.currentUser.photo?.image5050,
-                userDisplayName = state.value.currentUser.displayName ?: "",
-                showLoadMore = { state.value.canLoadNextPage }
+                yourConversation = viewState.value.yourConversation,
+                otherConversation = viewState.value.conversations,
+                userAvatar = viewState.value.currentUser.photo?.image5050,
+                userDisplayName = viewState.value.currentUser.displayName ?: "",
+                showLoadMore = { viewState.value.canLoadNextPage }
             )
         }
     }

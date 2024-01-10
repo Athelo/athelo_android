@@ -34,10 +34,10 @@ import com.athelohealth.mobile.presentation.ui.theme.textField
 
 @Composable
 fun SignInScreen(viewModel: SignInWithEmailViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding(),
     ) {
         val focusController = LocalFocusManager.current
@@ -49,7 +49,7 @@ fun SignInScreen(viewModel: SignInWithEmailViewModel) {
                 onBackClick = {
                     viewModel.handleEvent(SignInWithEmailEvent.BackButtonClick)
                 })
-            InputScrollSection(viewModel, state, focusController)
+            InputScrollSection(viewModel, viewState, focusController)
             Spacer(modifier = Modifier.weight(1f))
             MainButton(
                 textId = R.string.Log_In,
@@ -57,7 +57,7 @@ fun SignInScreen(viewModel: SignInWithEmailViewModel) {
                     focusController.clearFocus()
                     viewModel.handleEvent(SignInWithEmailEvent.SignInClicked)
                 },
-                enableButton = state.value.enableButton.also { debugPrint(it) }
+                enableButton = viewState.value.enableButton.also { debugPrint(it) }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TosPpText(
@@ -69,6 +69,7 @@ fun SignInScreen(viewModel: SignInWithEmailViewModel) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InputScrollSection(
     viewModel: SignInWithEmailViewModel,

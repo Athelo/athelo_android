@@ -4,23 +4,19 @@ import com.athelohealth.mobile.presentation.model.settings.SettingButton
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.utils.DEEPLINK_EDIT_PROFILE
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
 
-) : BaseViewModel<SettingsEvent, SettingsEffect>() {
-    private var currentState = SettingsViewState(isLoading = false, buttons = prepareList())
-
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun loadData() {
-
+) : BaseViewModel<SettingsEvent, SettingsEffect, SettingsViewState>(SettingsViewState(isLoading = false, buttons = emptyList())) {
+    init {
+        notifyStateChange(SettingsViewState(isLoading = false, buttons = prepareList()))
     }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
+    override fun loadData() {}
 
     override fun handleEvent(event: SettingsEvent) {
         when (event) {
@@ -47,10 +43,5 @@ class SettingsViewModel @Inject constructor(
         )
         add(SettingButton.SimpleSettingButton(name = "About us", deeplink = "About us"))
         add(SettingButton.SimpleSettingButton(name = "Privacy Policy", deeplink = "Privacy Policy"))
-    }
-
-    private fun notifyStateChanged(newState: SettingsViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
     }
 }

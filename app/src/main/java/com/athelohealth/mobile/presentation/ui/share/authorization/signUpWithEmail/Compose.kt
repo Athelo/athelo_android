@@ -25,10 +25,10 @@ import com.athelohealth.mobile.presentation.ui.base.*
 
 @Composable
 fun SignUpScreen(viewModel: SignUpViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding(),
     ) {
         Column(Modifier.imePadding()) {
@@ -40,7 +40,7 @@ fun SignUpScreen(viewModel: SignUpViewModel) {
                     viewModel.handleEvent(SignUpEvent.BackButtonClick)
                 })
             val focusController = LocalFocusManager.current
-            InputScrollSection(viewModel, state, focusController)
+            InputScrollSection(viewModel, viewState, focusController)
             Spacer(modifier = Modifier.weight(1f))
             MainButton(
                 textId = R.string.Register,
@@ -48,7 +48,7 @@ fun SignUpScreen(viewModel: SignUpViewModel) {
                     focusController.clearFocus()
                     viewModel.handleEvent(SignUpEvent.SignUpClick)
                 },
-                enableButton = state.value.enableButton.also { debugPrint(it) }
+                enableButton = viewState.value.enableButton.also { debugPrint(it) }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TosPpText(

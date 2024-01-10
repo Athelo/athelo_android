@@ -16,8 +16,8 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     observeGlobalMessage: ObserveGlobalMessageUseCase,
     private val useCases: MainActivityUseCases,
-) :
-    BaseViewModel<MainActivityEvent, MainActivityEffect>() {
+) : BaseViewModel<MainActivityEvent, MainActivityEffect, MainActivityViewState>(MainActivityViewState()) {
+
     init {
         observeGlobalMessage().onEach { message ->
             Timber.d("Message Receive: $message")
@@ -28,6 +28,8 @@ class MainActivityViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {}
 

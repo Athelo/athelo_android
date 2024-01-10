@@ -23,11 +23,11 @@ import com.athelohealth.mobile.widgets.HtmlText
 
 @Composable
 fun AppInfoScreen(viewModel: AppInfoViewModel) {
-    val state = viewModel.viewState.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.value.isLoading }) {
+    val viewState = viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.value.isLoading }) {
         Column {
             ToolbarWithNameBack(
-                screenName = stringResource(id = state.value.screenName),
+                screenName = stringResource(id = viewState.value.screenName),
                 backClick = {
                     viewModel.handleEvent(AppInfoEvent.BackClicked)
                 }
@@ -45,7 +45,7 @@ fun AppInfoScreen(viewModel: AppInfoViewModel) {
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
                     .weight(1f),
-                text = state.value.text,
+                text = viewState.value.text,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = gray,
                     textAlign = TextAlign.Justify

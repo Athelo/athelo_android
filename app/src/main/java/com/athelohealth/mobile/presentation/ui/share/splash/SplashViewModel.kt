@@ -9,8 +9,6 @@ import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.conectivity.NetWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
@@ -20,19 +18,18 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     private val useCases: SplashUseCases,
     private val appManager: AppManager,
-) :
-    BaseViewModel<SplashEvent, SplashEffect>() {
-    private var currentState = SplashViewState(showPin = useCases.showPin())
+) : BaseViewModel<SplashEvent, SplashEffect, SplashViewState>(SplashViewState(showPin = false)) {
+
     private var showTutorial: Boolean = false
-
-    private val _stateView = MutableStateFlow(currentState)
-    val state = _stateView.asStateFlow()
-
     init {
+        currentState = SplashViewState(showPin = false)
+        notifyStateChange()
         launchRequest {
             showTutorial = useCases.showTutorial()
         }
     }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         if (NetWorkManager.isDisconnected) errorNoInternet()
@@ -65,8 +62,7 @@ class SplashViewModel @Inject constructor(
                 if (event.pin.length >= 4) {
                     if (useCases.verifyPin(event.pin)) {
                         withContext(Dispatchers.Main) {
-                            currentState = currentState.copy(showPin = false)
-                            notifyChange()
+                            notifyStateChange(currentState.copy(showPin = false))
                         }
                     } else {
                         errorMessage("Invalid access code. Please try again.")
@@ -107,9 +103,4 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun notifyChange() {
-        launchOnUI {
-            _stateView.emit(currentState)
-        }
-    }
 }

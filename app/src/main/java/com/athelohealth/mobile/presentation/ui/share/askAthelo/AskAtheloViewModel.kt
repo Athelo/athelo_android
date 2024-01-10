@@ -5,24 +5,20 @@ import com.athelohealth.mobile.presentation.model.askAthelo.AskAtheloSection
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.application.LoadFAQUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class AskAtheloViewModel @Inject constructor(private val loadFAQ: LoadFAQUseCase) :
-    BaseViewModel<AskAtheloEvent, AskAtheloEffect>() {
-    private var currentState = AskAtheloViewState()
+    BaseViewModel<AskAtheloEvent, AskAtheloEffect, AskAtheloViewState>(AskAtheloViewState()) {
     private var questions = listOf<FAQ>()
     private var expandedQuestions: FAQ? = null
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
             questions = loadAllFAQData()
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     questions = generateQuestionList()
@@ -43,18 +39,13 @@ class AskAtheloViewModel @Inject constructor(private val loadFAQ: LoadFAQUseCase
             is AskAtheloEvent.SelectQuestion -> {
                 expandedQuestions =
                     if (expandedQuestions == event.question.faq) null else event.question.faq
-                notifyStateChanged(currentState.copy(questions = generateQuestionList()))
+                notifyStateChange(currentState.copy(questions = generateQuestionList()))
             }
         }
     }
 
     private fun generateQuestionList() =
         questions.map { AskAtheloSection(it, expandedQuestions == it) }
-
-    private fun notifyStateChanged(newState: AskAtheloViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 
     private suspend fun loadAllFAQData(nextUrl: String? = null): List<FAQ> {
         val result = loadFAQ(nextUrl)

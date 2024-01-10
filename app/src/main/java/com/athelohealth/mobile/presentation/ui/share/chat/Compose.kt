@@ -46,24 +46,24 @@ import java.util.*
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = false
     ) {
         ChatConversationScreen(
             handleEvent = viewModel::handleEvent,
-            conversation = state.conversation,
-            messages = state.messages,
-            yourConversation = state.conversation?.myConversation == true,
-            showLoadMore = { state.canLoadNextPage },
-            currentUser = state.currentUser,
-            showMoreMenu = state.showMorePopup,
+            conversation = viewState.conversation,
+            messages = viewState.messages,
+            yourConversation = viewState.conversation?.myConversation == true,
+            showLoadMore = { viewState.canLoadNextPage },
+            currentUser = viewState.currentUser,
+            showMoreMenu = viewState.showMorePopup,
 //            isMuted = state.value.isMuted,
-            shouldScrollToBottom = state.shouldScrollToBottom,
-            showHelloMessage = state.shouldShowHello && !state.privateChat,
-            isPrivateChat = state.privateChat
+            shouldScrollToBottom = viewState.shouldScrollToBottom,
+            showHelloMessage = viewState.shouldShowHello && !viewState.privateChat,
+            isPrivateChat = viewState.privateChat
         )
     }
 }
@@ -359,7 +359,7 @@ private fun SystemMessage(message: ConversationInfo.ConversationMessage) {
 @Composable
 private fun SystemMessage(message: String) {
     if (message.isNotEmpty()) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Center) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.subtitle.copy(
@@ -433,7 +433,7 @@ private fun Pagination(handleEvent: (ChatEvent) -> Unit) {
         CircleProgress(
             modifier = Modifier
                 .wrapContentWidth(align = Alignment.CenterHorizontally)
-                .align(Alignment.Center)
+                .align(Center)
         )
     }
 }

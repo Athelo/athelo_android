@@ -23,8 +23,6 @@ import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.app.patientId
 import com.athelohealth.mobile.utils.conectivity.NetWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import javax.inject.Inject
 
@@ -37,15 +35,12 @@ class SleepSummaryViewModel @Inject constructor(
     private val loadDeviceConfig: LoadDeviceConfigUseCase,
     private val loadSleepEntriesForYesterday: LoadSleepEntriesForTodayUseCase,
     private val loadSleepEntriesForDataRange: LoadSleepEntriesForDataRangeUseCase,
-) : BaseViewModel<SleepSummaryEvent, SleepEffect>() {
-
-    private var currentState = SleepViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
-
+) : BaseViewModel<SleepSummaryEvent, SleepEffect, SleepViewState>(SleepViewState(false)) {
     private lateinit var user: User
     private var selectedPatient: Patient? = null
     private var patients = mutableSetOf<Patient>()
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         if (NetWorkManager.isDisconnected) errorNoInternet()
@@ -88,16 +83,16 @@ class SleepSummaryViewModel @Inject constructor(
     }
 
     override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
         super.handleError(throwable)
     }
 
     private fun loadSleepSettings() {
         launchRequest {
-            notifyStateChanged(currentState.copy(isLoading = true))
+            notifyStateChange(currentState.copy(isLoading = true))
             user = loadMyProfile().also { storeUser(it) } ?: throw AuthorizationException()
             val fitBitConnected = user.fitBitConnected
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = fitBitConnected,
                     showNotConnected = !fitBitConnected,
@@ -168,7 +163,7 @@ class SleepSummaryViewModel @Inject constructor(
                     .displaySecsAsTime("0h 0m")
             )
 
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     currentUser = user,
@@ -181,7 +176,7 @@ class SleepSummaryViewModel @Inject constructor(
     }
 
     private suspend fun loadSleepSettingsForPatient(patientId: Int?) {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         user = loadMyProfile().also { storeUser(it) } ?: throw AuthorizationException()
         if (!user.isCaregiver) {
             notifyEffectChanged(SleepEffect.ShowLostCaregiverScreen)
@@ -250,7 +245,7 @@ class SleepSummaryViewModel @Inject constructor(
                 .displaySecsAsTime("0h 0m")
         )
 
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 showNotConnected = false,
                 isLoading = false,
@@ -279,13 +274,8 @@ class SleepSummaryViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
         )
-    }
-
-    private fun notifyStateChanged(newState: SleepViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 }

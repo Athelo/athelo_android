@@ -25,16 +25,16 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun MyDeviceScreen(viewModel: MyDeviceViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = false
     ) {
         Content(
             handleEvent = viewModel::handleEvent,
-            showDisconnectConfirmation = { state.showDisconnectConfirmation },
-            showForceDisconnectConfirmation = { state.showForceDisconnectConfirmation },
+            showDisconnectConfirmation = { viewState.showDisconnectConfirmation },
+            showForceDisconnectConfirmation = { viewState.showForceDisconnectConfirmation },
         )
     }
 }
@@ -119,14 +119,13 @@ private fun Content(
     }
 }
 
-@Preview()
+@Preview
 @Composable
 private fun ContentPrev() {
     MaterialTheme(
         colorScheme = LightColorScheme,
         typography = typography,
     ) {
-
         Content(handleEvent = {}, showDisconnectConfirmation = { false }, showForceDisconnectConfirmation = { false })
     }
 }

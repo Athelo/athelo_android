@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddSymptomScreen(viewModel: AddSymptomViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier
             .fillMaxSize(),
@@ -102,7 +102,7 @@ fun AddSymptomScreen(viewModel: AddSymptomViewModel) {
                     }
                 }
                 Text(
-                    text = state.title,
+                    text = viewState.title,
                     style = MaterialTheme.typography.headline20.copy(color = darkPurple),
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -128,19 +128,19 @@ fun AddSymptomScreen(viewModel: AddSymptomViewModel) {
                         )
                     },
                     keyboardActions = KeyboardActions(onDone = {
-                        if (state.enableSaveButton)
+                        if (viewState.enableSaveButton)
                             viewModel.handleEvent(com.athelohealth.mobile.presentation.ui.patient.symptomAdd.AddSymptomEvent.SaveButtonClick)
                     }),
                     hint = stringResource(id = R.string.Enter_symptom_explanation)
                 )
                 MainButton(
                     textId = R.string.Save,
-                    enableButton = state.enableSaveButton,
+                    enableButton = viewState.enableSaveButton,
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 24.dp)
                         .fillMaxWidth(),
                     onClick = {
-                        if (state.enableSaveButton)
+                        if (viewState.enableSaveButton)
                             viewModel.handleEvent(com.athelohealth.mobile.presentation.ui.patient.symptomAdd.AddSymptomEvent.SaveButtonClick)
                     })
             }

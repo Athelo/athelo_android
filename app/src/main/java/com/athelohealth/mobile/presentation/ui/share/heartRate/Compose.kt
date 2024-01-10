@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.athelohealth.mobile.presentation.ui.share.heartRate
 
 import androidx.compose.foundation.layout.*
@@ -36,21 +34,21 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun HeartRateScreen(viewModel: HeartRateViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = true
     ) {
         SleepDetailsScreen(
             handleEvent = viewModel::handleEvent,
-            selectedRange = state.selectedRange,
-            periodInfo = state.periodInfo,
-            information = state.information,
-            monthlyInformation = state.monthlyInformation,
-            sleepDesc = state.desc,
-            selectedPatient = state.selectedPatient,
-            patients = state.patients,
+            selectedRange = viewState.selectedRange,
+            periodInfo = viewState.periodInfo,
+            information = viewState.information,
+            monthlyInformation = viewState.monthlyInformation,
+            sleepDesc = viewState.desc,
+            selectedPatient = viewState.selectedPatient,
+            patients = viewState.patients,
         )
     }
 }
@@ -128,7 +126,7 @@ fun SleepDetailsScreen(
                 } else if (information != null) item {
                     BarGraphCell(info = information, range = selectedRange)
                 }
-                if (sleepDesc != null && sleepDesc.isNotBlank()) item {
+                if (!sleepDesc.isNullOrBlank()) item {
                     InfoCell(sleepDesc)
                 }
                 item {

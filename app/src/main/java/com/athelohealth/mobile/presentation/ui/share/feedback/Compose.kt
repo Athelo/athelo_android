@@ -28,21 +28,21 @@ import com.athelohealth.mobile.presentation.ui.theme.paragraph
 
 @Composable
 fun FeedbackScreen(viewModel: FeedbackViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier
             .statusBarsPadding()
             .navigationBarsPadding()
             .fillMaxSize()
     ) {
         Content(
-            options = state.value.options,
+            options = viewState.value.options,
             handleEvent = viewModel::handleEvent,
-            enableButton = state.value.enableSendButton,
-            selectedItem = state.value.selectedOption,
-            initMessageText = state.value.message
+            enableButton = viewState.value.enableSendButton,
+            selectedItem = viewState.value.selectedOption,
+            initMessageText = viewState.value.message
         )
     }
 }

@@ -38,20 +38,20 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun ExerciseScreen(viewModel: ExerciseViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = true
     ) {
         SleepDetailsScreen(
             handleEvent = viewModel::handleEvent,
-            selectedRange = state.selectedRange,
-            periodInfo = state.periodInfo,
-            information = state.information,
-            desc = state.desc,
-            selectedPatient = state.selectedPatient,
-            patients = state.patients,
+            selectedRange = viewState.selectedRange,
+            periodInfo = viewState.periodInfo,
+            information = viewState.information,
+            desc = viewState.desc,
+            selectedPatient = viewState.selectedPatient,
+            patients = viewState.patients,
         )
     }
 }

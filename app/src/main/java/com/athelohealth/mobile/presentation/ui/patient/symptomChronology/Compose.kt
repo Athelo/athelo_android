@@ -42,13 +42,13 @@ import java.util.*
 
 @Composable
 fun SymptomChronologyScreen(viewModel: SymptomChronologyViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Content(
             handleEvent = viewModel::handleEvent,
-            items = state.items,
+            items = viewState.items,
             isLoading = { false },
-            canLoadMore = { state.canLoadMore })
+            canLoadMore = { viewState.canLoadMore })
     }
 }
 

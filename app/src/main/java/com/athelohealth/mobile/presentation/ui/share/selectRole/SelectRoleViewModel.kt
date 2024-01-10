@@ -3,22 +3,20 @@ package com.athelohealth.mobile.presentation.ui.share.selectRole
 import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class SelectRoleViewModel @Inject constructor(savedStateHandle: SavedStateHandle) :
-    BaseViewModel<SelectRoleEvent, SelectRoleEffect>() {
+    BaseViewModel<SelectRoleEvent, SelectRoleEffect, SelectRoleViewState>(SelectRoleViewState(showBackButton = false)) {
     private val initFlow = SelectRoleFragmentArgs.fromSavedStateHandle(savedStateHandle).initialFlow
-    private var currentState = SelectRoleViewState(showBackButton = !initFlow)
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun loadData() {
-
+    init {
+        notifyStateChange(SelectRoleViewState(showBackButton = !initFlow))
     }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
+    override fun loadData() {}
 
     override fun handleEvent(event: SelectRoleEvent) {
         when (event) {
@@ -34,10 +32,5 @@ class SelectRoleViewModel @Inject constructor(savedStateHandle: SavedStateHandle
             )
             SelectRoleEvent.BackButtonClick -> notifyEffectChanged(SelectRoleEffect.ShowPrevScreen)
         }
-    }
-
-    private fun notifyStateChanged(newState: SelectRoleViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
     }
 }

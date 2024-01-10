@@ -18,11 +18,11 @@ import com.athelohealth.mobile.presentation.ui.base.ToolbarWithNameBackFavourite
 
 @Composable
 fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     val contentfulViewState = viewModel.contentfulViewState.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.value.isLoading }) {
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.value.isLoading }) {
         Column(modifier = Modifier.composed {
-            if (state.value.news.articleLink.isNullOrBlank())
+            if (viewState.value.news.articleLink.isNullOrBlank())
                 Modifier
             else Modifier
                 .padding(bottom = 50.dp)
@@ -43,7 +43,7 @@ fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
                 ShowContentfulNews(contentfulViewState.value)
             }
         }
-        if (!state.value.news.articleLink.isNullOrBlank())
+        if (!viewState.value.news.articleLink.isNullOrBlank())
             MainButton(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -54,6 +54,7 @@ fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
                 textId = R.string.Read_Full_Article,
                 onClick = {
                     viewModel.handleEvent(NewsDetailEvent.LinkButtonClick)
-                })
+                }
+            )
     }
 }

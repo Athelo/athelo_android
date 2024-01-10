@@ -4,25 +4,22 @@ import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.model.health.Symptom
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class InfoSymptomViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<InfoSymptomEvent, InfoSymptomEffect>() {
+) : BaseViewModel<InfoSymptomEvent, InfoSymptomEffect, InfoSymptomViewState>(InfoSymptomViewState(false, title = "", comment = "")) {
     private val symptom: Symptom =
         InfoSymptomDialogFragmentArgs.fromSavedStateHandle(savedStateHandle).symptom
-    private var currentState =
-        InfoSymptomViewState(false, title = symptom.name, comment = symptom.comment ?: "")
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun loadData() {
-
+    init {
+        notifyStateChange(InfoSymptomViewState(false, title = symptom.name, comment = symptom.comment ?: ""))
     }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
+    override fun loadData() {}
 
     override fun handleEvent(event: InfoSymptomEvent) {
         when (event) {
@@ -33,10 +30,5 @@ class InfoSymptomViewModel @Inject constructor(
                 )
             )
         }
-    }
-
-    private fun notifyStateChanged(newState: InfoSymptomViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
     }
 }

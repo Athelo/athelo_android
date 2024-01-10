@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 class ListenFitbitConnectionStateUseCase @Inject constructor(private val fitbitConnectionHelper: FitbitConnectionHelper) {
     operator fun invoke(): Flow<FitbitState> {
-        return fitbitConnectionHelper.state
+        return fitbitConnectionHelper.viewState
     }
 }

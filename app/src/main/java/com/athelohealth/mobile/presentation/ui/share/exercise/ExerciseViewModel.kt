@@ -16,8 +16,6 @@ import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.app.patientId
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -27,11 +25,7 @@ class ExerciseViewModel @Inject constructor(
     private val appManager: AppManager,
     private val loadPatients: LoadPatientsUseCase,
     private val loadExerciseForDataRange: LoadExerciseForDataRangeUseCase
-) : BaseViewModel<ExerciseEvent, ExerciseEffect>() {
-
-    private var currentState = ExerciseViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
+) : BaseViewModel<ExerciseEvent, ExerciseEffect, ExerciseViewState>(ExerciseViewState(false)) {
 
     private var datePeriod: Pair<Date, Date> = getDayPeriod()
     private var dateRange: HistoryRange = HistoryRange.Day
@@ -39,10 +33,7 @@ class ExerciseViewModel @Inject constructor(
     private val stepsDesc = "" //todo - not returned from WS for now, so hiding it.
     private var selectedPatient: Patient? = null
     private var patients = mutableSetOf<Patient>()
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
@@ -53,7 +44,7 @@ class ExerciseViewModel @Inject constructor(
                 selectedPatient = null
                 patients.clear()
             }
-            notifyStateChanged(currentState.copy(desc = stepsDesc))
+            notifyStateChange(currentState.copy(desc = stepsDesc))
             submitNewPeriodAndRange()
             loadDataForCurrentRangeAndPeriod()
         }
@@ -80,11 +71,6 @@ class ExerciseViewModel @Inject constructor(
                 loadDataForCurrentRangeAndPeriod()
             }
         }
-    }
-
-    private fun notifyStateChanged(newState: ExerciseViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private suspend fun loadNewPeriod(diff: Int) {
@@ -117,12 +103,12 @@ class ExerciseViewModel @Inject constructor(
             canMoveBackward(),
             datePeriod.canMoveForward()
         )
-        notifyStateChanged(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
+        notifyStateChange(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
     }
 
     private suspend fun loadDataForCurrentRangeAndPeriod() {
         val patientId: Int? = selectedPatient?.userId?.toIntOrNull()
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         val entries = runCatching {
             loadExerciseForDataRange(
                 startDate = datePeriod.first,
@@ -152,7 +138,7 @@ class ExerciseViewModel @Inject constructor(
 
     private fun sendDayViewToUi(entries: List<ExerciseEntry>) {
         val sumSteps = "%d min".format(entries.sumOf { it.value / 60 })
-        val maxSteps = entries.map { it.value / 60 }.maxOrNull() ?: 0
+        val maxSteps = entries.maxOfOrNull { it.value / 60 } ?: 0
         val yAxiStep = if (maxSteps < 50) 10 else if (maxSteps < 100) 20 else 50
         val customMaxValue = (maxSteps / yAxiStep + 1) * yAxiStep + 10f
 
@@ -180,12 +166,12 @@ class ExerciseViewModel @Inject constructor(
             ),
             sumSteps
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = dailyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = dailyInfo))
     }
 
     private fun sendWeekViewToUi(entries: List<ExerciseEntry>) {
         val avgSteps = "%d min".format(entries.map { it.value / 60 }.average().toInt())
-        val maxSteps = entries.map { it.value / 60 }.maxOrNull() ?: 0
+        val maxSteps = entries.maxOfOrNull { it.value / 60 } ?: 0
         val yAxiStep = if (maxSteps < 50) 10 else if (maxSteps < 100) 20 else 50
         val customMaxValue = (maxSteps / yAxiStep + 1) * yAxiStep + 10f
 
@@ -212,12 +198,12 @@ class ExerciseViewModel @Inject constructor(
             ),
             avgSteps
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = weeklyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = weeklyInfo))
     }
 
     private fun sendMonthViewToUi(entries: List<ExerciseEntry>) {
         val avgSteps = "%d min".format(entries.map { it.value / 60 }.average().toInt())
-        val maxSteps = entries.map { it.value / 60 }.maxOrNull() ?: 0
+        val maxSteps = entries.maxOfOrNull { it.value / 60 } ?: 0
         val yAxiStep = if (maxSteps < 50) 10 else if (maxSteps < 100) 20 else 50
         val customMaxValue = (maxSteps / yAxiStep + 1) * yAxiStep + 10f
 
@@ -244,7 +230,7 @@ class ExerciseViewModel @Inject constructor(
             ),
             avgSteps
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = monthlyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = monthlyInfo))
 
     }
 
@@ -286,8 +272,6 @@ class ExerciseViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
-            currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
-        )
+        notifyStateChange(currentState.copy(selectedPatient = selectedPatient, patients = patients.toList()))
     }
 }

@@ -1,4 +1,4 @@
-package com.i2asolutions.sff.utils.internetStatus.provider
+package com.athelohealth.mobile.utils.conectivity.provider
 
 import android.net.ConnectivityManager
 import android.net.Network

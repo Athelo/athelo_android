@@ -32,17 +32,17 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun PatientListScreen(viewModel: PatientListViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
-        if (!state.isLoading) {
-            if (state.patientList.isEmpty()) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
+        if (!viewState.isLoading) {
+            if (viewState.patientList.isEmpty()) {
                 EmptyPatientContent(handleEvent = viewModel::handleEvent)
             } else {
                 PatientListContent(
                     handleEvent = viewModel::handleEvent,
-                    patients = state.patientList,
-                    selectedPatientProvider = { state.selectedPatient },
-                    enableButtonProvider = { state.enableProceedButton }
+                    patients = viewState.patientList,
+                    selectedPatientProvider = { viewState.selectedPatient },
+                    enableButtonProvider = { viewState.enableProceedButton }
                 )
             }
         }
@@ -148,7 +148,6 @@ private fun PatientListContent(
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 private fun PatientCell(
     handleEvent: (PatientListEvent) -> Unit,

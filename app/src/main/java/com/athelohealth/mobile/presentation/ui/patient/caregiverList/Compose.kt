@@ -30,16 +30,16 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun CaregiverListScreen(viewModel: CaregiverListViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
-        if (state.myCaregivers.isEmpty()) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
+        if (viewState.myCaregivers.isEmpty()) {
             EmptyCaregiverScreen(handleEvent = viewModel::handleEvent)
         } else {
             MyCaregiversScreen(
                 handleEvent = viewModel::handleEvent,
-                caregivers = state.myCaregivers
+                caregivers = viewState.myCaregivers
             )
-            val deletePatient = state.showCaregiverDeleteConfirmation
+            val deletePatient = viewState.showCaregiverDeleteConfirmation
             if (deletePatient != null) {
                 ConfirmDeletePopup(viewModel::handleEvent, deletePatient)
             }

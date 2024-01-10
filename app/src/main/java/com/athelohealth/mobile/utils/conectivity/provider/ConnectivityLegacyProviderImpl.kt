@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.i2asolutions.sff.utils.internetStatus.provider
+package com.athelohealth.mobile.utils.conectivity.provider
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -36,7 +36,7 @@ class ConnectivityLegacyProviderImpl(
             val fallbackNetworkInfo: NetworkInfo? =
                 intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO)
             // a set of dirty workarounds
-            val state: NetworkState =
+            val viewState: NetworkState =
                 if (networkInfo?.isConnectedOrConnecting == true) {
                     NetworkState.ConnectedState.Legacy(networkInfo)
                 } else if (networkInfo != null && fallbackNetworkInfo != null &&
@@ -46,12 +46,12 @@ class ConnectivityLegacyProviderImpl(
                         fallbackNetworkInfo
                     )
                 } else {
-                    val state = networkInfo ?: fallbackNetworkInfo
-                    if (state != null) NetworkState.ConnectedState.Legacy(
-                        state
+                    val viewState = networkInfo ?: fallbackNetworkInfo
+                    if (viewState != null) NetworkState.ConnectedState.Legacy(
+                        viewState
                     ) else NetworkState.NoInternetConnection
                 }
-            dispatchChange(state)
+            dispatchChange(viewState)
         }
     }
 }

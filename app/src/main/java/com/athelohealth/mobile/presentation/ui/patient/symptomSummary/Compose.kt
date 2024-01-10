@@ -37,13 +37,13 @@ import com.athelohealth.mobile.utils.createMockSymptomsSummary
 
 @Composable
 fun MySymptomsScreen(viewModel: MySymptomsViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Content(
             handleEvent = viewModel::handleEvent,
-            selectedTab = { state.selectedTab },
-            data = { state.data },
-            canLoadMore = { state.canLoadMore }
+            selectedTab = { viewState.selectedTab },
+            data = { viewState.data },
+            canLoadMore = { viewState.canLoadMore }
         )
     }
 }

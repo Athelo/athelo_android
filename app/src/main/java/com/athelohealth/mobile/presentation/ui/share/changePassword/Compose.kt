@@ -34,20 +34,20 @@ import com.athelohealth.mobile.presentation.ui.theme.gray
 
 @Composable
 fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
         Content(
             onEvent = viewModel::handleEvent,
-            enableButton = state.value.enableButton,
-            currentPassword = state.value.currentPassword,
-            newPassword = state.value.newPassword,
-            repeatPassword = state.value.repeatNewPassword
+            enableButton = viewState.value.enableButton,
+            currentPassword = viewState.value.currentPassword,
+            newPassword = viewState.value.newPassword,
+            repeatPassword = viewState.value.repeatNewPassword
         )
     }
 }

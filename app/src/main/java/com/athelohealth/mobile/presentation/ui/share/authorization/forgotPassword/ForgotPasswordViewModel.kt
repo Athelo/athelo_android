@@ -3,31 +3,34 @@ package com.athelohealth.mobile.presentation.ui.share.authorization.forgotPasswo
 import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
-import com.athelohealth.mobile.useCase.member.SendForgotPasswordRequestUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    private val sendForgotPasswordRequestUseCase: SendForgotPasswordRequestUseCase,
     savedStateHandle: SavedStateHandle,
-) :
-    BaseViewModel<ForgotPasswordEvent, ForgotPasswordEffect>() {
+) : BaseViewModel<ForgotPasswordEvent, ForgotPasswordEffect, ForgotPasswordViewState>(ForgotPasswordViewState(
+    isLoading = false,
+    enableButton = false,
+    emailError = false,
+    initialMessage = ""
+)) {
     private var username: String =
         ForgotPasswordFragmentArgs.fromSavedStateHandle(savedStateHandle).email
-    private var currentViewState =
-        ForgotPasswordViewState(
-            isLoading = false,
-            enableButton = validate(),
-            emailError = false,
-            initialMessage = username
-        )
 
-    private val _viewState = MutableStateFlow(currentViewState)
-    val viewState = _viewState.asStateFlow()
+    init {
+        notifyStateChange(
+            ForgotPasswordViewState(
+                isLoading = false,
+                enableButton = validate(),
+                emailError = false,
+                initialMessage = username
+            )
+        )
+    }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {}
 
@@ -53,8 +56,7 @@ class ForgotPasswordViewModel @Inject constructor(
             is ForgotPasswordEvent.InputValueChanged -> when (event.inputType) {
                 is InputType.Email -> {
                     username = event.inputType.value
-                    currentViewState = currentViewState.copy(enableButton = validate())
-                    notifyViewStateChange()
+                    notifyStateChange(currentState.copy(enableButton = validate()))
                 }
                 else -> {}
             }
@@ -66,9 +68,5 @@ class ForgotPasswordViewModel @Inject constructor(
 
     private fun validate() = username.isNotBlank()
 
-    private fun notifyViewStateChange() {
-        launchOnUI {
-            _viewState.emit(currentViewState)
-        }
-    }
+
 }

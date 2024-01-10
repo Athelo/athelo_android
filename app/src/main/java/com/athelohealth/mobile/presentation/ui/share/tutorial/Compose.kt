@@ -49,10 +49,10 @@ import kotlin.math.min
 @Composable
 fun TutorialScreen(viewModel: TutorialViewModel) {
 
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding()
     ) {
         val pagerState = rememberPagerState()
@@ -63,7 +63,7 @@ fun TutorialScreen(viewModel: TutorialViewModel) {
         ) {
             ResizeHorizontalPagerIndicator(
                 pagerState = pagerState,
-                pageCount = state.value.pages.size - 1,
+                pageCount = viewState.value.pages.size - 1,
                 modifier = Modifier.padding(top = 64.dp),
                 activeColor = lightPurple.copy(alpha = 1.0f),
                 inactiveColor = lightPurple.copy(alpha = 0.5f),
@@ -101,7 +101,7 @@ fun TutorialScreen(viewModel: TutorialViewModel) {
         }
 
         HorizontalPager(
-            count = state.value.pages.size,
+            count = viewState.value.pages.size,
             state = pagerState,
             modifier = Modifier
                 .fillMaxHeight()
@@ -109,7 +109,7 @@ fun TutorialScreen(viewModel: TutorialViewModel) {
             verticalAlignment = Alignment.Top,
             userScrollEnabled = true,
         ) { page ->
-            val item = state.value.pages[page]
+            val item = viewState.value.pages[page]
             if (item is TutorialPageItem.FirstPage) {
                 WelcomePage(
                     modifier = Modifier
@@ -157,12 +157,12 @@ fun TutorialScreen(viewModel: TutorialViewModel) {
             }
         }
 
-        LaunchedEffect(state) {
+        LaunchedEffect(viewState) {
             snapshotFlow { pagerState.currentPage }.collect {
-                viewModel.handleEvent(TutorialEvent.UpdateScreen(state.value.pages[it]))
+                viewModel.handleEvent(TutorialEvent.UpdateScreen(viewState.value.pages[it]))
             }
         }
-        LaunchedEffect(state) {
+        LaunchedEffect(viewState) {
             snapshotFlow { pagerState.currentPageOffset }.collect {
                 calculateImageOffset(pagerState, it, pageOffset, pageWidth)
             }

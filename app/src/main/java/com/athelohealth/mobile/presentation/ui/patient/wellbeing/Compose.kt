@@ -37,14 +37,14 @@ import java.util.*
 
 @Composable
 fun WellbeingScreen(viewModel: WellbeingViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         modifier = Modifier.navigationBarsPadding()
     ) {
-        Content(state = state, handleEvent = viewModel::handleEvent)
-        state.removeConfirmPopup?.let {
+        Content(state = viewState, handleEvent = viewModel::handleEvent)
+        viewState.removeConfirmPopup?.let {
             DeletePopup(
                 onConfirmClick = {
                     viewModel.handleEvent(

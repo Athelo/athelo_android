@@ -30,10 +30,10 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 @Composable
 fun MenuScreen(viewModel: MenuViewModel) {
     Column(Modifier.background(menuBackground)) {
-        val state = viewModel.viewState.collectAsState()
+        val viewState = viewModel.viewState.collectAsState()
         UserSection(
-            displayName = state.value.displayName,
-            avatar = state.value.image,
+            displayName = viewState.value.displayName,
+            avatar = viewState.value.image,
             onCloseClick = {
                 viewModel.handleEvent(MenuEvent.CloseClick)
             })
@@ -43,10 +43,9 @@ fun MenuScreen(viewModel: MenuViewModel) {
                 .navigationBarsPadding(),
             contentPadding = PaddingValues(top = 38.dp)
         ) {
-            items(state.value.items) {
+            items(viewState.value.items) {
                 MenuItemCell(viewModel, it)
                 Divider(color = gray.copy(alpha= 0.2f), thickness = 1.dp)
-
             }
         }
     }

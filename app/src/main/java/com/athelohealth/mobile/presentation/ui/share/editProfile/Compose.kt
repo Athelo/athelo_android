@@ -39,11 +39,11 @@ import com.athelohealth.mobile.utils.PhoneMaskVisualTransformation
 
 @Composable
 fun EditProfileScreen(viewModel: EditProfileViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     val focusManager = LocalFocusManager.current
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier
             .statusBarsPadding()
             .navigationBarsPadding()
@@ -63,24 +63,24 @@ fun EditProfileScreen(viewModel: EditProfileViewModel) {
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .weight(1f),
-                image = state.value.tmpUserImage ?: state.value.user.photo?.image100100
+                image = viewState.value.tmpUserImage ?: viewState.value.user.photo?.image100100
                 ?: R.drawable.ic_avatar_placeholder,
                 onEvent = {
                     viewModel.handleEvent(it)
                 },
-                editMode = state.value.editMode,
-                selectedItemId = state.value.selectedUserType,
-                dropDownData = state.value.userTypes,
-                user = state.value.user,
-                selectedBirthDate = state.value.selectedBirthdate
+                editMode = viewState.value.editMode,
+                selectedItemId = viewState.value.selectedUserType,
+                dropDownData = viewState.value.userTypes,
+                user = viewState.value.user,
+                selectedBirthDate = viewState.value.selectedBirthdate
             )
             ButtonsContent(
-                hideRequestButton = state.value.hideRequestPasswordButton,
+                hideRequestButton = viewState.value.hideRequestPasswordButton,
                 onEvent = {
                     focusManager.clearFocus()
                     viewModel.handleEvent(it)
                 },
-                editMode = state.value.editMode,
+                editMode = viewState.value.editMode,
             )
         }
     }

@@ -44,12 +44,12 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
-    val state by viewModel.viewState.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Column {
             ToolbarWithMenuAndMyProfile(
-                userAvatar = state.userAvatar,
-                userDisplayName = state.displayName,
+                userAvatar = viewState.userAvatar,
+                userDisplayName = viewState.displayName,
                 menuClick = { viewModel.handleEvent(HomeEvent.MenuClick) },
                 avatarClick = { viewModel.handleEvent(HomeEvent.MyProfileClick) }
             )
@@ -60,13 +60,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
             ) {
                 item {
                     WelcomeText(
-                        name = state.displayName,
+                        name = viewState.displayName,
                         Modifier
                             .padding(horizontal = 16.dp)
                             .padding(bottom = 24.dp)
                     )
                 }
-                items(state.listItems) { item ->
+                items(viewState.listItems) { item ->
                     when (item) {
                         is HomeItems.HeaderHome -> HeaderLabel(
                             text = item.message,

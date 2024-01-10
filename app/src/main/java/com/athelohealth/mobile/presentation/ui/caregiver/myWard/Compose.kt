@@ -32,16 +32,16 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun MyWardScreen(viewModel: MyWardViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
-        Content(handleEvent = viewModel::handleEvent, patients = state.patients)
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
+        Content(handleEvent = viewModel::handleEvent, patients = viewState.patients)
         PatientOptionPopup(
             handleEvent = viewModel::handleEvent,
-            patient = state.showPatientMoreOption
+            patient = viewState.showPatientMoreOption
         )
-        val deletePatient = state.showPatientDeleteConfirmation
+        val deletePatient = viewState.showPatientDeleteConfirmation
         if (deletePatient != null) {
-            ConfirmDeletePopup(viewModel::handleEvent, deletePatient, state.patients.size <= 1)
+            ConfirmDeletePopup(viewModel::handleEvent, deletePatient, viewState.patients.size <= 1)
         }
     }
 }

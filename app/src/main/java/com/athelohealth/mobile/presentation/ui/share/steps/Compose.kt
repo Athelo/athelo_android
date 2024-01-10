@@ -1,10 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.athelohealth.mobile.presentation.ui.share.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -33,25 +30,24 @@ import com.athelohealth.mobile.presentation.ui.base.ToolbarWithNameBack
 import com.athelohealth.mobile.presentation.ui.base.chart.BarChart
 import com.athelohealth.mobile.presentation.ui.caregiver.selectPatient.ChoosePatientPopup
 import com.athelohealth.mobile.presentation.ui.caregiver.selectPatient.SelectPatientCell
-import com.athelohealth.mobile.presentation.ui.share.activity.ActivityEvent
 import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun StepsScreen(viewModel: StepsViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = true
     ) {
         SleepDetailsScreen(
             handleEvent = viewModel::handleEvent,
-            selectedRange = state.selectedRange,
-            periodInfo = state.periodInfo,
-            information = state.information,
-            desc = state.desc,
-            selectedPatient = state.selectedPatient,
-            patients = state.patients,
+            selectedRange = viewState.selectedRange,
+            periodInfo = viewState.periodInfo,
+            information = viewState.information,
+            desc = viewState.desc,
+            selectedPatient = viewState.selectedPatient,
+            patients = viewState.patients,
         )
     }
 }
@@ -126,7 +122,7 @@ fun SleepDetailsScreen(
                 if (information != null) item {
                     GraphCell(information, selectedRange)
                 }
-                if (desc != null && desc.isNotBlank()) item {
+                if (!desc.isNullOrBlank()) item {
                     InfoCell(desc)
                 }
                 item {

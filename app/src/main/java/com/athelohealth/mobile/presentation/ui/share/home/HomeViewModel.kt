@@ -21,8 +21,6 @@ import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.fitbit.FitbitState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -37,30 +35,28 @@ class HomeViewModel @Inject constructor(
     private val loadWellbeing: LoadWellbeingForDayUseCase,
     private val loadSymptoms: LoadMySymptomsUseCase,
     private val checkFitbitConnection: CheckFitbitConnectionStateUseCase,
-) :
-    BaseViewModel<HomeEvent, HomeEffect>() {
+) : BaseViewModel<HomeEvent, HomeEffect, HomeViewState>(HomeViewState(isLoading = true, displayName = "", listItems = emptyList())) {
     private lateinit var user: User
     private val symptoms: MutableSet<Symptom> = mutableSetOf()
     private var feeling: Feelings? = null
     private var fitbitState: FitbitState = FitbitState.Unknown
 
-    private var currentState =
-        HomeViewState(isLoading = true, displayName = "", listItems = prepareList())
+    init {
+        notifyStateChange(HomeViewState(isLoading = true, displayName = "", listItems = prepareList()))
+    }
 
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
     private var currentApp = appManager.appType.value
 
     init {
         listenFitbitConnection().onEach {
             fitbitState = it
-            notifyStateChanged(currentState.copy(listItems = prepareList()))
+            notifyStateChange(currentState.copy(listItems = prepareList()))
         }.launchIn(viewModelScope)
 
         appManager.appType.onEach {
             if (currentApp != it) {
                 currentApp = it
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         listItems = prepareList()
                     )
@@ -69,8 +65,9 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             checkFitbitConnection()
             val userTmp = loadProfile().also { storeUser(user = it) }
@@ -82,7 +79,7 @@ class HomeViewModel @Inject constructor(
             val day = Calendar.getInstance().toDay()
             loadAllSymptoms(day)
             feeling = loadAllWellbeingAndReturnLatest(day)?.toFeelings()
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     displayName = user.displayName ?: "",
@@ -204,13 +201,6 @@ class HomeViewModel @Inject constructor(
                     "ShowChatScreen"
                 )
             )
-        }
-    }
-
-    fun notifyStateChanged(newState: HomeViewState) {
-        currentState = newState
-        launchOnUI {
-            _viewState.emit(currentState)
         }
     }
 }

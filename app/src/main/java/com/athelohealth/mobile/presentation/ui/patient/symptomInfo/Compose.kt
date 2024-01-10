@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InfoSymptomScreen(viewModel: InfoSymptomViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier
             .fillMaxSize(),
@@ -98,13 +98,13 @@ fun InfoSymptomScreen(viewModel: InfoSymptomViewModel) {
                     }
                 }
                 Text(
-                    text = state.title,
+                    text = viewState.title,
                     style = MaterialTheme.typography.headline20.copy(color = darkPurple),
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .align(Alignment.CenterHorizontally)
                 )
-                if(state.comment.isNotBlank()) {
+                if(viewState.comment.isNotBlank()) {
                     Text(
                         modifier = Modifier.padding(
                             top = 24.dp,
@@ -121,7 +121,7 @@ fun InfoSymptomScreen(viewModel: InfoSymptomViewModel) {
                         ),
                     )
                     Text(
-                        text = state.comment,
+                        text = viewState.comment,
                         style = MaterialTheme.typography.textField.copy(color = darkPurple),
                         modifier = Modifier
                             .padding(horizontal = 16.dp)

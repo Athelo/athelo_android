@@ -29,9 +29,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LostCaregiverScreen(viewModel: LostCaregiverViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
-        viewModel = viewModel, showProgressProvider = { state.isLoading },
+        viewModel = viewModel, showProgressProvider = { viewState.isLoading },
         modifier = Modifier
             .fillMaxSize(),
         backgroundColor = black.copy(alpha = 0.3f),

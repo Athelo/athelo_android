@@ -24,12 +24,12 @@ import com.athelohealth.mobile.presentation.ui.theme.headline20
 
 @Composable
 fun InvitationCodeScreen(viewModel: InvitationCodeViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Content(
             handleEvent = viewModel::handleEvent,
-            enableButtonProvider = { state.enableNextButton },
-            pinProvider = { state.pin },
+            enableButtonProvider = { viewState.enableNextButton },
+            pinProvider = { viewState.pin },
         )
     }
 }

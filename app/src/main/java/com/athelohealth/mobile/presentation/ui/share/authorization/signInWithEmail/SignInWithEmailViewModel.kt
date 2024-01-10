@@ -10,8 +10,6 @@ import com.athelohealth.mobile.utils.app.AppType
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -21,28 +19,21 @@ class SignInWithEmailViewModel @Inject constructor(
     private val setupPersonalInfo: SetupPersonalConfigUseCase,
     private val postUserProfile: PostUserProfile,
 ) :
-    BaseViewModel<SignInWithEmailEvent, SignInWithEmailEffect>() {
+    BaseViewModel<SignInWithEmailEvent, SignInWithEmailEffect, SignInWithEmailViewState>(SignInWithEmailViewState(enableButton = false, usernameError = false, passwordError = false)) {
     private var username: String = ""
     private var password: String = ""
 
-    private var currentViewState =
-        SignInWithEmailViewState(enableButton = false, usernameError = false, passwordError = false)
-    private val _state = MutableStateFlow(currentViewState)
-    val state = _state.asStateFlow()
-
     override fun loadData() {}
 
-    override fun handleError(throwable: Throwable) {
-        super.handleError(throwable)
-        currentViewState = currentViewState.copy(isLoading = false)
-        notifyStateChange()
+    override fun pauseLoadingState() {
+        notifyStateChange(currentState.copy(isLoading = false))
     }
 
     override fun handleEvent(event: SignInWithEmailEvent) {
         when (event) {
             SignInWithEmailEvent.BackButtonClick -> notifyEffectChanged(SignInWithEmailEffect.GoBack)
             SignInWithEmailEvent.ForgotPasswordClick -> selfBlockRun {
-                currentViewState = currentViewState.copy(username = username)
+                currentState = currentState.copy(username = username)
                 notifyEffectChanged(
                     SignInWithEmailEffect.ShowForgotPassword(username)
                 )
@@ -58,8 +49,7 @@ class SignInWithEmailViewModel @Inject constructor(
 
     private fun signIn() {
         if (validate()) {
-            currentViewState = currentViewState.copy(isLoading = true)
-            notifyStateChange()
+            notifyStateChange(currentState.copy(isLoading = true))
             signInWithFirebase(username, password)
 //            launchRequest(SupervisorJob() + Dispatchers.IO + requestExceptionHandler) {
 //                val result = signInUseCase(username, password)
@@ -70,7 +60,7 @@ class SignInWithEmailViewModel @Inject constructor(
 //                else withContext(Dispatchers.Main) { _effect.emit(SignInWithEmailEffect.ShowHomeScreen) }
 //            }
         } else {
-            currentViewState = currentViewState.copy(
+            currentState = currentState.copy(
                 usernameError = !validateUsername(),
                 passwordError = !validatePassword()
             )
@@ -80,14 +70,11 @@ class SignInWithEmailViewModel @Inject constructor(
    private fun signInWithFirebase(username:String, password: String) {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(username.trim(), password.trim())
             .addOnCompleteListener { task ->
-                currentViewState = currentViewState.copy(isLoading = false)
-                notifyStateChange()
                 if (task.isSuccessful) {
                     val userName = task.result.user?.displayName
                     task.result.user?.getIdToken(true)?.addOnCompleteListener {
                         if (it.isSuccessful) {
-                            currentViewState = currentViewState.copy(isLoading = true)
-                            notifyStateChange()
+                            notifyStateChange(currentState.copy(isLoading = true))
                             launchRequest {
                                 postUserProfile(userName ?: "")
                                 // Sign in success, update UI with the signed-in user's information
@@ -106,12 +93,11 @@ class SignInWithEmailViewModel @Inject constructor(
                                 else if (appManager.appType.value == AppType.Unknown)
                                     withContext( Dispatchers.Main) { _effect.emit(SignInWithEmailEffect.ShowRoleScreen(true)) }
                                 else withContext(Dispatchers.Main) { _effect.emit(SignInWithEmailEffect.ShowHomeScreen) }
-                                currentViewState = currentViewState.copy(isLoading = false)
-                                notifyStateChange()
+                                pauseLoadingState()
                             }
-                        } else { errorMessage("Something went wrong.") }
+                        } else errorMessage("Something went wrong.")
                     } ?: errorMessage("Something went wrong.")
-                } else { errorMessage("Something went wrong.") }
+                } else errorMessage("Something went wrong.")
             }
     }
 
@@ -119,22 +105,15 @@ class SignInWithEmailViewModel @Inject constructor(
         when (inputType) {
             is InputType.Password -> {
                 password = inputType.value
-                currentViewState = currentViewState.copy(passwordError = false)
+                currentState = currentState.copy(passwordError = false)
             }
             is InputType.Email -> {
                 username = inputType.value
-                currentViewState = currentViewState.copy(usernameError = false)
+                currentState = currentState.copy(usernameError = false)
             }
             else -> {}
         }
-        currentViewState = currentViewState.copy(enableButton = validate())
-        notifyStateChange()
-    }
-
-    private fun notifyStateChange() {
-        launchOnUI {
-            _state.emit(currentViewState)
-        }
+        notifyStateChange(currentState.copy(enableButton = validate()))
     }
 
     private fun validatePassword() = password.isNotBlank()

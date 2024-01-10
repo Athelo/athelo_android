@@ -14,15 +14,15 @@ import com.athelohealth.mobile.presentation.ui.base.ToolbarWithMenuAndMyProfile
 
 @Composable
 fun CommunityScreen(viewModel: CommunityViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         includeStatusBarPadding = false
     ) {
         ToolbarWithMenuAndMyProfile(
-            userDisplayName = state.value.currentUser.displayName ?: "",
-            userAvatar = state.value.currentUser.photo?.image5050,
+            userDisplayName = viewState.value.currentUser.displayName ?: "",
+            userAvatar = viewState.value.currentUser.photo?.image5050,
             menuClick = {
                 viewModel.handleEvent(CommunityEvent.MenuClick)
             },

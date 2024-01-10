@@ -20,26 +20,20 @@ class NewsDetailViewModel @Inject constructor(
     private val removeFromFavourite: RemoveFromFavouriteUseCase,
     private val contentfulClient: ContentfulClient,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<NewsDetailEvent, NewsDetailEffect>() {
+) : BaseViewModel<NewsDetailEvent, NewsDetailEffect, NewsDetailViewState>(NewsDetailViewState(true, News())) {
     private val newsId: String = NewsDetailFragmentArgs.fromSavedStateHandle(savedStateHandle).newsId
     private lateinit var news: News
-    private var currentState = NewsDetailViewState(true, News())
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
     private val _contentfulViewState = MutableStateFlow(NewsData())
     val contentfulViewState = _contentfulViewState.asStateFlow()
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
 //            news = loadNewsDetail(newsId)
             _contentfulViewState.emit(contentfulClient.getNewsById(newsId))
-            notifyStateChanged(currentState.copy(isLoading = false))
+            notifyStateChange(currentState.copy(isLoading = false))
         }
     }
 
@@ -56,17 +50,13 @@ class NewsDetailViewModel @Inject constructor(
     }
 
     private fun toggleFavouriteState() = launchRequest {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         news = if (news.isFavourite) {
             removeFromFavourite(0)
         } else {
             addToFavourite(0)
         }
-        notifyStateChanged(currentState.copy(isLoading = false, news = news))
+        notifyStateChange(currentState.copy(isLoading = false, news = news))
     }
 
-    private fun notifyStateChanged(newState: NewsDetailViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

@@ -9,8 +9,6 @@ import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.consts.Const
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,17 +17,14 @@ class MyWardViewModel @Inject constructor(
     private val loadPatients: LoadPatientsUseCase,
     private val deletePatient: DeletePatientUseCase,
     private val findOrCreateChat: FindOrCreateConversationIdUseCase,
-) : BaseViewModel<MyWardEvent, MyWardEffect>() {
+) : BaseViewModel<MyWardEvent, MyWardEffect, MyWardViewState>(MyWardViewState()) {
     private val data = mutableSetOf<Patient>()
-    private var currentState = MyWardViewState()
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
     private var nextUrl: String? = null
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             if (nextUrl.isNullOrBlank()) {
                 data.clear()
@@ -43,7 +38,7 @@ class MyWardViewModel @Inject constructor(
                 appManager.changeAppType(AppType.Unknown)
                 notifyEffectChanged(MyWardEffect.ShowSelectRoleScreen)
             }
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     patients = data.toList()
@@ -53,7 +48,7 @@ class MyWardViewModel @Inject constructor(
     }
 
     override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = false))
         super.handleError(throwable)
     }
 
@@ -62,7 +57,7 @@ class MyWardViewModel @Inject constructor(
             MyWardEvent.BackButtonClick -> notifyEffectChanged(MyWardEffect.ShowPrevScreen)
             is MyWardEvent.PatientClick -> {}
             is MyWardEvent.SendMessageClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         isLoading = true,
                         showPatientMoreOption = null,
@@ -71,7 +66,7 @@ class MyWardViewModel @Inject constructor(
                 )
                 launchRequest {
                     val conversationId = findOrCreateChat(event.patient.userId)
-                    notifyStateChanged(currentState.copy(isLoading = false))
+                    notifyStateChange(currentState.copy(isLoading = false))
                     if (conversationId != null) {
                         notifyEffectChanged(
                             MyWardEffect.ShowPatientConversationScreen(
@@ -83,27 +78,27 @@ class MyWardViewModel @Inject constructor(
                     }
                 }
             }
-            MyWardEvent.CancelClick -> notifyStateChanged(
+            MyWardEvent.CancelClick -> notifyStateChange(
                 currentState.copy(
                     showPatientMoreOption = null,
                     showPatientDeleteConfirmation = null
                 )
             )
             is MyWardEvent.DeleteWardClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showPatientMoreOption = null,
                         showPatientDeleteConfirmation = event.patient
                     )
                 )
             }
-            is MyWardEvent.ShowMoreOptionClick -> notifyStateChanged(
+            is MyWardEvent.ShowMoreOptionClick -> notifyStateChange(
                 currentState.copy(
                     showPatientMoreOption = event.patient
                 )
             )
             is MyWardEvent.DeleteWardConfirmationClick -> {
-                notifyStateChanged(
+                notifyStateChange(
                     currentState.copy(
                         showPatientMoreOption = null,
                         showPatientDeleteConfirmation = null
@@ -120,8 +115,4 @@ class MyWardViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: MyWardViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

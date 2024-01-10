@@ -4,26 +4,22 @@ import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.LoadSymptomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class SymptomDetailsViewModel @Inject constructor(
     private val loadSymptomUseCase: LoadSymptomUseCase,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<SymptomDetailsEvent, SymptomDetailsEffect>() {
+) : BaseViewModel<SymptomDetailsEvent, SymptomDetailsEffect, SymptomDetailsViewState>(SymptomDetailsViewState()) {
     private val symptomId =
         SymptomDetailsFragmentArgs.fromSavedStateHandle(savedStateHandle).symptomId
-    private var currentState = SymptomDetailsViewState()
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
             val symptom = loadSymptomUseCase(symptomId)
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     name = symptom.name,
@@ -40,8 +36,4 @@ class SymptomDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun notifyStateChanged(newState: SymptomDetailsViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

@@ -7,8 +7,6 @@ import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.health.AddSymptomUseCase
 import com.athelohealth.mobile.useCase.health.LoadMySymptomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,28 +14,18 @@ class AddSymptomViewModel @Inject constructor(
     private val saveSymptom: AddSymptomUseCase,
     private val loadSymptom: LoadMySymptomUseCase,
     savedStateHandle: SavedStateHandle,
-) : BaseViewModel<AddSymptomEvent, AddSymptomEffect>() {
+) : BaseViewModel<AddSymptomEvent, AddSymptomEffect, AddSymptomViewState>(AddSymptomViewState(isLoading = false, title = "")) {
     private val symptom: Symptom =
         AddSymptomDialogFragmentArgs.fromSavedStateHandle(savedStateHandle).symptom
     private val date = AddSymptomDialogFragmentArgs.fromSavedStateHandle(savedStateHandle).date
     private var comment = ""
-    private var currentState =
-        AddSymptomViewState(
-            isLoading = false,
-            title = symptom.name
-        )
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun loadData() {
-
+    init {
+        notifyStateChange(AddSymptomViewState(isLoading = false, title = symptom.name))
     }
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+    override fun loadData() {}
 
     override fun handleEvent(event: AddSymptomEvent) {
         when (event) {
@@ -46,7 +34,7 @@ class AddSymptomViewModel @Inject constructor(
             )
             AddSymptomEvent.SaveButtonClick -> selfBlockRun {
                 launchRequest {
-                    notifyStateChanged(currentState.copy(isLoading = true))
+                    notifyStateChange(currentState.copy(isLoading = true))
                     val symptom = saveSymptom(symptom, comment, date)
                     val fullSymptom = loadSymptom(symptom.id)
                     notifyEffectChanged(AddSymptomEffect.ShowPrevScreen(fullSymptom))
@@ -59,13 +47,9 @@ class AddSymptomViewModel @Inject constructor(
                     }
                     else -> {/*Ignore other types */ }
                 }
-                notifyStateChanged(currentState.copy())
+                notifyStateChange(currentState.copy())
             }
         }
     }
 
-    private fun notifyStateChanged(newState: AddSymptomViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

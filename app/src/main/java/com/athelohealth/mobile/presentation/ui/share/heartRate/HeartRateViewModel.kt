@@ -21,8 +21,6 @@ import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import com.athelohealth.mobile.utils.app.patientId
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -33,12 +31,7 @@ class HeartRateViewModel @Inject constructor(
     private val loadPatients: LoadPatientsUseCase,
     private val loadHeartRateForDataRange: LoadHeartRateEntriesForDataRangeUseCase,
     private val loadHeartRateForDay: LoadSingleHeartRateEntriesForDayUseCase,
-) : BaseViewModel<HeartRateEvent, HeartRateEffect>() {
-
-    private var currentState = HeartRateViewState(false)
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
-
+) : BaseViewModel<HeartRateEvent, HeartRateEffect, HeartRateViewState>(HeartRateViewState(false)) {
     private var datePeriod: Pair<Date, Date> = getDayPeriod()
     private var dateRange: HistoryRange = HistoryRange.Day
 
@@ -46,10 +39,7 @@ class HeartRateViewModel @Inject constructor(
     private var selectedPatient: Patient? = null
     private var patients = mutableSetOf<Patient>()
 
-    override fun handleError(throwable: Throwable) {
-        notifyStateChanged(currentState.copy(isLoading = false))
-        super.handleError(throwable)
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
@@ -60,7 +50,7 @@ class HeartRateViewModel @Inject constructor(
                 selectedPatient = null
                 patients.clear()
             }
-            notifyStateChanged(currentState.copy(desc = desc))
+            notifyStateChange(currentState.copy(desc = desc))
             submitNewPeriodAndRange()
             loadDataForCurrentRangeAndPeriod()
         }
@@ -87,11 +77,6 @@ class HeartRateViewModel @Inject constructor(
                 loadDataForCurrentRangeAndPeriod()
             }
         }
-    }
-
-    private fun notifyStateChanged(newState: HeartRateViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private suspend fun loadNewPeriod(diff: Int) {
@@ -124,11 +109,11 @@ class HeartRateViewModel @Inject constructor(
             canMoveBackward(),
             datePeriod.canMoveForward()
         )
-        notifyStateChanged(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
+        notifyStateChange(currentState.copy(selectedRange = dateRange, periodInfo = periodInfo))
     }
 
     private suspend fun loadDataForCurrentRangeAndPeriod() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         val patientId: Int? = selectedPatient?.userId?.toIntOrNull()
         val entries = if (dateRange == HistoryRange.Day)
             runCatching {
@@ -171,8 +156,8 @@ class HeartRateViewModel @Inject constructor(
     }
 
     private fun sendDayViewToUi(entries: List<HeartRateEntry>) {
-        val min = entries.map { it.value }.minOrNull()?.toInt() ?: 0
-        val max = entries.map { it.value }.maxOrNull()?.toInt() ?: 0
+        val min = entries.minOfOrNull { it.value }?.toInt() ?: 0
+        val max = entries.maxOfOrNull { it.value }?.toInt() ?: 0
         val avg = if (min == max && min == 0) "0 bps" else "%d - %d bps".format(min, max)
 
         val yAxiStep = if (max < 50) 10 else if (max < 100) 20 else 50
@@ -203,12 +188,12 @@ class HeartRateViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = dailyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = dailyInfo))
     }
 
     private fun sendWeekViewToUi(entries: List<HeartRateEntry>) {
-        val min = entries.map { it.value }.minOrNull()?.toInt() ?: 0
-        val max = entries.map { it.value }.maxOrNull()?.toInt() ?: 0
+        val min = entries.minOfOrNull { it.value }?.toInt() ?: 0
+        val max = entries.maxOfOrNull { it.value }?.toInt() ?: 0
         val avg = if (min == max && min == 0) "0 bps" else "%d - %d bps".format(min, max)
         val yAxiStep = if (max < 50) 10 else if (max < 100) 20 else 50
         val customMaxValue = (max / yAxiStep + 1) * yAxiStep + 10f
@@ -235,12 +220,12 @@ class HeartRateViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, information = dailyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, information = dailyInfo))
     }
 
     private fun sendMonthViewToUi(entries: List<HeartRateEntry>) {
         val avg = "%d bps".format(entries.map { it.value }.average().toInt())
-        val max = entries.map { it.value }.maxOrNull() ?: 0
+        val max = entries.maxOfOrNull { it.value } ?: 0
         val yAxiStep = if (max < 50) 10 else if (max < 100) 20 else 50
         val customMaxValue = (max / yAxiStep + 1) * yAxiStep + 10f
 
@@ -280,7 +265,7 @@ class HeartRateViewModel @Inject constructor(
             ),
             avg
         )
-        notifyStateChanged(currentState.copy(isLoading = false, monthlyInformation = monthlyInfo))
+        notifyStateChange(currentState.copy(isLoading = false, monthlyInformation = monthlyInfo))
     }
 
     private fun getCloudDataForDay(entry: BarChartEntry): Pair<String, String> {
@@ -325,7 +310,7 @@ class HeartRateViewModel @Inject constructor(
         val patient = patients.firstOrNull { it.userId == patientId } ?: patients.firstOrNull()
         selectedPatient = patient
         appManager.changePatientId(patient?.userId)
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(selectedPatient = selectedPatient, patients = patients.toList())
         )
     }

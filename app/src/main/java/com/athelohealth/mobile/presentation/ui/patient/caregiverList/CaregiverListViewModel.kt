@@ -9,8 +9,6 @@ import com.athelohealth.mobile.useCase.member.LoadMyProfileUseCase
 import com.athelohealth.mobile.utils.app.AppManager
 import com.athelohealth.mobile.utils.app.AppType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,12 +18,8 @@ class CaregiverListViewModel @Inject constructor(
     private val loadCaregivers: LoadCaregiversUseCase,
     private val removeCaregiver: DeleteCaregiverUseCase,
     private val loadProfile: LoadMyProfileUseCase,
-) : BaseViewModel<CaregiverListEvent, CaregiverListEffect>() {
-    private var currentState = CaregiverListViewState()
+) : BaseViewModel<CaregiverListEvent, CaregiverListEffect, CaregiverListViewState>(CaregiverListViewState()) {
     private var caregivers = mutableSetOf<Caregiver>()
-
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
     private val initialFlow =
         CaregiverListFragmentArgs.fromSavedStateHandle(savedStateHandle).initialFlow
 
@@ -35,10 +29,11 @@ class CaregiverListViewModel @Inject constructor(
         loadList()
     }
 
-    override fun loadData() {
-    }
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
-    private fun loadList(displayMessage: Boolean = false, name: String? = null) {
+    override fun loadData() {}
+
+    private fun loadList() {
         showLoading()
         launchRequest {
             if (nextUrl == null) {
@@ -49,7 +44,7 @@ class CaregiverListViewModel @Inject constructor(
             if (result.result.isNotEmpty()) {
                 caregivers.addAll(result.result)
             }
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     myCaregivers = caregivers.toList()
@@ -59,7 +54,7 @@ class CaregiverListViewModel @Inject constructor(
     }
 
     private fun showLoading() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
     }
 
     override fun handleEvent(event: CaregiverListEvent) {
@@ -67,7 +62,7 @@ class CaregiverListViewModel @Inject constructor(
             CaregiverListEvent.AddCaregiverClick -> notifyEffectChanged(CaregiverListEffect.ShowInvitationScreen)
             CaregiverListEvent.BackButtonClick -> notifyEffectChanged(CaregiverListEffect.ShowPrevScreen)
             is CaregiverListEvent.SelectCaregiverClick -> {
-                notifyStateChanged(currentState.copy(showCaregiverDeleteConfirmation = event.caregiver))
+                notifyStateChange(currentState.copy(showCaregiverDeleteConfirmation = event.caregiver))
             }
             is CaregiverListEvent.ConfirmationDeleteClick -> sendDeleteRequest(event.caregiver)
             CaregiverListEvent.ProceedClick -> launchRequest {
@@ -76,7 +71,7 @@ class CaregiverListViewModel @Inject constructor(
                 val hasFitbitConnected = profile?.fitBitConnected ?: false
                 notifyEffectChanged(if (initialFlow && !hasFitbitConnected) CaregiverListEffect.ShowSmartWatchScreen else CaregiverListEffect.ShowHomeScreen)
             }
-            CaregiverListEvent.CancelClick -> notifyStateChanged(
+            CaregiverListEvent.CancelClick -> notifyStateChange(
                 currentState.copy(
                     showCaregiverDeleteConfirmation = null
                 )
@@ -92,10 +87,5 @@ class CaregiverListViewModel @Inject constructor(
             }
             loadData()
         }
-    }
-
-    private fun notifyStateChanged(newState: CaregiverListViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
     }
 }

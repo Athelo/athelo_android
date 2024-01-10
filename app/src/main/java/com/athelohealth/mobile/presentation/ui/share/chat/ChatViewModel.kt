@@ -13,8 +13,6 @@ import com.athelohealth.mobile.utils.AuthorizationException
 import com.athelohealth.mobile.utils.PreferenceHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -30,7 +28,7 @@ class ChatViewModel @Inject constructor(
     private val sendChatMessage: SendChatMessageUseCase,
     private val preferences: PreferenceHelper,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<ChatEvent, ChatEffect>() {
+) : BaseViewModel<ChatEvent, ChatEffect, ChatViewState>(ChatViewState(privateChat = true)) {
     private val isGroupConversation: Boolean =
         ChatFragmentArgs.fromSavedStateHandle(savedStateHandle).group
     private val conversationId: Int =
@@ -44,16 +42,16 @@ class ChatViewModel @Inject constructor(
     private val allMessages = mutableListOf<ConversationInfo.ConversationMessage>()
     private lateinit var user: User
 
-    private var currentState = ChatViewState(privateChat = !isGroupConversation)
-
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
+    init {
+        notifyStateChange(ChatViewState(privateChat = !isGroupConversation))
+    }
 
     private val pageSize = 100
 
     private var messageObserveJob: Job? = null
 
     private var lastVisibleElement: Int? = null
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         launchRequest {
@@ -101,21 +99,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun showLoading() {
-        notifyStateChanged(currentState.copy(isLoading = true))
-    }
-
-    override fun handleError(throwable: Throwable) {
-        hideLoading()
-        super.handleError(throwable)
-    }
-
-    private fun hideLoading() {
-        notifyStateChanged(currentState.copy(isLoading = false))
-    }
-
-    private fun notifyStateChanged(newState: ChatViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
+        notifyStateChange(currentState.copy(isLoading = true))
     }
 
     private fun joinTheConversation() {
@@ -145,33 +129,33 @@ class ChatViewModel @Inject constructor(
     private suspend fun loadConversationDetails() {
         val conversation = loadConversation(conversationId, isGroupConversation)
         this.conversation = conversation
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 conversation = conversation,
                 shouldShowHello = preferences.shouldShowHello(conversationId) && conversation.myConversation
             )
         )
-        hideLoading()
+        pauseLoadingState()
         startObservingNewMessages(conversation.chatRoomId)
     }
 
     private fun handleMoreMenuAction(action: ChatMoreButtonClickAction) {
         when (action) {
             ChatMoreButtonClickAction.ShowPopup ->
-                notifyStateChanged(currentState.copy(showMorePopup = true))
+                notifyStateChange(currentState.copy(showMorePopup = true))
             ChatMoreButtonClickAction.DismissPopup ->
-                notifyStateChanged(currentState.copy(showMorePopup = false))
+                notifyStateChange(currentState.copy(showMorePopup = false))
             ChatMoreButtonClickAction.Leave -> {
-                notifyStateChanged(currentState.copy(showMorePopup = false))
+                notifyStateChange(currentState.copy(showMorePopup = false))
                 leaveTheConversation()
             }
             ChatMoreButtonClickAction.Mute -> {
                 //TODO mute status with server?
-                notifyStateChanged(currentState.copy(showMorePopup = false, isMuted = true))
+                notifyStateChange(currentState.copy(showMorePopup = false, isMuted = true))
             }
             ChatMoreButtonClickAction.UnMute -> {
                 //TODO mute status with server?
-                notifyStateChanged(currentState.copy(showMorePopup = false, isMuted = false))
+                notifyStateChange(currentState.copy(showMorePopup = false, isMuted = false))
             }
         }
     }
@@ -192,7 +176,7 @@ class ChatViewModel @Inject constructor(
 
         lastMessageId = allMessages.mapNotNull { it.messageId.toLongOrNull() }.minOrNull()
 
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 currentUser = user,
@@ -212,7 +196,7 @@ class ChatViewModel @Inject constructor(
         if (message.isBlank()) return
 
         preferences.setShowHello(conversationId, false)
-        notifyStateChanged(currentState.copy(shouldShowHello = false))
+        notifyStateChange(currentState.copy(shouldShowHello = false))
 
         sendChatMessage(chatId, message.trim())
     }

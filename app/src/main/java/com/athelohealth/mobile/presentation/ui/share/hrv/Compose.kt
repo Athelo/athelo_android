@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.athelohealth.mobile.presentation.ui.share.hrv
 
 import androidx.compose.foundation.layout.*
@@ -31,25 +29,24 @@ import com.athelohealth.mobile.presentation.ui.base.ToolbarWithNameBack
 import com.athelohealth.mobile.presentation.ui.base.chart.LineChart
 import com.athelohealth.mobile.presentation.ui.caregiver.selectPatient.ChoosePatientPopup
 import com.athelohealth.mobile.presentation.ui.caregiver.selectPatient.SelectPatientCell
-import com.athelohealth.mobile.presentation.ui.share.activity.ActivityEvent
 import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun HrvScreen(viewModel: HrvViewModel) {
-    val state by viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.isLoading },
+        showProgressProvider = { viewState.isLoading },
         includeStatusBarPadding = true
     ) {
         SleepDetailsScreen(
             handleEvent = viewModel::handleEvent,
-            selectedRange = state.selectedRange,
-            periodInfo = state.periodInfo,
-            information = state.information,
-            sleepDesc = state.desc,
-            patients = state.patients,
-            selectedPatient = state.selectedPatient,
+            selectedRange = viewState.selectedRange,
+            periodInfo = viewState.periodInfo,
+            information = viewState.information,
+            sleepDesc = viewState.desc,
+            patients = viewState.patients,
+            selectedPatient = viewState.selectedPatient,
         )
     }
 }
@@ -124,7 +121,7 @@ fun SleepDetailsScreen(
                 if (information != null) item {
                     GraphCell(information, selectedRange)
                 }
-                if (sleepDesc != null && sleepDesc.isNotBlank()) item {
+                if (!sleepDesc.isNullOrBlank()) item {
                     InfoCell(sleepDesc)
                 }
                 item {

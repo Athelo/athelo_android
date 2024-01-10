@@ -28,7 +28,7 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun SplashScreen(viewModel: SplashViewModel) {
-    val state by viewModel.state.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
         modifier = Modifier.navigationBarsPadding(),
@@ -53,7 +53,7 @@ fun SplashScreen(viewModel: SplashViewModel) {
                 contentDescription = "Athelo"
             )
             Spacer(modifier = Modifier.height(26.dp))
-            if (state.showPin) {
+            if (viewState.showPin) {
                 CodeInput(handle = viewModel::handleEvent, modifier = Modifier.imePadding())
             } else {
                 Text(

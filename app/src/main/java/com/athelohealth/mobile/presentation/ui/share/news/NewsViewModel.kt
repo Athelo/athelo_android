@@ -21,12 +21,8 @@ class NewsViewModel @Inject constructor(
     private val loadCachedUserUseCase: LoadCachedUserUseCase,
     private val contentfulClient: ContentfulClient,
 ) :
-    BaseViewModel<NewsEvent, NewsEffect>() {
+    BaseViewModel<NewsEvent, NewsEffect, NewsViewState>(NewsViewState()) {
 
-    private var currentState = NewsViewState()
-
-    private val _state = MutableStateFlow(currentState)
-    val viewState = _state.asStateFlow()
     private var newsList: List<NewsData> = listOf()
 
     private val _contentfulViewState = MutableStateFlow(listOf<NewsData>())
@@ -37,14 +33,16 @@ class NewsViewModel @Inject constructor(
     private var query: String = ""
     private var currentScreenType: NewsListType = NewsListType.List
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+
     override fun loadData() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val user =
                 loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
             newsList = contentfulClient.getAllNews()
             _contentfulViewState.emit(currentNewsList())
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     initialized = true,
                     isLoading = false,
@@ -97,10 +95,6 @@ class NewsViewModel @Inject constructor(
         resetAndLoad()
     }
 
-    private fun notifyStateChanged(newState: NewsViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 
     private fun resetAndLoad() {
         newsNextUrl = null

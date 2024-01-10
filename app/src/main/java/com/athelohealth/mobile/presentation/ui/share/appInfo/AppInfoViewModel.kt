@@ -7,27 +7,22 @@ import com.athelohealth.mobile.presentation.model.application.Application
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.application.LoadApplicationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class AppInfoViewModel @Inject constructor(
     val loadApplication: LoadApplicationUseCase,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<AppInfoEvent, AppInfoEffect>() {
-    private var currentState =
-        AppInfoViewState(isLoading = false, screenName = R.string.empty, text = "")
+) : BaseViewModel<AppInfoEvent, AppInfoEffect, AppInfoViewState>(AppInfoViewState(isLoading = false, screenName = R.string.empty, text = "")) {
 
-    private val _viewState = MutableStateFlow(currentState)
-    val viewState = _viewState.asStateFlow()
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     private val screenType: AppInfoScreenType =
         AppInfoFragmentArgs.fromSavedStateHandle(savedStateHandle).screenType
 
     override fun loadData() {
         launchRequest {
-            notifyStateChanged(currentState.copy(isLoading = true))
+            notifyStateChange(currentState.copy(isLoading = true))
             val application = loadApplication()
             sendTextToUi(application)
         }
@@ -42,7 +37,7 @@ class AppInfoViewModel @Inject constructor(
 
     private fun sendTextToUi(application: Application?) {
         if (application == null) {
-            notifyStateChanged(currentState.copy(isLoading = false, text = ""))
+            notifyStateChange(currentState.copy(isLoading = false, text = ""))
             return
         }
         val text = when (screenType) {
@@ -55,18 +50,13 @@ class AppInfoViewModel @Inject constructor(
             AppInfoScreenType.TermsOfUse -> R.string.Terms_of_Use
             AppInfoScreenType.About -> R.string.About_Us
         }
-        notifyStateChanged(
+        notifyStateChange(
             currentState.copy(
                 isLoading = false,
                 screenName = screenName,
                 text = text
             )
         )
-    }
-
-    private fun notifyStateChanged(newState: AppInfoViewState) {
-        currentState = newState
-        launchOnUI { _viewState.emit(currentState) }
     }
 
     private fun handleUrlEvent(url: String) {

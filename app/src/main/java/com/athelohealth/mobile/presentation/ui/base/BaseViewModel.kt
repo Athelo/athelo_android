@@ -19,14 +19,21 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
-
-abstract class BaseViewModel<Ev, Ef> : ViewModel() where Ev : BaseEvent, Ef : BaseEffect {
+abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : BaseEvent, Ef : BaseEffect, st: BaseViewState {
     private val _messageStateFlow = MutableStateFlow<MessageState>(MessageState.NoMessageState(""))
     val errorStateFlow = _messageStateFlow.asSharedFlow()
 
     @Suppress("PropertyName")
     protected val _effect: MutableSharedFlow<Ef> = MutableSharedFlow()
     val effect = _effect.asSharedFlow()
+
+    protected var currentState: st
+    init {
+        currentState = state
+    }
+
+    private val _viewState = MutableStateFlow(currentState)
+    val viewState = _viewState.asStateFlow()
 
     var lastBlockedTimestamp = 0L
         private set
@@ -35,6 +42,8 @@ abstract class BaseViewModel<Ev, Ef> : ViewModel() where Ev : BaseEvent, Ef : Ba
         CoroutineExceptionHandler { _, throwable ->
             handleError(throwable)
         }
+
+    abstract fun pauseLoadingState()
 
     abstract fun loadData()
 
@@ -77,13 +86,16 @@ abstract class BaseViewModel<Ev, Ef> : ViewModel() where Ev : BaseEvent, Ef : Ba
         }
     }
 
-    protected open fun handleError(throwable: Throwable) =
+    protected open fun handleError(throwable: Throwable) {
+        pauseLoadingState()
         when (throwable) {
             is AuthorizationException -> errorMessage(throwable.errorMessageOrUniversalMessage)
             is NetWorkDisconnectedException, is IOException -> errorNoInternet()
             is HttpException -> errorMessage(throwable.parseMessage())
             else -> errorMessage(throwable.errorMessageOrUniversalMessage)
         }
+    }
+
 
     protected open fun notifyEffectChanged(effect: Ef) {
         launchOnUI { _effect.emit(effect) }
@@ -92,8 +104,20 @@ abstract class BaseViewModel<Ev, Ef> : ViewModel() where Ev : BaseEvent, Ef : Ba
 
     protected open fun errorMessage(message: String) {
         launchOnUI {
+            pauseLoadingState()
             _messageStateFlow.emit(MessageState.ErrorMessageState(message))
         }
+    }
+
+    protected open fun notifyStateChange(currentState: st) {
+        this.currentState = currentState
+        launchOnUI {
+            _viewState.emit(this.currentState)
+        }
+    }
+
+    protected open fun notifyStateChange() {
+        launchOnUI { _viewState.emit(currentState) }
     }
 
     protected open fun normalMessage(message: String) {

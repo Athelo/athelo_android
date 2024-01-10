@@ -38,11 +38,11 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun NewsScreen(viewModel: NewsViewModel) {
-    val state = viewModel.viewState.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier.statusBarsPadding(),
-        viewModel = viewModel, showProgressProvider = { state.value.isLoading },
-        content = Content(state = state, handleEvent = viewModel::handleEvent)
+        viewModel = viewModel, showProgressProvider = { viewState.value.isLoading },
+        content = Content(state = viewState, handleEvent = viewModel::handleEvent)
     )
 }
 

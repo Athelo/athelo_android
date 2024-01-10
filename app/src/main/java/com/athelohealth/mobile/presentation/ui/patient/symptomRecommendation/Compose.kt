@@ -28,12 +28,12 @@ import com.athelohealth.mobile.widgets.HtmlText
 
 @Composable
 fun RecommendationSymptomScreen(viewModel: RecommendationSymptomViewModel) {
-    val state by viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.isLoading }) {
+    val viewState by viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.isLoading }) {
         Content(
             handleEvent = viewModel::handleEvent,
-            name = state.name,
-            description = state.description
+            name = viewState.name,
+            description = viewState.description
         )
     }
 }

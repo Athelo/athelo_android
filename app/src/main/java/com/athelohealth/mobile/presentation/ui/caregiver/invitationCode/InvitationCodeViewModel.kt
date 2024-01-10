@@ -8,8 +8,6 @@ import com.athelohealth.mobile.useCase.caregiver.VerifyInvitationCodeUseCase
 import com.athelohealth.mobile.useCase.patients.SendGlobalMessageUseCase
 import com.athelohealth.mobile.utils.message.LocalMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,17 +16,14 @@ class InvitationCodeViewModel @Inject constructor(
     private val verifyInvitationCode: VerifyInvitationCodeUseCase,
     private val setupPersonalInfo: SetupPersonalConfigUseCase,
     private val sendGlobalMessage: SendGlobalMessageUseCase,
-) :
-    BaseViewModel<InvitationCodeEvent, InvitationCodeEffect>() {
-    private var currentState = InvitationCodeViewState()
+) : BaseViewModel<InvitationCodeEvent, InvitationCodeEffect, InvitationCodeViewState>(InvitationCodeViewState()) {
+    override fun pauseLoadingState() {
+        notifyStateChange(currentState.copy(isLoading = false))
+    }
+
     private var invitationCode: String = ""
 
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
-
-    override fun loadData() {
-
-    }
+    override fun loadData() {}
 
     override fun handleEvent(event: InvitationCodeEvent) {
         when (event) {
@@ -38,12 +33,7 @@ class InvitationCodeViewModel @Inject constructor(
             is InvitationCodeEvent.InputValueChanged -> when (event.inputType) {
                 is InputType.Pin -> {
                     invitationCode = event.inputType.value
-                    notifyStateChanged(
-                        currentState.copy(
-                            enableNextButton = validate(),
-                            pin = invitationCode
-                        )
-                    )
+                    notifyStateChange(currentState.copy(enableNextButton = validate(), pin = invitationCode))
                 }
                 else -> {/*Ignore other types*/
                 }
@@ -56,7 +46,7 @@ class InvitationCodeViewModel @Inject constructor(
     override fun handleError(throwable: Throwable) {
         super.handleError(throwable)
         invitationCode = ""
-        notifyStateChanged(currentState.copy(pin = invitationCode, isLoading = false))
+        notifyStateChange(currentState.copy(pin = invitationCode, isLoading = false))
     }
 
     private fun sendRequest() = selfBlockRun {
@@ -69,7 +59,7 @@ class InvitationCodeViewModel @Inject constructor(
                     notifyEffectChanged(InvitationCodeEffect.ShowPrevScreen)
                 } else {
                     invitationCode = ""
-                    notifyStateChanged(currentState.copy(pin = invitationCode))
+                    notifyStateChange(currentState.copy(pin = invitationCode))
                 }
             }
         }
@@ -83,9 +73,4 @@ class InvitationCodeViewModel @Inject constructor(
     }
 
     private fun validate() = invitationCode.length == 6
-    private fun notifyStateChanged(newState: InvitationCodeViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
-
 }

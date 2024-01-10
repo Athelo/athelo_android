@@ -57,10 +57,10 @@ private fun Modifier.customTabIndicatorOffset(
 
 @Composable
 fun AuthorizationLandingScreen(viewModel: AuthorizationLandingViewModel) {
-    val state = viewModel.state.collectAsState()
+    val viewState = viewModel.viewState.collectAsState()
     BoxScreen(
         viewModel = viewModel,
-        showProgressProvider = { state.value.isLoading },
+        showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding(),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -68,12 +68,12 @@ fun AuthorizationLandingScreen(viewModel: AuthorizationLandingViewModel) {
                 listOf(stringResource(id = R.string.Sign_Up), stringResource(id = R.string.Log_In))
             TabRow(
                 modifier = Modifier.padding(top = 56.dp),
-                selectedTabIndex = state.value.selectedTabIndex,
+                selectedTabIndex = viewState.value.selectedTabIndex,
                 containerColor = background,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
                         modifier = Modifier.customTabIndicatorOffset(
-                            tabPositions[state.value.selectedTabIndex],
+                            tabPositions[viewState.value.selectedTabIndex],
                             100.dp
                         )
                     )
@@ -83,7 +83,7 @@ fun AuthorizationLandingScreen(viewModel: AuthorizationLandingViewModel) {
                 }
             ) {
                 tabs.forEachIndexed { index, title ->
-                    val selected = state.value.selectedTabIndex == index
+                    val selected = viewState.value.selectedTabIndex == index
                     Tab(
                         selected = selected,
                         onClick = {
@@ -111,7 +111,7 @@ fun AuthorizationLandingScreen(viewModel: AuthorizationLandingViewModel) {
 //                        animationSpec = tween(300, easing = LinearEasing)
 //                    )
 //                )
-                if (state.value.selectedTabIndex == 0) {
+                if (viewState.value.selectedTabIndex == 0) {
                     SignUpOptionScreen(viewModel = viewModel, Modifier)
                 }
 //                androidx.compose.animation.AnimatedVisibility(
@@ -125,7 +125,7 @@ fun AuthorizationLandingScreen(viewModel: AuthorizationLandingViewModel) {
 //                        animationSpec = tween(300, easing = LinearEasing)
 //                    )
 //                )
-                else if (state.value.selectedTabIndex == 1) {
+                else if (viewState.value.selectedTabIndex == 1) {
                     SignInOptionScreen(viewModel = viewModel, Modifier)
                 }
             }

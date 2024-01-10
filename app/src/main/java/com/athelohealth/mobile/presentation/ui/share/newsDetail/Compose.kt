@@ -23,10 +23,10 @@ import com.athelohealth.mobile.presentation.ui.theme.*
 
 @Composable
 fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
-    val state = viewModel.state.collectAsState()
-    BoxScreen(viewModel = viewModel, showProgressProvider = { state.value.isLoading }) {
+    val viewState = viewModel.viewState.collectAsState()
+    BoxScreen(viewModel = viewModel, showProgressProvider = { viewState.value.isLoading }) {
         Column(modifier = Modifier.composed {
-            if (state.value.news.articleLink.isNullOrBlank())
+            if (viewState.value.news.articleLink.isNullOrBlank())
                 Modifier
             else Modifier
                 .padding(bottom = 50.dp)
@@ -36,7 +36,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                 favouriteClick = { viewModel.handleEvent(NewsDetailEvent.FavoriteButtonClick) },
                 backClick = { viewModel.handleEvent(NewsDetailEvent.BackButtonClick) },
                 screenName = stringResource(id = R.string.Article),
-                favourite = { state.value.news.isFavourite }
+                favourite = { viewState.value.news.isFavourite }
             )
             Column(
                 modifier = Modifier
@@ -44,7 +44,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                val image = state.value.news.image?.image
+                val image = viewState.value.news.image?.image
                 if (!image.isNullOrBlank()) {
                     ImageWithProgress(
                         image,
@@ -56,7 +56,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                 }
                 Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)) {
                     Text(
-                        text = state.value.news.name,
+                        text = viewState.value.news.name,
                         style = MaterialTheme.typography.headline20.copy(
                             color = black,
                             textAlign = TextAlign.Left
@@ -66,7 +66,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                             .alignByBaseline()
                     )
                     Text(
-                        text = state.value.news.createDate,
+                        text = viewState.value.news.createDate,
                         style = MaterialTheme.typography.body1.copy(
                             color = darkPurple,
                             textAlign = TextAlign.End
@@ -75,7 +75,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                     )
                 }
                 Text(
-                    text = state.value.news.description,
+                    text = viewState.value.news.description,
                     style = MaterialTheme.typography.paragraph.copy(textAlign = TextAlign.Justify),
                     modifier = Modifier
                         .padding(horizontal = 16.dp),
@@ -84,7 +84,7 @@ fun NewsDetailScreen(viewModel: NewsDetailViewModel) {
                 Spacer(modifier = Modifier.height(76.dp))
             }
         }
-        if (!state.value.news.articleLink.isNullOrBlank())
+        if (!viewState.value.news.articleLink.isNullOrBlank())
             MainButton(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)

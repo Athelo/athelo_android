@@ -3,6 +3,7 @@ package com.athelohealth.mobile.presentation.ui.caregiver.patientList
 import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.model.patients.Patient
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
+import com.athelohealth.mobile.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailViewState
 import com.athelohealth.mobile.useCase.caregiver.LoadPatientsUseCase
 import com.athelohealth.mobile.useCase.member.LoadMyProfileUseCase
 import com.athelohealth.mobile.utils.app.AppManager
@@ -19,15 +20,13 @@ class PatientListViewModel @Inject constructor(
     private val appManager: AppManager,
     private val loadPatients: LoadPatientsUseCase,
     private val loadProfile: LoadMyProfileUseCase,
-) : BaseViewModel<PatientListEvent, PatientListEffect>() {
-    private var currentState = PatientListViewState()
+) : BaseViewModel<PatientListEvent, PatientListEffect, PatientListViewState>(PatientListViewState()) {
     private val data = mutableSetOf<Patient>()
     private val initialFlow = PatientListFragmentArgs.fromSavedStateHandle(savedState).initialFlow
-    private val _state = MutableStateFlow(currentState)
-    val state = _state.asStateFlow()
     private var nextUrl: String? = null
     private var selectedPatient: Patient? = null
 
+    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
         loadList()
@@ -52,14 +51,14 @@ class PatientListViewModel @Inject constructor(
                     selectedPatient?.selected = false
                     selectedPatient = event.patient
                     selectedPatient?.selected = true
-                    notifyStateChanged(currentState.copy(selectedPatient = selectedPatient))
+                    notifyStateChange(currentState.copy(selectedPatient = selectedPatient))
                 }
             }
         }
     }
 
     private fun loadList() {
-        notifyStateChanged(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             if (nextUrl.isNullOrBlank()) {
                 data.clear()
@@ -72,7 +71,7 @@ class PatientListViewModel @Inject constructor(
                     (appManager.appType.value.patientId?.let { patientId -> data.firstOrNull { it.userId == patientId || it.userId == selectedPatient?.userId } }
                         ?: data.firstOrNull())?.also { it.selected = true }
             }
-            notifyStateChanged(
+            notifyStateChange(
                 currentState.copy(
                     isLoading = false,
                     patientList = data.toList(),
@@ -85,8 +84,4 @@ class PatientListViewModel @Inject constructor(
 
     private fun validate(): Boolean = data.isNotEmpty() && selectedPatient != null
 
-    private fun notifyStateChanged(newState: PatientListViewState) {
-        currentState = newState
-        launchOnUI { _state.emit(currentState) }
-    }
 }

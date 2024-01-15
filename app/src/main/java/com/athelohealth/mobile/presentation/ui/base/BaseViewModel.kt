@@ -27,6 +27,10 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
     protected val _effect: MutableSharedFlow<Ef> = MutableSharedFlow()
     val effect = _effect.asSharedFlow()
 
+    private val _baseEffect: MutableSharedFlow<BaseEffect> = MutableSharedFlow()
+    val baseEffect = _baseEffect.asSharedFlow()
+
+
     protected var currentState: st
     init {
         currentState = state
@@ -89,10 +93,28 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
     protected open fun handleError(throwable: Throwable) {
         pauseLoadingState()
         when (throwable) {
-            is AuthorizationException -> errorMessage(throwable.errorMessageOrUniversalMessage)
+            is AuthorizationException -> handleAuthorizationException(throwable)
             is NetWorkDisconnectedException, is IOException -> errorNoInternet()
             is HttpException -> errorMessage(throwable.parseMessage())
             else -> errorMessage(throwable.errorMessageOrUniversalMessage)
+        }
+    }
+
+    private fun handleAuthorizationException(authException: AuthorizationException) {
+        val throwable = authException.throwable
+
+        val authError = MessageState.AuthorizationErrorMessageState(message = authException.errorMessageOrUniversalMessage)
+        if (throwable is HttpException) {
+            when(throwable.code()) {
+                401 -> {
+                    logoutEffect()
+                }
+                else -> {
+                    errorMessage(authError)
+                }
+            }
+        } else {
+            errorMessage(authException.errorMessageOrUniversalMessage)
         }
     }
 
@@ -103,10 +125,21 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
 
 
     protected open fun errorMessage(message: String) {
+        pauseLoadingState()
         launchOnUI {
-            pauseLoadingState()
             _messageStateFlow.emit(MessageState.ErrorMessageState(message))
         }
+    }
+
+    protected open fun errorMessage(messageState: MessageState) {
+        pauseLoadingState()
+        launchOnUI {
+            _messageStateFlow.emit(messageState)
+        }
+    }
+
+    fun logoutEffect() {
+        launchOnUI { _baseEffect.emit(BaseEffect.ShowAuthorizationScreen) }
     }
 
     protected open fun notifyStateChange(currentState: st) {

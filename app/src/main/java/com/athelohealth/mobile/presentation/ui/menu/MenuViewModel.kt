@@ -97,18 +97,18 @@ class MenuViewModel @Inject constructor(
 
     private fun generatePatientMenu() = arrayListOf(
         MenuItem("My profile", R.drawable.ic_menu_my_profil, deeplink = deepLinkMyProfile),
-        MenuItem("Messages", R.drawable.ic_menu_messages, deeplink = deepLinkMessages),
+//        MenuItem("Messages", R.drawable.ic_menu_messages, deeplink = deepLinkMessages),
         MenuItem("My symptoms", R.drawable.ic_menu_symptoms, deepLinkMySymptoms),
-        MenuItem("My caregivers", R.drawable.ic_menu_my_caregiver, deepLinkMyCaregivers),
-        MenuItem(
-            "Invite a caregiver",
-            R.drawable.ic_menu_inv_caregiver,
-            deepLinkInviteCaregiver
-        ),
+//        MenuItem("My caregivers", R.drawable.ic_menu_my_caregiver, deepLinkMyCaregivers),
+//        MenuItem(
+//            "Invite a caregiver",
+//            R.drawable.ic_menu_inv_caregiver,
+//            deepLinkInviteCaregiver
+//        ),
         MenuItem("Settings", R.drawable.ic_menu_settings, deepLinkSettings),
 //        MenuItem("Connect smart watch", R.drawable.ic_menu_watch, deepLinkConnectWatch),
 //            MenuItem("Ask Athelo", R.drawable.ic_menu_ask_athelo, deepLinkAskAthelo),
-        MenuItem("Ask Athelo", R.drawable.ic_menu_ask_athelo, deepLinkSendFeedback),
+//        MenuItem("Ask Athelo", R.drawable.ic_menu_ask_athelo, deepLinkSendFeedback),
     )
 
     private fun generateCaregiverMenu() = arrayListOf(

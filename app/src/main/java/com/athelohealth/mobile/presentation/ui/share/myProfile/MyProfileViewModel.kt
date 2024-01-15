@@ -96,14 +96,14 @@ class MyProfileViewModel @Inject constructor(
 
     private fun buildPatientItems(): List<ProfileItems> =
         buildList {
-            add(ProfileItems.Header(R.string.My_roles))
-            add(
-                ProfileItems.Button(
-                    R.drawable.caregiver,
-                    R.string.Act_as,
-                    DEEPLINK_SELECT_ROLE.format(false)
-                )
-            )
+//            add(ProfileItems.Header(R.string.My_roles))
+//            add(
+//                ProfileItems.Button(
+//                    R.drawable.caregiver,
+//                    R.string.Act_as,
+//                    DEEPLINK_SELECT_ROLE.format(false)
+//                )
+//            )
             add(ProfileItems.Header(R.string.My_Health))
             add(
                 ProfileItems.Button(

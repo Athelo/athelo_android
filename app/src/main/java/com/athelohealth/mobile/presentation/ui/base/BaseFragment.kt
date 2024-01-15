@@ -2,7 +2,6 @@ package com.athelohealth.mobile.presentation.ui.base
 
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.mainActivity.MainActivity
-import com.athelohealth.mobile.presentation.ui.share.splash.SplashActivity
+import com.athelohealth.mobile.utils.routeToAuthorization
 
 abstract class BaseFragment<VM> :
     Fragment() where VM : BaseViewModel<*, *, *> {
@@ -56,12 +55,9 @@ abstract class BaseFragment<VM> :
     abstract fun setupObservers()
 
     private fun setupError() {
-        viewModel.effect.onEachCollect(viewLifecycleOwner) {
+        viewModel.baseEffect.onEachCollect(viewLifecycleOwner) {
             when (it) {
-                BaseEffect.ShowAuthorizationScreen -> requireActivity().let { activity ->
-                    activity.finishAffinity()
-                    startActivity(Intent(activity, SplashActivity::class.java))
-                }
+                BaseEffect.ShowAuthorizationScreen -> routeToAuthorization()
             }
         }
     }

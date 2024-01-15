@@ -32,4 +32,6 @@ sealed interface MessageState {
 
     @JvmInline
     value class LowConnectivityMessageState(override val message: String) : MessageState
+    @JvmInline
+    value class AuthorizationErrorMessageState(override val message: String) : MessageState
 }

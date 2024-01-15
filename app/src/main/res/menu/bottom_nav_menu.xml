@@ -14,10 +14,10 @@
 <!--        android:id="@+id/activityFragment"-->
 <!--        android:icon="@drawable/activity"-->
 <!--        android:title="@string/Activity" />-->
-    <item
-        android:id="@+id/chatListFragment"
-        android:icon="@drawable/community"
-        android:title="@string/Community" />
+<!--    <item-->
+<!--        android:id="@+id/chatListFragment"-->
+<!--        android:icon="@drawable/community"-->
+<!--        android:title="@string/Community" />-->
     <item
         android:id="@+id/newsFragment"
         android:icon="@drawable/news"

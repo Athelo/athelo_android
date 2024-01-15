@@ -193,14 +193,14 @@ class HomeViewModel @Inject constructor(
                     "ShowNewsScreen"
                 )
             )
-            add(
-                HomeItems.ButtonHome(
-                    R.drawable.ic_community,
-                    "Let's find you a community to chat ",
-                    R.drawable.ic_arrow_gray,
-                    "ShowChatScreen"
-                )
-            )
+//            add(
+//                HomeItems.ButtonHome(
+//                    R.drawable.ic_community,
+//                    "Let's find you a community to chat ",
+//                    R.drawable.ic_arrow_gray,
+//                    "ShowChatScreen"
+//                )
+//            )
         }
     }
 }

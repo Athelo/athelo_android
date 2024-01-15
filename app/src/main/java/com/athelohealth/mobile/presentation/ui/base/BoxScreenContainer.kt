@@ -76,6 +76,9 @@ fun BoxScreen(
                 exit = slideOutVertically()
             ) {
                 when (error) {
+                    is MessageState.AuthorizationErrorMessageState -> ErrorMessage(error = error) {
+                        viewModel?.logoutEffect()
+                    }
                     is MessageState.ErrorMessageState -> ErrorMessage(error = error) {
                         viewModel?.clearError()
                     }

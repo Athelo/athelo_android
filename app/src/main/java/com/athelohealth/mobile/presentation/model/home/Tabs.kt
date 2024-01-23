@@ -5,5 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class Tabs : Parcelable {
-    Home, Sleep, Activity, Community, News
+    Home, Sleep, Activity, Community, News, Appointment
 }

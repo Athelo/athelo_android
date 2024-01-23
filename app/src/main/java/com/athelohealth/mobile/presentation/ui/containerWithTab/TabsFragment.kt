@@ -104,6 +104,7 @@ class TabsFragment : BaseFragment<TabsViewModel>() {
                     Tabs.Activity -> R.id.activityFragment
                     Tabs.Community -> R.id.chatListFragment
                     Tabs.News -> R.id.newsFragment
+                    Tabs.Appointment -> R.id.appointmentFragment
                     else -> R.id.homeFragment
                 }
             firstTime = true

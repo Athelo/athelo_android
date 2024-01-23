@@ -16,6 +16,15 @@
             android:id="@+id/deepLink18"
             app:uri="atheloapp://newsList" />
     </fragment>
+
+    <fragment
+        android:id="@+id/appointmentFragment"
+        android:name="com.athelohealth.mobile.presentation.ui.share.appointment.AppointmentFragment"
+        android:label="AppointmentFragment">
+    <!--    <deepLink
+            android:id="@+id/deepLink18"
+            app:uri="atheloapp://newsList" />-->
+    </fragment>
     <fragment
         android:id="@+id/activityFragment"
         android:name="com.athelohealth.mobile.presentation.ui.share.activity.ActivityFragment"

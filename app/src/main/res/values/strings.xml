@@ -254,5 +254,8 @@
     </plurals>
 
     <string name="Appointment">Appointment</string>
+    <string name="welcome_to_the_appointments">Welcome to the Appointments!</string>
+    <string name="appointment_not_scheduled_msg">It looks like you haven\'t booked any appointments yet. Would you like to? You can click the \"Schedule My Appointment\" button at the lower right corner of your menu</string>
+    <string name="schedule_my_appointment">Schedule My Appointment</string>
 
 </resources>

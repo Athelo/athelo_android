@@ -70,6 +70,24 @@ private fun InputScrollSection(
     InputTextField(
         modifier = Modifier
             .padding(horizontal = 16.dp),
+        labelText = stringResource(id = R.string.Display_Name),
+        imeAction = ImeAction.Next,
+        onChange = {
+            viewModel.handleEvent(
+                SignUpEvent.InputValueChanged(InputType.PersonName(it.text))
+            )
+        },
+        isErrorShown = state.value.usernameError,
+        hint = stringResource(id = R.string.Enter_your_display_name),
+        initialValue = "",
+        keyboardActions = KeyboardActions(),
+        keyboardType = KeyboardType.Email,
+        singleLine = true,
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    InputTextField(
+        modifier = Modifier
+            .padding(horizontal = 16.dp),
         labelText = stringResource(id = R.string.Email),
         imeAction = ImeAction.Next,
         onChange = {
@@ -77,7 +95,7 @@ private fun InputScrollSection(
                 SignUpEvent.InputValueChanged(InputType.Email(it.text))
             )
         },
-        isErrorShown = state.value.usernameError,
+        isErrorShown = state.value.emailError,
         hint = stringResource(id = R.string.Enter_your_email),
         initialValue = "",
         errorMessage = stringResource(id = R.string.Wrong_email),

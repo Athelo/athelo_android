@@ -15,10 +15,17 @@ class AuthorizationLandingFragment : BaseComposeFragment<AuthorizationLandingVie
     }
     override val viewModel: AuthorizationLandingViewModel by viewModels()
 
-    private val handler =
+    private val signInHandler =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.handleEvent(
-                AuthorizationLandingEvent.SignWithGoogleResult(requireContext(), it)
+                AuthorizationLandingEvent.SignInWithGoogleResult(requireContext(), it)
+            )
+        }
+
+    private val signUpHandler =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            viewModel.handleEvent(
+                AuthorizationLandingEvent.SignUpWithGoogleResult(requireContext(), it)
             )
         }
 
@@ -29,7 +36,8 @@ class AuthorizationLandingFragment : BaseComposeFragment<AuthorizationLandingVie
                 AuthorizationLandingEffect.ShowSignUpWithEmailScreen -> routeToSignUp()
                 AuthorizationLandingEffect.ShowSignWithAppleScreen -> showToBeImplementedMessage()
                 AuthorizationLandingEffect.ShowSignWithFacebookScreen -> showToBeImplementedMessage()
-                AuthorizationLandingEffect.ShowSignWithGoogleScreen -> signWithGoogle()
+                AuthorizationLandingEffect.ShowSignInWithGoogleScreen -> signInWithGoogle()
+                AuthorizationLandingEffect.ShowSignUpWithGoogleScreen -> signUpWithGoogle()
                 AuthorizationLandingEffect.ShowSignWithTwitterScreen -> showToBeImplementedMessage()
                 AuthorizationLandingEffect.ShowAdditionalInformationScreen -> routeToAdditionalInformation()
                 AuthorizationLandingEffect.ShowHomeScreen -> routeToHome()
@@ -39,7 +47,11 @@ class AuthorizationLandingFragment : BaseComposeFragment<AuthorizationLandingVie
         }
     }
 
-    private fun signWithGoogle() {
-        GoogleOAuthHelper.signIn(requireContext(), handler)
+    private fun signInWithGoogle() {
+        GoogleOAuthHelper.signIn(requireContext(), signInHandler)
+    }
+
+    private fun signUpWithGoogle() {
+        GoogleOAuthHelper.signIn(requireContext(), signUpHandler)
     }
 }

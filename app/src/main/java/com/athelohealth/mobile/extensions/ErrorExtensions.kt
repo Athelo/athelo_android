@@ -11,5 +11,5 @@ fun HttpException.parseMessage(): String =
             ErrorParser.parse(it.string()).message
         }
         ?: NOT_AVAILABLE_CONTENT_ERROR_MESSAGE
-val Throwable.errorMessageOrUniversalMessage: String
-    get() = localizedMessage?.ifEmpty { UNIVERSAL_ERROR_MESSAGE } ?: UNIVERSAL_ERROR_MESSAGE
+val Throwable?.errorMessageOrUniversalMessage: String
+    get() = this?.localizedMessage?.ifEmpty { UNIVERSAL_ERROR_MESSAGE } ?: UNIVERSAL_ERROR_MESSAGE

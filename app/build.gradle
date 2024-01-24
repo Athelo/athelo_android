@@ -102,7 +102,7 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://app-stg.athelohealth.com/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
-            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-5l6d8nibk5j152shv4md9pi7ssjvjhev.apps.googleusercontent.com\""
+            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"143608640465-d3ub0tm2ropr8vsok7g4jrsq1qif0882.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo-Dev\""
             manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
@@ -112,7 +112,7 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://athelo-api-bki2ktapnq-uc.a.run.app/\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-QA\""
-            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"85793544772-q18v4is5ov7jjbikchahdqvp9cm5iud6.apps.googleusercontent.com\""
+            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"143608640465-d3ub0tm2ropr8vsok7g4jrsq1qif0882.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo-Qa\""
             manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
@@ -123,7 +123,7 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://app.athelohealth.com\""
             buildConfigField "String", "BASE_WSS", "\"wss://chat-server-stg.i2asolutions.com/socket/\""
             buildConfigField "String", "APP_ID", "\"ATHELO-PROD\""
-            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"864070173721-bvf1gjcom5bcnbdfl0o6fhfj3vv8ou9r.apps.googleusercontent.com\""
+            buildConfigField "String", "GOOGLE_CLIENT_ID", "\"143608640465-d3ub0tm2ropr8vsok7g4jrsq1qif0882.apps.googleusercontent.com\""
             resValue "string", "app_name", "\"Athelo\""
             manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         }
@@ -156,8 +156,6 @@ dependencies {
 
     // Support libs
     implementation "androidx.appcompat:appcompat:$compat_version"
-//    // Auth
-//    implementation "com.google.android.gms:play-services-auth:20.2.0"
     implementation "net.openid:appauth:0.11.1"
 
     //image picker
@@ -220,6 +218,7 @@ dependencies {
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 }
 
 kapt {

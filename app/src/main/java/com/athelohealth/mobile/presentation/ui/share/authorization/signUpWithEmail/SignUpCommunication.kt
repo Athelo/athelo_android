@@ -8,6 +8,7 @@ import com.athelohealth.mobile.presentation.ui.base.BaseViewState
 data class SignUpViewState(
     override val isLoading: Boolean = false,
     val enableButton: Boolean = false,
+    val emailError: Boolean = false,
     val usernameError: Boolean = false,
     val passwordError: Boolean = false,
     val confirmPasswordError: Boolean = false
@@ -15,6 +16,7 @@ data class SignUpViewState(
 
 sealed interface SignUpEffect : BaseEffect {
     object ShowAdditionalInfoScreen : SignUpEffect
+    object ShowHomeScreen: SignUpEffect
     object GoBack : SignUpEffect
     object ShowToSScreen : SignUpEffect
     object ShowPPScreen : SignUpEffect

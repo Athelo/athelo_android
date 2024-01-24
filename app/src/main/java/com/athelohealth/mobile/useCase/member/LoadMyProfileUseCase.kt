@@ -1,8 +1,10 @@
 package com.athelohealth.mobile.useCase.member
 
+import com.athelohealth.mobile.extensions.errorMessageOrUniversalMessage
 import com.athelohealth.mobile.network.repository.member.MemberRepository
 import com.athelohealth.mobile.presentation.model.member.User
 import com.athelohealth.mobile.utils.AuthorizationException
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class LoadMyProfileUseCase @Inject constructor(
@@ -13,7 +15,15 @@ class LoadMyProfileUseCase @Inject constructor(
         return if (response.isSuccess) {
             response.getOrNull()?.toUser()
         } else {
-            throw AuthorizationException(throwable = response.exceptionOrNull())
+            val exception = response.exceptionOrNull()
+            if (exception is HttpException && exception.code() == 401) {
+                throw AuthorizationException(throwable = exception)
+            } else {
+                throw AuthorizationException(
+                    message = exception.errorMessageOrUniversalMessage,
+                    throwable = exception
+                )
+            }
         }
     }
 

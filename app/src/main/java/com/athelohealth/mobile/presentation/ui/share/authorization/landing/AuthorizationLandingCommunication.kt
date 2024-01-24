@@ -9,14 +9,17 @@ import com.athelohealth.mobile.presentation.ui.base.BaseViewState
 sealed interface AuthorizationLandingEvent : BaseEvent {
     object SignInWithEmailClick : AuthorizationLandingEvent
     object SignUpWithEmailClick : AuthorizationLandingEvent
-    object SignWithGoogleClick : AuthorizationLandingEvent
+    object SignInWithGoogleClick : AuthorizationLandingEvent
+    object SignUpWithGoogleClick : AuthorizationLandingEvent
     object SignWithAppleClick : AuthorizationLandingEvent
     object SignWithFacebookClick : AuthorizationLandingEvent
     object SignWithTwitterClick : AuthorizationLandingEvent
     object TosLinkClick : AuthorizationLandingEvent
     object PPLinkClick : AuthorizationLandingEvent
     class TabClick(val index: Int) : AuthorizationLandingEvent
-    class SignWithGoogleResult(val context: Context, val result: ActivityResult) :
+    class SignInWithGoogleResult(val context: Context, val result: ActivityResult) :
+        AuthorizationLandingEvent
+    class SignUpWithGoogleResult(val context: Context, val result: ActivityResult) :
         AuthorizationLandingEvent
 }
 
@@ -26,7 +29,8 @@ sealed interface AuthorizationLandingEffect : BaseEffect {
     object ShowSignInWithEmailScreen : AuthorizationLandingEffect
     object ShowSignUpWithEmailScreen : AuthorizationLandingEffect
     object ShowSignWithAppleScreen : AuthorizationLandingEffect
-    object ShowSignWithGoogleScreen : AuthorizationLandingEffect
+    object ShowSignInWithGoogleScreen : AuthorizationLandingEffect
+    object ShowSignUpWithGoogleScreen : AuthorizationLandingEffect
     object ShowSignWithFacebookScreen : AuthorizationLandingEffect
     object ShowSignWithTwitterScreen : AuthorizationLandingEffect
     object ShowPrivacyPolicyScreen : AuthorizationLandingEffect

@@ -2,23 +2,29 @@ package com.athelohealth.mobile.presentation.ui.share.authorization.landing
 
 import com.athelohealth.mobile.extensions.findGoogleAuthorizationEnum
 import com.athelohealth.mobile.presentation.model.enums.Enums
+import com.athelohealth.mobile.presentation.model.member.Token
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.SetupPersonalConfigUseCase
-import com.athelohealth.mobile.useCase.member.LoadGoogleUserData
-import com.athelohealth.mobile.useCase.member.SignWithSocialUseCase
+import com.athelohealth.mobile.useCase.member.PostUserProfile
+import com.athelohealth.mobile.useCase.member.StoreSessionUseCase
+import com.athelohealth.mobile.useCase.member.signOut.LogOutUseCase
 import com.athelohealth.mobile.utils.GoogleOAuthHelper
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 import net.openid.appauth.AuthorizationException.GeneralErrors.USER_CANCELED_AUTH_FLOW
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthorizationLandingViewModel @Inject constructor(
+    private val storeSessionUseCase: StoreSessionUseCase,
+    private val logOutUseCase: LogOutUseCase,
     private val enums: Enums,
-    private val loginSocial: SignWithSocialUseCase,
-    private val setupPersonalConfigUseCase: SetupPersonalConfigUseCase,
-    private val loadGoogleUserData: LoadGoogleUserData,
+    private val setupPersonalInfo: SetupPersonalConfigUseCase,
+    private val postUserProfile: PostUserProfile,
 ) : BaseViewModel<AuthorizationLandingEvent, AuthorizationLandingEffect, AuthorizationLandingViewState>(AuthorizationLandingViewState(false, 0)) {
     override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
     override fun loadData() {}
@@ -43,9 +49,14 @@ class AuthorizationLandingViewModel @Inject constructor(
             AuthorizationLandingEvent.SignWithFacebookClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithFacebookScreen)
             }
-            AuthorizationLandingEvent.SignWithGoogleClick -> selfBlockRun {
+            AuthorizationLandingEvent.SignInWithGoogleClick -> selfBlockRun {
                 launchOnUI {
-                    notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithGoogleScreen)
+                    notifyEffectChanged(AuthorizationLandingEffect.ShowSignInWithGoogleScreen)
+                }
+            }
+            AuthorizationLandingEvent.SignUpWithGoogleClick -> selfBlockRun {
+                launchOnUI {
+                    notifyEffectChanged(AuthorizationLandingEffect.ShowSignUpWithGoogleScreen)
                 }
             }
             AuthorizationLandingEvent.SignWithTwitterClick -> selfBlockRun {
@@ -60,15 +71,20 @@ class AuthorizationLandingViewModel @Inject constructor(
             is AuthorizationLandingEvent.TabClick -> {
                 notifyStateChange(currentState.copy(selectedTabIndex = event.index))
             }
-            is AuthorizationLandingEvent.SignWithGoogleResult -> {
+            is AuthorizationLandingEvent.SignInWithGoogleResult -> {
                 currentState = currentState.copy(isLoading = true)
                 notifyStateChange()
-                handleSignWithGoogleResponse(event)
+                handleSignInWithGoogleResponse(event)
+            }
+            is AuthorizationLandingEvent.SignUpWithGoogleResult -> {
+                currentState = currentState.copy(isLoading = true)
+                notifyStateChange()
+                handleSignUpWithGoogleResponse(event)
             }
         }
     }
 
-    private fun handleSignWithGoogleResponse(event: AuthorizationLandingEvent.SignWithGoogleResult) {
+    private fun handleSignInWithGoogleResponse(event: AuthorizationLandingEvent.SignInWithGoogleResult) {
         GoogleOAuthHelper.parseResponse(event.context, event.result.data) { response, ex ->
             launchRequest(SupervisorJob() + Dispatchers.IO + requestExceptionHandler) {
                 val token = response?.accessToken
@@ -79,15 +95,83 @@ class AuthorizationLandingViewModel @Inject constructor(
                     return@launchRequest
                 } else if (ex != null) throw ex
                 else if (token != null && type != null) {
-                    val result = loginSocial(token, type)
-                    val username = loadGoogleUserData(token)
-                    val profile = setupPersonalConfigUseCase(result.tokenData, username)
-                    if (profile == null)
-                        notifyEffectChanged(AuthorizationLandingEffect.ShowAdditionalInformationScreen)
-                    else notifyEffectChanged(AuthorizationLandingEffect.ShowHomeScreen)
+                    val authCredential = GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
+                    FirebaseAuth.getInstance().signInWithCredential(authCredential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val userName = task.result.user?.displayName
+                                task.result.user?.getIdToken(true)?.addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        notifyStateChange(currentState.copy(isLoading = true))
+                                        launchRequest {
+                                            // Sign in success, update UI with the signed-in user's information
+                                            val profile = setupPersonalInfo(
+                                                Token(
+                                                    it.result.token ?: "",
+                                                    it.result.token ?: "",
+                                                    it.result.signInProvider ?: "",
+                                                    "",
+                                                    it.result.expirationTimestamp.toInt()
+                                                ), userName
+                                            )
+
+                                            if (profile == null)
+                                                withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowAdditionalInformationScreen) }
+                                            else withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowHomeScreen) }
+                                            pauseLoadingState()
+                                        }
+                                    } else errorMessage("Something went wrong.")
+                                } ?: errorMessage("Something went wrong.")
+                            } else errorMessage("Something went wrong.")
+                        }
                 }
             }
         }
     }
 
+    private fun handleSignUpWithGoogleResponse(event: AuthorizationLandingEvent.SignUpWithGoogleResult) {
+        GoogleOAuthHelper.parseResponse(event.context, event.result.data) { response, ex ->
+            launchRequest(SupervisorJob() + Dispatchers.IO + requestExceptionHandler) {
+                val token = response?.accessToken
+                val type = enums.findGoogleAuthorizationEnum()?.id
+                if (ex?.code == USER_CANCELED_AUTH_FLOW.code) {
+                    currentState = currentState.copy(isLoading = false)
+                    notifyStateChange()
+                    return@launchRequest
+                } else if (ex != null) throw ex
+                else if (token != null && type != null) {
+                    val authCredential = GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
+                    FirebaseAuth.getInstance().signInWithCredential(authCredential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val userName = task.result.user?.displayName
+                                task.result.user?.getIdToken(true)?.addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        notifyStateChange(currentState.copy(isLoading = true))
+                                        launchRequest {
+                                            logOutUseCase()
+                                            val accessToken = Token(
+                                                it.result.token ?: "",
+                                                it.result.token ?: "",
+                                                it.result.signInProvider ?: "",
+                                                "",
+                                                it.result.expirationTimestamp.toInt()
+                                            )
+                                            storeSessionUseCase(accessToken)
+                                            postUserProfile(userName ?: "")
+                                            // Sign in success, update UI with the signed-in user's information
+                                            val profile = setupPersonalInfo(accessToken, userName)
+                                            if (profile == null)
+                                                withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowAdditionalInformationScreen) }
+                                            else withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowHomeScreen) }
+                                            pauseLoadingState()
+                                        }
+                                    } else errorMessage("Something went wrong.")
+                                } ?: errorMessage("Something went wrong.")
+                            } else errorMessage("Something went wrong.")
+                        }
+                }
+            }
+        }
+    }
 }

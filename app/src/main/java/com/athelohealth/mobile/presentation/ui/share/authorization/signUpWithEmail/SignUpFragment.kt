@@ -6,6 +6,7 @@ import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
 import com.athelohealth.mobile.utils.routeToAdditionalInformation
 import com.athelohealth.mobile.utils.routeToBackScreen
+import com.athelohealth.mobile.utils.routeToHome
 import com.athelohealth.mobile.utils.routeToPrivacyPolicyScreen
 import com.athelohealth.mobile.utils.routeToTermsOfUseScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +23,7 @@ class SignUpFragment : BaseComposeFragment<SignUpViewModel>() {
             when (it) {
                 SignUpEffect.GoBack -> routeToBackScreen()
                 SignUpEffect.ShowAdditionalInfoScreen -> routeToAdditionalInformation()
+                SignUpEffect.ShowHomeScreen -> routeToHome()
                 SignUpEffect.ShowPPScreen -> routeToPrivacyPolicyScreen()
                 SignUpEffect.ShowToSScreen -> routeToTermsOfUseScreen()
             }

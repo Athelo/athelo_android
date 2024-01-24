@@ -158,7 +158,7 @@ private fun SignInOptionScreen(viewModel: AuthorizationLandingViewModel, modifie
         SecondaryWithImageButton(
             imageRes = R.drawable.google,
             textRes = R.string.Sign_in_with_Google,
-            onClick = { viewModel.handleEvent(AuthorizationLandingEvent.SignWithGoogleClick) },
+            onClick = { viewModel.handleEvent(AuthorizationLandingEvent.SignInWithGoogleClick) },
             background = white,
             border = black,
             textStyle = MaterialTheme.typography.button.copy(color = black)
@@ -207,7 +207,7 @@ private fun SignUpOptionScreen(viewModel: AuthorizationLandingViewModel, modifie
         SecondaryWithImageButton(
             imageRes = R.drawable.google,
             textRes = R.string.Sign_up_with_Google,
-            onClick = { viewModel.handleEvent(AuthorizationLandingEvent.SignWithGoogleClick) },
+            onClick = { viewModel.handleEvent(AuthorizationLandingEvent.SignUpWithGoogleClick) },
             background = white,
             border = black,
             textStyle = MaterialTheme.typography.button.copy(color = black)

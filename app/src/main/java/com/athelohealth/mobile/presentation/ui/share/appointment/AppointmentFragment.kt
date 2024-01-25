@@ -6,7 +6,9 @@ import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
 import com.athelohealth.mobile.utils.routeToMyProfile
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AppointmentFragment : BaseComposeFragment<AppointmentViewModel>() {
     override val composeContent: @Composable () -> Unit = {
         AppointmentScreen(viewModel = viewModel)

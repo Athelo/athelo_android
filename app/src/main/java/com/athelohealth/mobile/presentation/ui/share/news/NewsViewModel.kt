@@ -38,8 +38,7 @@ class NewsViewModel @Inject constructor(
     override fun loadData() {
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
-            val user =
-                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
+            val user = loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
             newsList = contentfulClient.getAllNews()
             _contentfulViewState.emit(currentNewsList())
             notifyStateChange(

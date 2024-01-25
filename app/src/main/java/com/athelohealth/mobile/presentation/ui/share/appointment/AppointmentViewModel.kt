@@ -13,15 +13,14 @@ import javax.inject.Inject
 class AppointmentViewModel @Inject constructor(
     private val loadMyProfileUseCase: LoadMyProfileUseCase,
     private val storeProfile: StoreUserUseCase,
-    private val loadCachedUserUseCase: LoadCachedUserUseCase,
-    private val contentfulClient: ContentfulClient,
+    private val loadCachedUserUseCase: LoadCachedUserUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
 
 
 
     override fun pauseLoadingState() {
-
+        notifyStateChange(currentState.copy(isLoading = false))
     }
 
     override fun loadData() {

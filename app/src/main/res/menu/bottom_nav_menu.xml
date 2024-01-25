@@ -23,4 +23,9 @@
         android:icon="@drawable/news"
         android:title="@string/News"
         />
+    <item
+        android:id="@+id/appointmentFragment"
+        android:icon="@drawable/appointment"
+        android:title="@string/Appointment"
+        />
 </menu>

@@ -2,6 +2,8 @@ package com.athelohealth.mobile.di
 
 import com.athelohealth.mobile.network.repository.application.ApplicationRepository
 import com.athelohealth.mobile.network.repository.application.ApplicationRepositoryImpl
+import com.athelohealth.mobile.network.repository.appointment.AppointmentRepository
+import com.athelohealth.mobile.network.repository.appointment.AppointmentRepositoryImpl
 import com.athelohealth.mobile.network.repository.caregiver.CaregiverRepository
 import com.athelohealth.mobile.network.repository.caregiver.CaregiverRepositoryImpl
 import com.athelohealth.mobile.network.repository.chat.ChatRepository
@@ -73,5 +75,11 @@ object NetworkModule {
     @Provides
     fun provideCaregiverRepository(userManager: UserManager): CaregiverRepository {
         return CaregiverRepositoryImpl(userManager)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppointmentRepository(userManager: UserManager): AppointmentRepository {
+        return AppointmentRepositoryImpl(userManager)
     }
 }

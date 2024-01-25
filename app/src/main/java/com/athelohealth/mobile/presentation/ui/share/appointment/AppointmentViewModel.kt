@@ -7,6 +7,8 @@ import com.athelohealth.mobile.useCase.member.StoreUserUseCase
 import com.athelohealth.mobile.utils.AuthorizationException
 import com.athelohealth.mobile.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,9 +17,6 @@ class AppointmentViewModel @Inject constructor(
     private val storeProfile: StoreUserUseCase,
     private val loadCachedUserUseCase: LoadCachedUserUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
-
-
-
 
     override fun pauseLoadingState() {
         notifyStateChange(currentState.copy(isLoading = false))
@@ -37,6 +36,20 @@ class AppointmentViewModel @Inject constructor(
                     user = user
                 )
             )
+        }
+    }
+
+    override fun handleEvent(event: AppointmentEvent) {
+        when(event) {
+            is AppointmentEvent.MenuClick -> {
+                notifyEffectChanged(AppointmentEffect.ShowMenuScreen)
+            }
+            is AppointmentEvent.MyProfileClick -> {
+                notifyEffectChanged(AppointmentEffect.ShowMyProfileScreen)
+            }
+            is AppointmentEvent.ScheduleMyAppointmentClick -> {
+                notifyEffectChanged(AppointmentEffect.ShowScheduleMyAppointment)
+            }
         }
     }
 }

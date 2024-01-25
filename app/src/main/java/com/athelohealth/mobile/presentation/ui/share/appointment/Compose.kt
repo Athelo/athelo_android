@@ -13,10 +13,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,7 +21,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,11 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,22 +44,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.presentation.model.news.News
-import com.athelohealth.mobile.presentation.model.news.NewsData
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
-import com.athelohealth.mobile.presentation.ui.base.ImageWithProgress
 import com.athelohealth.mobile.presentation.ui.base.MainButton
-import com.athelohealth.mobile.presentation.ui.base.SearchInputTextField
 import com.athelohealth.mobile.presentation.ui.base.ToolbarWithMenuAndMyProfile
 import com.athelohealth.mobile.presentation.ui.share.news.NewsEvent
-import com.athelohealth.mobile.presentation.ui.theme.background
-
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.fonts
 import com.athelohealth.mobile.presentation.ui.theme.gray
 import com.athelohealth.mobile.presentation.ui.theme.lightGreen
+import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.subtitle
 import com.athelohealth.mobile.presentation.ui.theme.white
-import com.athelohealth.mobile.utils.contentful.ContentfulClient
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -76,7 +65,9 @@ fun AppointmentScreen(viewModel: AppointmentViewModel) {
         viewModel = viewModel,
         showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding(),
-        content = Content(state = viewState,viewModel=viewModel)
+        content = Content(state = viewState,viewModel=viewModel) {
+            viewModel.handleEvent(it)
+        }
     )
 
 }
@@ -90,7 +81,7 @@ private fun Content(
 ): @Composable (BoxScope.() -> Unit) =
     {
         Column {
-            Box {
+            Box(modifier = Modifier.weight(1f)) {
                 Box {
                     ToolbarWithMenuAndMyProfile(
                         userAvatar = state.value.user.photo?.image5050,
@@ -108,20 +99,18 @@ private fun Content(
 
             }
 
-
             MainButton(
                 textId = R.string.schedule_my_appointment,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 5.dp)
-                    .padding(top = 24.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 16.dp),
                 onClick = {
                     handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
-                })
+                },
+                background = purple)
 
             // Scheduled appointment list UI
-            appointmntList(viewModel)
+            // appointmntList(viewModel)
 
         }
     }

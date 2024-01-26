@@ -332,5 +332,13 @@
             android:id="@+id/deepLink37"
             app:uri="atheloapp://myCaregiversList" />
     </fragment>
+    <fragment
+        android:id="@+id/scheduleAppointment"
+        android:name="com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment.ScheduleAppointmentFragment"
+        android:label="Schedule My Appointment">
+        <deepLink
+            android:id="@+id/deepLink38"
+            app:uri="atheloapp://scheduleAppointment" />
+    </fragment>
 
 </navigation>

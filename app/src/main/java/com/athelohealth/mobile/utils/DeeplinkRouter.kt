@@ -58,6 +58,7 @@ internal const val DEEPLINK_FIND_CAREGIVER = "atheloapp://findCaregiver"
 internal const val DEEPLINK_SELECT_ROLE = "atheloapp://selectRole?initialFlow=%b"
 internal const val LOST_CAREGIVER_ACCESS = "atheloapp://lost_caregiver_access"
 internal const val MY_CAREGIVERS = "atheloapp://myCaregiversList"
+internal const val SCHEDULE_MY_APPOINTMENT = "atheloapp://scheduleAppointment"
 
 fun Fragment.routeToBackScreen() =
     requireActivity().onBackPressed()
@@ -76,6 +77,10 @@ internal fun Fragment.routeToAuthorization() {
 
 internal fun Fragment.routeToMyProfile() {
     navigateTo(DEEPLINK_MY_PROFILE)
+}
+
+internal fun Fragment.routeToScheduleMyAppointment() {
+    navigateTo(SCHEDULE_MY_APPOINTMENT)
 }
 
 internal fun Fragment.routeToLogout() {

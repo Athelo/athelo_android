@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
@@ -13,6 +16,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -42,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.presentation.model.news.News
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
@@ -65,7 +71,7 @@ fun AppointmentScreen(viewModel: AppointmentViewModel) {
         viewModel = viewModel,
         showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.navigationBarsPadding(),
-        content = Content(state = viewState,viewModel=viewModel) {
+        content = Content(state = viewState, viewModel = viewModel) {
             viewModel.handleEvent(it)
         }
     )
@@ -78,46 +84,44 @@ private fun Content(
     state: State<AppointmentViewState>,
     viewModel: AppointmentViewModel,
     handleEvent: (AppointmentEvent) -> Unit = {}
-): @Composable (BoxScope.() -> Unit) =
-    {
-        Column {
-            Box(modifier = Modifier.weight(1f)) {
-                Box {
-                    ToolbarWithMenuAndMyProfile(
-                        userAvatar = state.value.user.photo?.image5050,
-                        userDisplayName = state.value.user.displayName ?: "",
-                        menuClick = {
-                            handleEvent(AppointmentEvent.MenuClick)
-                        },
-                        avatarClick = {
-                            handleEvent(AppointmentEvent.MyProfileClick)
-                        })
-                }
+): @Composable (BoxScope.() -> Unit) = {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f)) {
+            Box {
+                ToolbarWithMenuAndMyProfile(
+                    userAvatar = state.value.user.photo?.image5050,
+                    userDisplayName = state.value.user.displayName ?: "",
+                    menuClick = {
+                        handleEvent(AppointmentEvent.MenuClick)
+                    },
+                    avatarClick = {
+                        handleEvent(AppointmentEvent.MyProfileClick)
+                    })
 
                 // add condition for Scheduled appointment is available or not.
                 noAppointment()
-
             }
-
-            MainButton(
-                textId = R.string.schedule_my_appointment,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .padding(horizontal = 16.dp),
-                onClick = {
-                    handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
-                },
-                background = purple)
-
-            // Scheduled appointment list UI
-            // appointmntList(viewModel)
-
         }
+
+        MainButton(
+            textId = R.string.schedule_my_appointment,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 16.dp),
+            onClick = {
+                handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
+            },
+            background = purple
+        )
+
+        // Scheduled appointment list UI
+//        AppointmentList(viewModel)
     }
+}
 
 
 @Composable
-fun appointmntList(viewModel : AppointmentViewModel) {
+fun AppointmentList(viewModel: AppointmentViewModel) {
     val lazyState = rememberLazyListState()
     LaunchedEffect(key1 = null) {
         lazyState.scrollToItem(0)
@@ -131,47 +135,47 @@ fun appointmntList(viewModel : AppointmentViewModel) {
             contentPadding = PaddingValues(bottom = 56.dp)
         ) {
             stickyHeader {
-       /*         Box {
-                    Text(
-                        text = "", modifier = Modifier
-                            .height(54.dp)
-                            .fillMaxWidth()
-                            .background(background)
-                    )
-                    SearchInputTextField(
-                        initialValue= viewModel.currentQuery(),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 24.dp, top = 24.dp),
-                        onChange = { search ->
-                            viewModel.updateNewsList(search.text)
-                        },
-                        keyboardActions = KeyboardActions(onSearch = {
-                            focusManager.clearFocus()
-                        }),
-                        hint = stringResource(id = R.string.Search)
-                    )
-                }*/
+                /*         Box {
+                             Text(
+                                 text = "", modifier = Modifier
+                                     .height(54.dp)
+                                     .fillMaxWidth()
+                                     .background(background)
+                             )
+                             SearchInputTextField(
+                                 initialValue= viewModel.currentQuery(),
+                                 modifier = Modifier
+                                     .padding(horizontal = 16.dp)
+                                     .padding(bottom = 24.dp, top = 24.dp),
+                                 onChange = { search ->
+                                     viewModel.updateNewsList(search.text)
+                                 },
+                                 keyboardActions = KeyboardActions(onSearch = {
+                                     focusManager.clearFocus()
+                                 }),
+                                 hint = stringResource(id = R.string.Search)
+                             )
+                         }*/
             }
-    /*        if (contentfulViewState.value.isEmpty()) {
-                item {
-                    noAppointment()
-                }
-            } else {*/
-                items(5) { news ->
-                    NoImageNewsCell(
-                        news = News(
-                            id = 1,
-                            isFavourite = false,
-                            name = "Test name with maybe two lines of text?",
-                            description = LoremIpsum(29).values.joinToString(" "),
-                            categories = listOf("Cat 1", "Cat 2"),
-                            image = com.athelohealth.mobile.presentation.model.base.Image(
-                                image250250 = "https://placekitten.com/250/250"
-                            )
-                        ), modifier = Modifier, handleEvent = {}
-                    )
-       //         }
+            /*        if (contentfulViewState.value.isEmpty()) {
+                        item {
+                            noAppointment()
+                        }
+                    } else {*/
+            items(1) { news ->
+                NoImageNewsCell(
+                    news = News(
+                        id = 1,
+                        isFavourite = false,
+                        name = "Test name with maybe two lines of text?",
+                        description = LoremIpsum(29).values.joinToString(" "),
+                        categories = listOf("Cat 1", "Cat 2"),
+                        image = com.athelohealth.mobile.presentation.model.base.Image(
+                            image250250 = "https://placekitten.com/250/250"
+                        )
+                    ), modifier = Modifier, handleEvent = {}
+                )
+                //         }
             }
         }
     }
@@ -181,12 +185,15 @@ fun appointmntList(viewModel : AppointmentViewModel) {
 @Preview
 @Composable
 fun previewMessage() {
-    //Content(state = viewModel.viewState.collectAsState())
+    val viewModel: AppointmentViewModel = viewModel()
+    val state = viewModel.viewState.collectAsState()
+    Content(state = state, viewModel = viewModel) {}
+    //AppointmentScreen(viewModel = viewModel)
 }
 
 
 @Composable
-fun noAppointment(){
+fun noAppointment() {
     Column {
         Box {
             Image(
@@ -215,7 +222,7 @@ fun noAppointment(){
         )
 
         Text(
-            text = stringResource(R.string.appointment_not_scheduled_msg)   ,
+            text = stringResource(R.string.appointment_not_scheduled_msg),
             style = MaterialTheme.typography.titleMedium,
             overflow = TextOverflow.Ellipsis,
             fontSize = 14.sp,

@@ -30,9 +30,8 @@ interface MemberApi {
     @POST("/api/v1/users/user-profiles/")
     suspend fun postUserProfile(@Body body: UserDto): Response<Unit>
 
-    @PATCH("api/v1/users/me/{id}/")
+    @PUT("api/v1/users/me/")
     suspend fun updateUserProfile(
-        @Path("id") id: Int,
         @Body body: UpdateUserProfileBodyDto
     ): UserDto
 

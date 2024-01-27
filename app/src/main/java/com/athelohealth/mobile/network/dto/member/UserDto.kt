@@ -21,8 +21,8 @@ class UserDto(
     @SerialName("user") val user: SocialAppUserDto? = null,
     @SerialName("user_profile_id") val userProfileId: Int? = null,
     @SerialName("profile_friend_visibility_only") val profileFriendVisibleOnly: Boolean? = null,
-    @SerialName("date_of_birth") val birthdate: String? = null, // format 1991-06-15
-    @SerialName("phone_number") val phoneNumber: String? = null, // format 1991-06-15
+    @SerialName("birthday") val birthdate: String? = null, // format 1991-06-15
+    @SerialName("phone") val phoneNumber: String? = null, // format 1991-06-15
     @SerialName("has_fitbit_user_profile") val hasFitbitUserProfile: Boolean? = null,
     @SerialName("is_caregiver") val isCaregiver: Boolean? = null,
     @SerialName("is_patient") val isPatient: Boolean? = null,

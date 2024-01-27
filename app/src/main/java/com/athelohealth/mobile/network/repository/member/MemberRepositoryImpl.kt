@@ -64,13 +64,11 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
         userType: String?
     ): UserDto {
         return service.updateUserProfile(
-            userId,
             UpdateUserProfileBodyDto(
                 email = email,
                 displayName = displayName,
                 phoneNumber = RetrofitNullableStringParam(phoneNumber),
-                birthdate = birthDate,
-                userType = userType
+                birthdate = birthDate
             )
         )
     }

@@ -100,10 +100,19 @@ class AuthorizationLandingViewModel @Inject constructor(
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 val userName = task.result.user?.displayName
-                                task.result.user?.getIdToken(true)?.addOnCompleteListener {
+                                task.result.user?.getIdToken(false)?.addOnCompleteListener {
                                     if (it.isSuccessful) {
                                         notifyStateChange(currentState.copy(isLoading = true))
                                         launchRequest {
+                                            val token = Token(
+                                                it.result.token ?: "",
+                                                it.result.token ?: "",
+                                                it.result.signInProvider ?: "",
+                                                "",
+                                                it.result.expirationTimestamp.toInt()
+                                            )
+                                            storeSessionUseCase(token)
+                                            postUserProfile(userName = userName?:"")
                                             // Sign in success, update UI with the signed-in user's information
                                             val profile = setupPersonalInfo(
                                                 Token(
@@ -114,6 +123,7 @@ class AuthorizationLandingViewModel @Inject constructor(
                                                     it.result.expirationTimestamp.toInt()
                                                 ), userName
                                             )
+
 
                                             if (profile == null)
                                                 withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowAdditionalInformationScreen) }

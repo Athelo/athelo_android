@@ -34,14 +34,14 @@ abstract class BaseRepository<T>(clazz: Class<T>, private val userManager: UserM
                 .request()
                 .newBuilder()
             request.apply {
-                addHeader("X-Application-Identifier", BuildConfig.APP_ID)
-                addHeader("X-App-Version", BuildConfig.VERSION_NAME)
-                addHeader("X-Device-Type", "ANDROID")
+//                addHeader("X-Application-Identifier", BuildConfig.APP_ID)
+//                addHeader("X-App-Version", BuildConfig.VERSION_NAME)
+//                addHeader("X-Device-Type", "ANDROID")
                 debugPrint(BuildConfig.APP_ID)
                 val session = userManager.getFormattedSession()
                 if (!session.isNullOrBlank()) {
                     session.let {
-                        addHeader("Authorization", it)
+                        addHeader("Authorization", "Bearer $it")
                         debugPrint("session: $it")
                     }
                 }

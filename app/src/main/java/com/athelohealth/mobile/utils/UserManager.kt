@@ -85,10 +85,8 @@ class UserManager internal constructor(
 
     fun getFormattedSession(): String? {
         val session = getSession() ?: return null
-        val type = getTokenType() ?: return null
         if (session.isBlank()) return null
-        if (type.isBlank()) return null
-        return "$type $session"
+        return session
     }
 
     fun isLoggedIn(): Boolean {

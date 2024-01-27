@@ -9,7 +9,7 @@ class LoadApplicationUseCase @Inject constructor(private val repository: Applica
 
     suspend operator fun invoke(): Application? {
         return repository.loadApplications().results
-            .firstOrNull { it.identifier == BuildConfig.APP_ID }
+            .firstOrNull()
             ?.toApplication()
     }
 }

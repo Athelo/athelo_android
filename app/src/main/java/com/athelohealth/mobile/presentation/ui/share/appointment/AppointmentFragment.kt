@@ -28,7 +28,6 @@ class AppointmentFragment : BaseComposeFragment<AppointmentViewModel>() {
                 AppointmentEffect.ShowMyProfileScreen -> routeToMyProfile()
 
                 AppointmentEffect.ShowScheduleMyAppointment -> {
-                    Toast.makeText(activity, "TestClick", Toast.LENGTH_SHORT).show()
                     routeToScheduleMyAppointment()
                 }
 

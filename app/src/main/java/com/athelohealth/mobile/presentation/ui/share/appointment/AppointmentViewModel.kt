@@ -20,7 +20,7 @@ class AppointmentViewModel @Inject constructor(
     private val loadCachedUserUseCase: LoadCachedUserUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
-    private val _isAppointmentListEmpty = MutableLiveData(true)
+    private val _isAppointmentListEmpty = MutableLiveData(false)
     val isAppointmentListEmpty: LiveData<Boolean> get() = _isAppointmentListEmpty
 
     override fun pauseLoadingState() {

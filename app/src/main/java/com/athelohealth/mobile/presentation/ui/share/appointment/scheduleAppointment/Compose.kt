@@ -1,33 +1,29 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,9 +48,9 @@ import com.athelohealth.mobile.R
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.Toolbar
 import com.athelohealth.mobile.presentation.ui.theme.background
-import com.athelohealth.mobile.presentation.ui.theme.black
 import com.athelohealth.mobile.presentation.ui.theme.gray
-import com.athelohealth.mobile.presentation.ui.theme.subHeading
+import com.athelohealth.mobile.presentation.ui.theme.headline20
+import com.athelohealth.mobile.presentation.ui.theme.paragraph
 
 @Composable
 fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
@@ -74,11 +70,11 @@ data class AppointmentData(val name: String, val hobby: String)
 @Composable
 fun OuterContent(handleEvent: (ScheduleAppointmentEvent) -> Unit) {
     val dataList = listOf(
-        AppointmentData("Pankaj", "Abcde"),
-        AppointmentData("Pradip", "Abcde"),
-        AppointmentData("Rajesh", "Abcde"),
-        AppointmentData("Vandit", "Abcde"),
-        AppointmentData("Vishal", "Abcde")
+        AppointmentData("Ave Calvar", "Care Navigator"),
+        AppointmentData("Robert Godwin", "Care Navigator"),
+        AppointmentData("Christian Buehner", "Mentor"),
+        AppointmentData("Alison Mitchel", "Caregiver"),
+        AppointmentData("Jonas Kakaroto", "Caregiver")
     )
 
     Column {
@@ -137,7 +133,9 @@ fun HeaderContent(
             Image(
                 painter = painterResource(id = R.drawable.ic_user_avatar),
                 contentDescription = stringResource(id = R.string.app_name),
-                modifier = Modifier.size(70.dp).weight(1f)
+                modifier = Modifier
+                    .aspectRatio(1f / 1f)
+                    .weight(1f)
             )
             Column(
                 modifier = Modifier
@@ -147,14 +145,14 @@ fun HeaderContent(
             ) {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.subHeading.copy(
-                        color = black,
+                    style = MaterialTheme.typography.headline20.copy(
+                        color = gray,
                         fontWeight = FontWeight.Medium
                     )
                 )
                 Text(
                     text = hobby,
-                    style = MaterialTheme.typography.subHeading.copy(
+                    style = MaterialTheme.typography.paragraph.copy(
                         color = gray,
                         fontWeight = FontWeight.Normal
                     )
@@ -167,11 +165,11 @@ fun HeaderContent(
                 },
                 modifier = Modifier
                     .alpha(ContentAlpha.medium)
-                    .weight(1f)
+                    .weight(0.5f)
                     .rotate(rotationState)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
+                    painter = painterResource(id = R.drawable.arrows),
                     contentDescription = stringResource(id = R.string.app_name)
                 )
             }

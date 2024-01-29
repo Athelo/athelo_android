@@ -1,5 +1,7 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.member.LoadCachedUserUseCase
 import com.athelohealth.mobile.useCase.member.LoadMyProfileUseCase
@@ -18,24 +20,27 @@ class AppointmentViewModel @Inject constructor(
     private val loadCachedUserUseCase: LoadCachedUserUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
+    private val _isAppointmentListEmpty = MutableLiveData(true)
+    val isAppointmentListEmpty: LiveData<Boolean> get() = _isAppointmentListEmpty
+
     override fun pauseLoadingState() {
         notifyStateChange(currentState.copy(isLoading = false))
     }
 
     override fun loadData() {
-        notifyStateChange(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = false))
         launchRequest {
-            val user =
-                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
+//            val user =
+//                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
           //  newsList = contentfulClient.getAllNews()
           //  _contentfulViewState.emit(currentNewsList())
-            notifyStateChange(
-                currentState.copy(
-                    initialized = true,
-                    isLoading = false,
-                    user = user
-                )
-            )
+//            notifyStateChange(
+//                currentState.copy(
+//                    initialized = true,
+//                    isLoading = false,
+//                    user = user
+//                )
+//            )
         }
     }
 

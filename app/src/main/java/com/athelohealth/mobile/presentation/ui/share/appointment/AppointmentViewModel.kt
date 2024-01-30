@@ -20,7 +20,7 @@ class AppointmentViewModel @Inject constructor(
     private val loadCachedUserUseCase: LoadCachedUserUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
-    private val _isAppointmentListEmpty = MutableLiveData(false)
+    private val _isAppointmentListEmpty = MutableLiveData(true)
     val isAppointmentListEmpty: LiveData<Boolean> get() = _isAppointmentListEmpty
 
     override fun pauseLoadingState() {
@@ -30,17 +30,19 @@ class AppointmentViewModel @Inject constructor(
     override fun loadData() {
         notifyStateChange(currentState.copy(isLoading = false))
         launchRequest {
-//            val user =
-//                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
-          //  newsList = contentfulClient.getAllNews()
-          //  _contentfulViewState.emit(currentNewsList())
-//            notifyStateChange(
-//                currentState.copy(
-//                    initialized = true,
-//                    isLoading = false,
-//                    user = user
-//                )
-//            )
+            val user =
+                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
+            notifyStateChange(
+                currentState.copy(
+                    initialized = true,
+                    isLoading = false,
+                    user = user
+                )
+            )
+
+            // Get Appointment List from the API
+            //  newsList = contentfulClient.getAllNews()
+            //  _contentfulViewState.emit(currentNewsList())
         }
     }
 

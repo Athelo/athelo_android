@@ -2,11 +2,12 @@
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
+import android.widget.CalendarView
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -47,10 +48,12 @@ import androidx.compose.ui.unit.dp
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.Toolbar
+import com.athelohealth.mobile.presentation.ui.base.calendar.CalendarPreview
 import com.athelohealth.mobile.presentation.ui.theme.background
 import com.athelohealth.mobile.presentation.ui.theme.gray
 import com.athelohealth.mobile.presentation.ui.theme.headline20
 import com.athelohealth.mobile.presentation.ui.theme.paragraph
+import com.athelohealth.mobile.presentation.ui.theme.typography
 
 @Composable
 fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
@@ -74,6 +77,9 @@ fun OuterContent(handleEvent: (ScheduleAppointmentEvent) -> Unit) {
         AppointmentData("Robert Godwin", "Care Navigator"),
         AppointmentData("Christian Buehner", "Mentor"),
         AppointmentData("Alison Mitchel", "Caregiver"),
+        AppointmentData("Jonas Kakaroto", "Caregiver"),
+        AppointmentData("Jonas Kakaroto", "Caregiver"),
+        AppointmentData("Jonas Kakaroto", "Caregiver"),
         AppointmentData("Jonas Kakaroto", "Caregiver")
     )
 
@@ -85,7 +91,8 @@ fun OuterContent(handleEvent: (ScheduleAppointmentEvent) -> Unit) {
                 handleEvent.invoke(ScheduleAppointmentEvent.OnBackButtonClicked)
             })
 
-        LazyColumn(modifier = Modifier.fillMaxWidth(),
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(all = 12.dp)
         ) {
             items(dataList) { item ->
@@ -115,7 +122,7 @@ fun HeaderContent(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .padding(all = 12.dp),
+            .padding(all = 10.dp),
         colors = CardDefaults.cardColors(background),
         elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(16.dp),
@@ -141,18 +148,18 @@ fun HeaderContent(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .weight(4f),
-                verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.headline20.copy(
+                    style = typography.labelMedium.copy(
                         color = gray,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
                 Text(
                     text = hobby,
-                    style = MaterialTheme.typography.paragraph.copy(
+                    style = typography.bodyMedium.copy(
                         color = gray,
                         fontWeight = FontWeight.Normal
                     )
@@ -196,8 +203,5 @@ fun ChooseTime() {
 fun ContentPreview() {
 //    val viewModel: ScheduleAppointmentViewModel = viewModel()
 //    ScheduleMyAppointment(viewModel)
-
-    HeaderContent(name = "Ave Calvar", hobby = "Care Navigator") {
-
-    }
+    HeaderContent(name = "Ave Calvar", hobby = "Care Navigator") {}
 }

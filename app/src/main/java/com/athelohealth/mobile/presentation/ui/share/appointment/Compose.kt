@@ -2,37 +2,34 @@
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
     ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -57,8 +54,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,28 +64,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.presentation.model.news.News
+import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.DropdownMenu
 import com.athelohealth.mobile.presentation.ui.base.MainButton
 import com.athelohealth.mobile.presentation.ui.base.ToolbarWithMenuAndMyProfile
-import com.athelohealth.mobile.presentation.ui.share.news.NewsEvent
 import com.athelohealth.mobile.presentation.ui.theme.background
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.dividerColor
 import com.athelohealth.mobile.presentation.ui.theme.fonts
 import com.athelohealth.mobile.presentation.ui.theme.gray
-import com.athelohealth.mobile.presentation.ui.theme.lightGreen
 import com.athelohealth.mobile.presentation.ui.theme.lightOlivaceous
 import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.red
-import com.athelohealth.mobile.presentation.ui.theme.subtitle
 import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlin.math.exp
 
 @Composable
 fun AppointmentScreen(viewModel: AppointmentViewModel) {
@@ -96,153 +90,43 @@ fun AppointmentScreen(viewModel: AppointmentViewModel) {
     BoxScreen(
         viewModel = viewModel,
         showProgressProvider = { viewState.value.isLoading },
-        modifier = Modifier.navigationBarsPadding(),
-        content = Content(state = viewState, viewModel = viewModel) {
-            viewModel.handleEvent(it)
+        modifier = Modifier.statusBarsPadding(),
+        includeStatusBarPadding = false
+    ) {
+        if (viewModel.isAppointmentListEmpty.value == true) {
+            EmptyAppointmentView(
+                state = viewState,
+                handleEvent = viewModel::handleEvent
+            )
+        } else {
+            ScheduledAppointmentList(
+                state = viewState,
+                handleEvent = viewModel::handleEvent,
+                viewModel = viewModel
+            )
         }
-    )
-
+    }
 }
 
-
 @Composable
-private fun Content(
+fun EmptyAppointmentView(
     state: State<AppointmentViewState>,
-    viewModel: AppointmentViewModel,
-    handleEvent: (AppointmentEvent) -> Unit = {}
-): @Composable (BoxScope.() -> Unit) = {
-    Column(modifier = Modifier.fillMaxSize()) {
-        if (viewModel.isAppointmentListEmpty.value == true) {
-            Box(modifier = Modifier.weight(1f)) {
-                Box {
-                    InitToolBar(state = state, handleEvent = handleEvent)
-                    // add condition for Scheduled appointment is available or not.
-                    NoAppointments()
-                }
-            }
-        } else {
+    handleEvent: (AppointmentEvent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+    ) {
+        Box {
+            val painter = painterResource(id = R.drawable.appointment_top)
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
             InitToolBar(state = state, handleEvent = handleEvent)
         }
-
-        MainButton(
-            textId = R.string.schedule_my_appointment,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 16.dp),
-            onClick = {
-                handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
-            },
-            background = purple
-        )
-
-        // Scheduled appointment list UI
-        AppointmentList(viewModel)
-    }
-}
-
-@Composable
-fun InitToolBar(state: State<AppointmentViewState>, handleEvent: (AppointmentEvent) -> Unit = {}) {
-    ToolbarWithMenuAndMyProfile(
-        userAvatar = state.value.user.photo?.image5050,
-        userDisplayName = state.value.user.displayName ?: "",
-        menuClick = {
-            handleEvent(AppointmentEvent.MenuClick)
-        },
-        avatarClick = {
-            handleEvent(AppointmentEvent.MyProfileClick)
-        })
-}
-
-@Composable
-fun AppointmentList(viewModel: AppointmentViewModel) {
-    val lazyState = rememberLazyListState()
-    LaunchedEffect(key1 = null) {
-        lazyState.scrollToItem(0)
-    }
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing = false),
-        onRefresh = { viewModel.loadData() }) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            state = lazyState,
-            contentPadding = PaddingValues(bottom = 10.dp)
-        ) {
-            stickyHeader {
-                /*         Box {
-                             Text(
-                                 text = "", modifier = Modifier
-                                     .height(54.dp)
-                                     .fillMaxWidth()
-                                     .background(background)
-                             )
-                             SearchInputTextField(
-                                 initialValue= viewModel.currentQuery(),
-                                 modifier = Modifier
-                                     .padding(horizontal = 16.dp)
-                                     .padding(bottom = 24.dp, top = 24.dp),
-                                 onChange = { search ->
-                                     viewModel.updateNewsList(search.text)
-                                 },
-                                 keyboardActions = KeyboardActions(onSearch = {
-                                     focusManager.clearFocus()
-                                 }),
-                                 hint = stringResource(id = R.string.Search)
-                             )
-                         }*/
-            }
-            /*        if (contentfulViewState.value.isEmpty()) {
-                        item {
-                            noAppointment()
-                        }
-                    } else {*/
-            items(2) { news ->
-                /* NoImageNewsCell(
-                     news = News(
-                         id = 1,
-                         isFavourite = false,
-                         name = "Test name with maybe two lines of text?",
-                         description = LoremIpsum(29).values.joinToString(" "),
-                         categories = listOf("Cat 1", "Cat 2"),
-                         image = com.athelohealth.mobile.presentation.model.base.Image(
-                             image250250 = "https://placekitten.com/250/250"
-                         )
-                     ), modifier = Modifier, handleEvent = {}
-                 )*/
-
-
-                ScheduledAppointmentCell(
-                    "Ave Calvar", "Car Navigator", onEditClicked = {}
-                )
-
-                //         }
-            }
-        }
-    }
-
-}
-
-@Composable
-fun NoAppointments() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly
-    )
-    {
-        val painter = painterResource(id = R.drawable.appointment_top)
-        Image(
-            painter = painter,
-            contentDescription = "top_background",
-            Modifier
-                .weight(1f, fill = false)
-                //.aspectRatio((painter.intrinsicSize.height + 100) / 1280)
-                .fillMaxWidth()
-                .fillMaxHeight(1380f),
-            contentScale = ContentScale.Crop
-        )
-
         Text(
             text = stringResource(id = R.string.welcome_to_the_appointments),
             style = MaterialTheme.typography.titleMedium,
@@ -273,69 +157,124 @@ fun NoAppointments() {
                 .padding(top = 8.dp)
                 .padding(horizontal = 15.dp)
         )
+
+        MainButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            textId = R.string.schedule_new_appointment,
+            background = purple,
+            onClick = {
+                handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
+            }
+        )
     }
 }
 
+@Composable
+fun ScheduledAppointmentList(
+    state: State<AppointmentViewState>,
+    handleEvent: (AppointmentEvent) -> Unit,
+    viewModel: AppointmentViewModel
+) {
+    Column {
+        InitToolBar(state = state, handleEvent = handleEvent)
+
+        MainButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            textId = R.string.schedule_new_appointment,
+            background = purple,
+            onClick = {
+                handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
+            }
+        )
+
+        AppointmentList(viewModel)
+    }
+}
 
 @Composable
-private fun NoImageNewsCell(news: News, modifier: Modifier, handleEvent: (NewsEvent) -> Unit) {
-    Card(
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(30.dp))
-            .clickable { handleEvent(NewsEvent.NewsItemClick(news)) },
-        colors = CardDefaults.cardColors(containerColor = white),
-        shape = RoundedCornerShape(30.dp),
-    ) {
-        Column(
+fun InitToolBar(state: State<AppointmentViewState>, handleEvent: (AppointmentEvent) -> Unit) {
+    ToolbarWithMenuAndMyProfile(
+        userAvatar = state.value.user.photo?.image5050,
+        userDisplayName = state.value.user.displayName ?: "",
+        menuClick = {
+            handleEvent(AppointmentEvent.MenuClick)
+        },
+        avatarClick = {
+            handleEvent(AppointmentEvent.MyProfileClick)
+        })
+}
+
+@Composable
+fun AppointmentList(viewModel: AppointmentViewModel) {
+    val lazyState = rememberLazyListState()
+    LaunchedEffect(key1 = null) {
+        lazyState.scrollToItem(0)
+    }
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = false),
+        onRefresh = { viewModel.loadData() }) {
+        LazyColumn(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(bottom = 8.dp),
+            state = lazyState,
+            contentPadding = PaddingValues(bottom = 56.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                news.categories.forEach { category ->
-                    Text(
-                        text = category,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(lightGreen.copy(alpha = 0.5f))
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                }
+            stickyHeader {
+                /*         Box {
+                             Text(
+                                 text = "", modifier = Modifier
+                                     .height(54.dp)
+                                     .fillMaxWidth()
+                                     .background(background)
+                             )
+                             SearchInputTextField(
+                                 initialValue= viewModel.currentQuery(),
+                                 modifier = Modifier
+                                     .padding(horizontal = 16.dp)
+                                     .padding(bottom = 24.dp, top = 24.dp),
+                                 onChange = { search ->
+                                     viewModel.updateNewsList(search.text)
+                                 },
+                                 keyboardActions = KeyboardActions(onSearch = {
+                                     focusManager.clearFocus()
+                                 }),
+                                 hint = stringResource(id = R.string.Search)
+                             )
+                         }*/
             }
-            Text(
-                text = news.name,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = news.description,
-                style = MaterialTheme.typography.subtitle.copy(fontWeight = FontWeight.Normal),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
+            /*        if (contentfulViewState.value.isEmpty()) {
+                        item {
+                            noAppointment()
+                        }
+                    } else {*/
+            items(5) { _ ->
+                ScheduledAppointmentCell(
+                    name = "Ave Calvar",
+                    hobby = "Car Navigator",
+                    viewModel = viewModel
+                )
+
+                //         }
+            }
         }
     }
+
 }
 
 @Composable
 fun ScheduledAppointmentCell(
     name: String,
     hobby: String,
-    onEditClicked: () -> Unit
+    viewModel: AppointmentViewModel
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -381,13 +320,14 @@ fun ScheduledAppointmentCell(
                 )
             }
 
-            Box(modifier = Modifier
-                .weight(0.5f)
-                .wrapContentSize(Alignment.TopStart)
-                .clip(shape = RoundedCornerShape(8.dp))) {
+            Box(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .wrapContentSize(Alignment.TopStart)
+                    .clip(shape = RoundedCornerShape(8.dp))
+            ) {
                 IconButton(
                     onClick = {
-                        onEditClicked.invoke()
                         expanded = true
                     },
                     modifier = Modifier
@@ -399,7 +339,7 @@ fun ScheduledAppointmentCell(
                     )
                 }
 
-                DropDownMenu(expanded = expanded) {
+                DropDownMenu(expanded = expanded, viewModel) {
                     expanded = it
                 }
             }
@@ -443,12 +383,14 @@ fun ScheduledAppointmentCell(
 }
 
 
-
 @Composable
-fun DropDownMenu(expanded: Boolean, onStateChange: (Boolean) -> Unit) {
-    val context = LocalContext.current
+fun DropDownMenu(
+    expanded: Boolean,
+    viewModel: AppointmentViewModel,
+    onStateChange: (Boolean) -> Unit
+) {
     val openDialog = remember { mutableStateOf(false) }
-
+    val shouldShowRescheduleDialog = remember { mutableStateOf(false) }
 
     DropdownMenu(
         modifier = Modifier.background(background),
@@ -460,20 +402,21 @@ fun DropDownMenu(expanded: Boolean, onStateChange: (Boolean) -> Unit) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             text = {
-                Text(text = "Join Appointment",
-                    color = darkPurple)
+                Text(
+                    text = "Join Appointment",
+                    color = darkPurple
+                )
             },
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_join_appointment),
                     contentDescription = "Join appointment icon",
-                    tint = darkPurple)
+                    tint = darkPurple
+                )
             },
             onClick = {
-                // TODO: Show Alert dialog
-                Toast.makeText(context, "Join appointment clicked!", Toast.LENGTH_SHORT).show()
                 onStateChange.invoke(false)
-                openDialog.value = true
+                openDialog.value = false
             }
         )
 
@@ -490,24 +433,71 @@ fun DropDownMenu(expanded: Boolean, onStateChange: (Boolean) -> Unit) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_cancel_appointment),
                     contentDescription = "Cancel appointment icon",
-                    tint = red)
+                    tint = red
+                )
             },
             onClick = {
-                // TODO: Show Alert dialog
-                Toast.makeText(context, "Cancel appointment clicked!", Toast.LENGTH_SHORT).show()
                 onStateChange.invoke(false)
                 openDialog.value = true
             }
         )
     }
 
-    if(openDialog.value) {
-        CreateCustomAlertDialog(openDialog)
+    if (openDialog.value) {
+        CreateCustomAlertDialog(
+            openDialog = openDialog,
+            title = "Cancel appointment",
+            message = "Are you sure you want to cancel your appointment?",
+            negativeBtnText = "No",
+            negativeBtnTextColor = darkPurple,
+            positiveBtnText = "Yes",
+            positiveBtnTextColor = white,
+            positiveBtnBgColor = red,
+            onNegativeBtnClicked = {
+                openDialog.value = false
+            },
+            onPositiveBtnClicked = {
+                openDialog.value = false
+                shouldShowRescheduleDialog.value = true
+            }
+        )
+    }
+
+    if (shouldShowRescheduleDialog.value) {
+        CreateCustomAlertDialog(
+            openDialog = shouldShowRescheduleDialog,
+            title = "Re-schedule appointment",
+            message = "Do you want to re-schedule your appointment?",
+            negativeBtnText = "No",
+            negativeBtnTextColor = darkPurple,
+            positiveBtnText = "Yes",
+            positiveBtnTextColor = white,
+            positiveBtnBgColor = purple,
+            onNegativeBtnClicked = {
+                shouldShowRescheduleDialog.value = false
+                viewModel.sendBaseEvent(BaseEvent.DisplaySuccess("Never mind! You can schedule new appointment!"))
+
+            },
+            onPositiveBtnClicked = {
+                shouldShowRescheduleDialog.value = false
+                viewModel.handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
+            })
     }
 }
 
 @Composable
-fun CreateCustomAlertDialog(openDialog: MutableState<Boolean>) {
+fun CreateCustomAlertDialog(
+    openDialog: MutableState<Boolean>,
+    title: String,
+    message: String,
+    negativeBtnText: String,
+    negativeBtnTextColor: Color,
+    positiveBtnText: String,
+    positiveBtnTextColor: Color,
+    positiveBtnBgColor: Color,
+    onNegativeBtnClicked: () -> Unit,
+    onPositiveBtnClicked: () -> Unit
+) {
 
     AlertDialog(
         onDismissRequest = { openDialog.value = false },
@@ -524,14 +514,20 @@ fun CreateCustomAlertDialog(openDialog: MutableState<Boolean>) {
             )
         },
         text = {
-               Column(modifier = Modifier.fillMaxWidth(),
-                   horizontalAlignment = Alignment.CenterHorizontally) {
-                   Text(text = "Cancel appointment",
-                       style = typography.headlineSmall.copy(color = darkPurple))
-                   Text(text = "Are you sure you want to cancel your appointment?",
-                       style = typography.bodyMedium.copy(color = darkPurple),
-                       textAlign = TextAlign.Center)
-               }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    style = typography.headlineSmall.copy(color = darkPurple)
+                )
+                Text(
+                    text = message,
+                    style = typography.bodyMedium.copy(color = darkPurple),
+                    textAlign = TextAlign.Center
+                )
+            }
         },
         buttons = {
             Row(
@@ -539,30 +535,37 @@ fun CreateCustomAlertDialog(openDialog: MutableState<Boolean>) {
                     .fillMaxWidth()
                     .padding(all = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "No",
-                    color = lightOlivaceous,
-                    modifier = Modifier.weight(1f)
+                    text = negativeBtnText,
+                    color = negativeBtnTextColor,
+                    modifier = Modifier
+                        .wrapContentSize()
                         .border(
-                            width = 1.dp, color = darkPurple, shape = RoundedCornerShape(24.dp)
+                            width = 1.dp,
+                            color = negativeBtnTextColor,
+                            shape = RoundedCornerShape(24.dp)
                         )
-                        .height(48.dp)
                         .clickable {
-                            openDialog.value = false
-                        },
+                            onNegativeBtnClicked.invoke()
+                        }
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
                     fontSize = 13.sp,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
-                    text = "Yes",
-                    color = white,
-                    modifier = Modifier.weight(1f).clip(shape = RoundedCornerShape(24.dp)).background(red).height(48.dp)
+                    text = positiveBtnText,
+                    color = positiveBtnTextColor,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clip(shape = RoundedCornerShape(24.dp))
+                        .background(positiveBtnBgColor)
                         .clickable {
-                            openDialog.value = false
-                        },
+                            onPositiveBtnClicked.invoke()
+                        }
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
                     textAlign = TextAlign.Center,
                     fontSize = 13.sp,
                 )
@@ -572,14 +575,11 @@ fun CreateCustomAlertDialog(openDialog: MutableState<Boolean>) {
 
 @Preview
 @Composable
-fun previewMessage() {
-//    val viewModel: AppointmentViewModel = viewModel()
-//    val state = viewModel.viewState.collectAsState()
-//    Content(state = state, viewModel = viewModel) {}
-    //AppointmentScreen(viewModel = viewModel)
+fun PreviewAppointmentScreen() {
+    val viewModel: AppointmentViewModel = viewModel()
+    val state = viewModel.viewState.collectAsState()
 
-    ScheduledAppointmentCell(
-        "Ave Calvar",
-        "Car Nevogator"
-    ) {}
+    EmptyAppointmentView(state = state, handleEvent = viewModel::handleEvent)
+
+    ScheduledAppointmentList(state = state, handleEvent = viewModel::handleEvent, viewModel = viewModel)
 }

@@ -13,15 +13,16 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -30,7 +31,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -43,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,7 +54,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +65,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
@@ -116,17 +119,21 @@ fun EmptyAppointmentView(
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
+            .fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
+
         Box {
-            val painter = painterResource(id = R.drawable.appointment_top)
+            val painter = painterResource(id = R.drawable.ic_appointment_top)
             Image(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.fillMaxWidth().aspectRatio(painter.intrinsicSize.width / (painter.intrinsicSize.height * 0.9f)),
+                contentScale = ContentScale.Fit
             )
             InitToolBar(state = state, handleEvent = handleEvent)
         }
+
         Text(
             text = stringResource(id = R.string.welcome_to_the_appointments),
             style = MaterialTheme.typography.titleMedium,
@@ -393,49 +400,31 @@ fun DropDownMenu(
     val shouldShowRescheduleDialog = remember { mutableStateOf(false) }
 
     DropdownMenu(
-        modifier = Modifier.background(background),
+        modifier = Modifier
+            .background(background)
+            .padding(end = 16.dp)
+            .fillMaxWidth(0.7f),
         expanded = expanded,
-        onDismissRequest = { onStateChange.invoke(false) }
+        onDismissRequest = {
+            onStateChange.invoke(false)
+        }
     ) {
-        DropdownMenuItem(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            text = {
-                Text(
-                    text = "Join Appointment",
-                    color = darkPurple
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_join_appointment),
-                    contentDescription = "Join appointment icon",
-                    tint = darkPurple
-                )
-            },
+        MyDropDownMenuItem(
+            painterResource = painterResource(id = R.drawable.ic_join_appointment),
+            tintColor = darkPurple,
+            itemName = "Join appointment",
             onClick = {
                 onStateChange.invoke(false)
                 openDialog.value = false
             }
         )
 
-        Divider(modifier = Modifier.padding(horizontal = 16.dp), color = dividerColor)
+        Divider(modifier = Modifier.padding(horizontal = 24.dp), color = dividerColor)
 
-        DropdownMenuItem(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            text = {
-                Text(text = "Cancel", color = red)
-            },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_cancel_appointment),
-                    contentDescription = "Cancel appointment icon",
-                    tint = red
-                )
-            },
+        MyDropDownMenuItem(
+            painterResource = painterResource(id = R.drawable.ic_cancel_appointment),
+            tintColor = red,
+            itemName = "Cancel",
             onClick = {
                 onStateChange.invoke(false)
                 openDialog.value = true
@@ -444,8 +433,7 @@ fun DropDownMenu(
     }
 
     if (openDialog.value) {
-        CreateCustomAlertDialog(
-            openDialog = openDialog,
+        CancelAppointmentDialog(
             title = "Cancel appointment",
             message = "Are you sure you want to cancel your appointment?",
             negativeBtnText = "No",
@@ -453,6 +441,9 @@ fun DropDownMenu(
             positiveBtnText = "Yes",
             positiveBtnTextColor = white,
             positiveBtnBgColor = red,
+            onDialogDismiss = {
+                openDialog.value = false
+            },
             onNegativeBtnClicked = {
                 openDialog.value = false
             },
@@ -464,8 +455,7 @@ fun DropDownMenu(
     }
 
     if (shouldShowRescheduleDialog.value) {
-        CreateCustomAlertDialog(
-            openDialog = shouldShowRescheduleDialog,
+        CancelAppointmentDialog(
             title = "Re-schedule appointment",
             message = "Do you want to re-schedule your appointment?",
             negativeBtnText = "No",
@@ -473,6 +463,9 @@ fun DropDownMenu(
             positiveBtnText = "Yes",
             positiveBtnTextColor = white,
             positiveBtnBgColor = purple,
+            onDialogDismiss = {
+                shouldShowRescheduleDialog.value = false
+            },
             onNegativeBtnClicked = {
                 shouldShowRescheduleDialog.value = false
                 viewModel.sendBaseEvent(BaseEvent.DisplaySuccess("Never mind! You can schedule new appointment!"))
@@ -486,91 +479,34 @@ fun DropDownMenu(
 }
 
 @Composable
-fun CreateCustomAlertDialog(
-    openDialog: MutableState<Boolean>,
-    title: String,
-    message: String,
-    negativeBtnText: String,
-    negativeBtnTextColor: Color,
-    positiveBtnText: String,
-    positiveBtnTextColor: Color,
-    positiveBtnBgColor: Color,
-    onNegativeBtnClicked: () -> Unit,
-    onPositiveBtnClicked: () -> Unit
+fun MyDropDownMenuItem(
+    painterResource: Painter,
+    tintColor: Color,
+    itemName: String,
+    onClick: () -> Unit
 ) {
-
-    AlertDialog(
-        onDismissRequest = { openDialog.value = false },
-        shape = RoundedCornerShape(16.dp),
-        title = {
-            Image(
-                painter = painterResource(id = R.drawable.athelo_logo_with_text),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .height(56.dp)
-                    .padding(vertical = 8.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.FillHeight
+    DropdownMenuItem(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(all = 0.dp),
+        leadingIcon = {
+            Icon(
+                painter = painterResource,
+                contentDescription = "Dropdown menu icon",
+                tint = tintColor,
+                modifier = Modifier.padding(start = 20.dp)
             )
         },
         text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = title,
-                    style = typography.headlineSmall.copy(color = darkPurple)
-                )
-                Text(
-                    text = message,
-                    style = typography.bodyMedium.copy(color = darkPurple),
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                text = itemName,
+                color = tintColor,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(end = 24.dp)
+            )
         },
-        buttons = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = negativeBtnText,
-                    color = negativeBtnTextColor,
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .border(
-                            width = 1.dp,
-                            color = negativeBtnTextColor,
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .clickable {
-                            onNegativeBtnClicked.invoke()
-                        }
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Text(
-                    text = positiveBtnText,
-                    color = positiveBtnTextColor,
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .clip(shape = RoundedCornerShape(24.dp))
-                        .background(positiveBtnBgColor)
-                        .clickable {
-                            onPositiveBtnClicked.invoke()
-                        }
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    textAlign = TextAlign.Center,
-                    fontSize = 13.sp,
-                )
-            }
-        })
+        onClick = { onClick.invoke() }
+    )
 }
 
 @Preview
@@ -581,5 +517,9 @@ fun PreviewAppointmentScreen() {
 
     EmptyAppointmentView(state = state, handleEvent = viewModel::handleEvent)
 
-    ScheduledAppointmentList(state = state, handleEvent = viewModel::handleEvent, viewModel = viewModel)
+//    ScheduledAppointmentList(
+//        state = state,
+//        handleEvent = viewModel::handleEvent,
+//        viewModel = viewModel
+//    )
 }

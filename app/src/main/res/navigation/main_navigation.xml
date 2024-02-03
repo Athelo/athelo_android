@@ -110,6 +110,10 @@
         <argument
             android:name="newsId"
             app:argType="string" />
+        <argument
+            android:name="isFavourite"
+            android:defaultValue="true"
+            app:argType="boolean" />
         <deepLink
             android:id="@+id/deepLink13"
             app:uri="atheloapp://newsDetail?id={newsId}" />

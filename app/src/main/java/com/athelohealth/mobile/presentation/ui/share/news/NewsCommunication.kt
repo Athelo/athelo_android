@@ -39,5 +39,5 @@ sealed interface NewsEffect : BaseEffect {
     object ShowMyProfileScreen : NewsEffect
     class OpenNewsDetailScreen(val news: News) : NewsEffect
     class ShowCategoryFilter(val initialSelection: List<Category>) : NewsEffect
-    class OpenContentfulNewsDetailScreen(val news: NewsData) : NewsEffect
+    class OpenContentfulNewsDetailScreen(val isFavourite: Boolean = false, val news: NewsData) : NewsEffect
 }

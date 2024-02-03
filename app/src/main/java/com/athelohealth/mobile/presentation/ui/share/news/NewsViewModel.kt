@@ -7,6 +7,7 @@ import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.member.LoadCachedUserUseCase
 import com.athelohealth.mobile.useCase.member.LoadMyProfileUseCase
 import com.athelohealth.mobile.useCase.member.StoreUserUseCase
+import com.athelohealth.mobile.useCase.news.LoadFavouriteNewsUseCase
 import com.athelohealth.mobile.utils.AuthorizationException
 import com.athelohealth.mobile.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,11 +20,13 @@ class NewsViewModel @Inject constructor(
     private val loadMyProfileUseCase: LoadMyProfileUseCase,
     private val storeProfile: StoreUserUseCase,
     private val loadCachedUserUseCase: LoadCachedUserUseCase,
+    private val loadFavouriteNewsUseCase: LoadFavouriteNewsUseCase,
     private val contentfulClient: ContentfulClient,
-) :
-    BaseViewModel<NewsEvent, NewsEffect, NewsViewState>(NewsViewState()) {
+) : BaseViewModel<NewsEvent, NewsEffect, NewsViewState>(NewsViewState()) {
 
     private var newsList: List<NewsData> = listOf()
+    private var favouriteList: List<NewsData> = listOf()
+
 
     private val _contentfulViewState = MutableStateFlow(listOf<NewsData>())
     val contentfulViewState = _contentfulViewState.asStateFlow()
@@ -32,6 +35,7 @@ class NewsViewModel @Inject constructor(
     private var selectedCategories = listOf<Category>()
     private var query: String = ""
     private var currentScreenType: NewsListType = NewsListType.List
+    private var favouriteIdList = listOf<String>()
 
     override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
@@ -49,7 +53,15 @@ class NewsViewModel @Inject constructor(
                     screenType = currentScreenType
                 )
             )
+            fetchFavouriteValues()
         }
+    }
+
+    private suspend fun fetchFavouriteValues() {
+        notifyStateChange(currentState.copy(isLoading = true))
+        favouriteIdList = loadFavouriteNewsUseCase().result.map { it.externalContentId ?: "" }
+        favouriteList = newsList.filter { favouriteIdList.contains(it.key) }
+        notifyStateChange(currentState.copy(isLoading = false))
     }
 
     override fun handleEvent(event: NewsEvent) {
@@ -74,7 +86,8 @@ class NewsViewModel @Inject constructor(
                 resetAndLoad()
             }
             is NewsEvent.NewsDetails -> {
-                notifyEffectChanged(NewsEffect.OpenContentfulNewsDetailScreen(news = event.news))
+                val isFavourite = favouriteIdList.any { it == event.news.key }
+                notifyEffectChanged(NewsEffect.OpenContentfulNewsDetailScreen(news = event.news, isFavourite = isFavourite))
             }
         }
     }
@@ -86,14 +99,15 @@ class NewsViewModel @Inject constructor(
 
     private fun displayFavouriteMode() {
         currentScreenType = NewsListType.Favourites
-        resetAndLoad()
+        launchRequest {
+            _contentfulViewState.emit(currentNewsList())
+        }
     }
 
     private fun displayListMode() {
         currentScreenType = NewsListType.List
         resetAndLoad()
     }
-
 
     private fun resetAndLoad() {
         newsNextUrl = null
@@ -117,8 +131,11 @@ class NewsViewModel @Inject constructor(
      * This will check and return if the current selected option is `All News` or `Favourites`
      */
     private fun currentNewsList(): List<NewsData> {
-        return if (currentScreenType == NewsListType.List) newsList else {
-            if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
+        return if (currentScreenType == NewsListType.List)
+            newsList
+        else {
+            favouriteList
+//            if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
         }.filter {
             if (query.trim().isNotEmpty()) it.title.contains(query.trim(), ignoreCase = true) else true
         }

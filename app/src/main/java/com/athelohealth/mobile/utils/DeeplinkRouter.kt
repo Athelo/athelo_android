@@ -34,7 +34,7 @@ internal const val DEEPLINK_FEEDBACK = "atheloapp://feedback?type=%d"
 internal const val DEEPLINK_CHAT_LIST = "atheloapp://chatList"
 internal const val DEEPLINK_CONNECT_FITBIT = "atheloapp://connectFitbit?skip=%b"
 internal const val DEEPLINK_CATEGORY_PICKER = "atheloapp://categoryPicker"
-internal const val DEEPLINK_NEWS_DETAIL = "atheloapp://newsDetail?id=%s"
+internal const val DEEPLINK_NEWS_DETAIL = "atheloapp://newsDetail?id=%s&isFavourite=%b"
 internal const val DEEPLINK_WELLBEING = "atheloapp://trackWellbeing"
 internal const val DEEPLINK_CHAT = "atheloapp://chat?conversationId=%s&group=%b"
 internal const val DEEPLINK_RECOMMENDATION_SYMPTOM = "atheloapp://symptomRecommendation?id=%d"
@@ -125,8 +125,8 @@ internal fun Fragment.routeToNews() =
     )
 /* navigateTo(DEEPLINK_NEWS)*/
 
-internal fun Fragment.routeToNewsDetail(newsId: String) =
-    navigateTo(DEEPLINK_NEWS_DETAIL.format(newsId))
+internal fun Fragment.routeToNewsDetail(newsId: String, isFavourite: Boolean = false) =
+    navigateTo(DEEPLINK_NEWS_DETAIL.format(newsId, isFavourite))
 
 internal fun Fragment.routeToChat(conversationId: Int, isGroup: Boolean = true) =
     navigateTo(DEEPLINK_CHAT.format(conversationId, isGroup))

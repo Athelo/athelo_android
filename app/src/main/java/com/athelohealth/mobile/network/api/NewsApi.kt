@@ -40,9 +40,9 @@ interface NewsApi {
 
     @POST("/api/v1/posts/posts/{id}/add_to_favourites/")
     suspend fun getAddFavouritePost(@Path("id") id: Int): Response<Unit>
-//
-//    @POST("/api/v1/posts/posts/{id}/remove_from_favourites/")
-//    suspend fun getRemoveFavouritePost(@Path("id") id: Int): Response<Unit>
+
+    @POST("/api/v1/posts/posts/{id}/remove_from_favourites/")
+    suspend fun getRemoveFavouritePost(@Path("id") id: Int): Response<Unit>
 
     @GET("api/v1/posts/posts/{id}/")
     suspend fun getPostDetail(@Path("id") id: Int): NewsDto
@@ -53,7 +53,7 @@ interface NewsApi {
     @POST("/api/v1/saved-content/")
     suspend fun getAddFavouritePost(@Body body: FavouriteDto): Response<Unit>
 
-    @DELETE("/api/v1/saved-content/")
+    @HTTP(method = "DELETE", path = "/api/v1/saved-content/", hasBody = true)
     suspend fun getRemoveFavouritePost(@Body body: FavouriteDto): Response<Unit>
 
 }

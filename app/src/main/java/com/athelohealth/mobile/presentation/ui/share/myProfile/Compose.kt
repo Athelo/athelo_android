@@ -155,6 +155,22 @@ fun UserCell(onEditClick: () -> Unit, user: User) {
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
+                if (!user.isCaregiver && user.cancerStatus != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            modifier = Modifier
+                                .padding(end = 8.dp, bottom = 4.dp, top = 4.dp)
+                                .size(24.dp),
+                            painter = painterResource(id = R.drawable.ic_cancer_status),
+                            contentDescription = "Symptom Icon"
+                        )
+                        Text(
+                            text = stringResource(id = R.string.cancer_status, user.cancerStatus.name),
+                            style = MaterialTheme.typography.body1.copy(color = if (user.phone.isNullOrBlank()) lightGray else gray),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
             Image(
                 painter = painterResource(id = R.drawable.ic_edit),

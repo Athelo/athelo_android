@@ -34,6 +34,10 @@ interface MemberRepository {
         userType: String?,
     ): UserDto
 
+    suspend fun getPatientStatus(): PatientStatus
+
+    suspend fun updateCancerStatus(cancerStatus: CancerStatus): PatientStatus
+
     suspend fun updateUserPhoto(userId: Int, photoId: Int): UserDto
 
     suspend fun loadMoreUsers(url: String): PageResponseDto<UserDto>

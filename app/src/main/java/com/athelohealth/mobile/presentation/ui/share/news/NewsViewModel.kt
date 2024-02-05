@@ -40,10 +40,11 @@ class NewsViewModel @Inject constructor(
     override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
     override fun loadData() {
-        notifyStateChange(currentState.copy(isLoading = true))
+        notifyStateChange(currentState.copy(isLoading = true, screenType = currentScreenType))
         launchRequest {
             val user = loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
             newsList = contentfulClient.getAllNews()
+            fetchFavouriteValues()
             _contentfulViewState.emit(currentNewsList())
             notifyStateChange(
                 currentState.copy(
@@ -53,7 +54,6 @@ class NewsViewModel @Inject constructor(
                     screenType = currentScreenType
                 )
             )
-            fetchFavouriteValues()
         }
     }
 
@@ -99,6 +99,7 @@ class NewsViewModel @Inject constructor(
 
     private fun displayFavouriteMode() {
         currentScreenType = NewsListType.Favourites
+        notifyStateChange(currentState.copy(screenType = currentScreenType))
         launchRequest {
             _contentfulViewState.emit(currentNewsList())
         }
@@ -106,7 +107,10 @@ class NewsViewModel @Inject constructor(
 
     private fun displayListMode() {
         currentScreenType = NewsListType.List
-        resetAndLoad()
+        notifyStateChange(currentState.copy(screenType = currentScreenType))
+        launchRequest {
+            _contentfulViewState.emit(currentNewsList())
+        }
     }
 
     private fun resetAndLoad() {

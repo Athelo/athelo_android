@@ -73,6 +73,14 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
         )
     }
 
+    override suspend fun getPatientStatus(): PatientStatus {
+        return service.getPatientStatus()
+    }
+
+    override suspend fun updateCancerStatus(cancerStatus: CancerStatus): PatientStatus {
+        return service.updateCancerStatus(PatientStatus(cancerStatus = cancerStatus))
+    }
+
     override suspend fun updateUserPhoto(userId: Int, photoId: Int): UserDto {
         return service.updateUserPhoto(userId, UpdateUserPhotoBodyDto(photoId))
     }

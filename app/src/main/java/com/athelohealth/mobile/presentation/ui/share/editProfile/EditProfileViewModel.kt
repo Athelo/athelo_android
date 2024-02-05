@@ -2,6 +2,9 @@ package com.athelohealth.mobile.presentation.ui.share.editProfile
 
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
+import com.athelohealth.mobile.network.dto.member.CancerStatus
+import com.athelohealth.mobile.network.dto.member.getCancerStatusList
+import com.athelohealth.mobile.network.dto.member.getCurrentCancerStatus
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.model.enums.EnumItem
 import com.athelohealth.mobile.presentation.model.enums.Enums
@@ -21,7 +24,6 @@ import javax.inject.Inject
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val enums: Enums,
     private val storeUser: StoreUserUseCase,
     private val loadMyProfileUseCase: LoadMyProfileUseCase,
     private val updateUser: UpdateProfileUseCase,
@@ -30,7 +32,7 @@ class EditProfileViewModel @Inject constructor(
     private val sendForgotPasswordRequestUseCase: SendForgotPasswordRequestUseCase,
     private val appManager: AppManager
 ) : BaseViewModel<EditProfileEvent, EditProfileEffect, EditProfileViewState>(EditProfileViewState(
-    userTypes = enums.userTypes.filter { it.id != "3" },
+    treatmentTypes = getCancerStatusList(),
     editMode = false,
     enableEditMode = false,
 )) {
@@ -38,7 +40,7 @@ class EditProfileViewModel @Inject constructor(
     init {
         notifyStateChange(
             EditProfileViewState(
-                userTypes = enums.userTypes.filter { it.id != "3" },
+                treatmentTypes = getCancerStatusList(),
                 editMode = !EditProfileFragmentArgs.fromSavedStateHandle(savedStateHandle).enableEditMode,
                 enableEditMode = EditProfileFragmentArgs.fromSavedStateHandle(savedStateHandle).enableEditMode,
             )
@@ -46,9 +48,9 @@ class EditProfileViewModel @Inject constructor(
     }
     private var phoneNumber = ""
     private var birthdate: String? = null
-    private var userType = EnumItem.EMPTY
     private var newImage: Uri? = null
     private var displayName: String? = null
+    private var treatmentStatus: CancerStatus? = null
 
     override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
@@ -58,8 +60,8 @@ class EditProfileViewModel @Inject constructor(
             originalUser = loadMyProfileUseCase() ?: throw AuthorizationException("Expire Session")
             phoneNumber = originalUser.phone ?: ""
             birthdate = originalUser.birthday
-            userType = enums.userTypes.firstOrNull { it.id == originalUser.userType.toString() }
-                ?: EnumItem.EMPTY
+            val treatmentStatus = loadMyProfileUseCase.treatmentStatus().cancerStatus?.getCurrentCancerStatus()
+
             storeUser(originalUser)
             displayName = originalUser.displayName
             val showRequestPassword = appManager.authenticationType == IdentityType.Native
@@ -67,7 +69,7 @@ class EditProfileViewModel @Inject constructor(
                 currentState.copy(
                     isLoading = false,
                     user = originalUser,
-                    selectedUserType = userType,
+                    treatmentStatus = treatmentStatus ?: EnumItem.EMPTY,
                     selectedBirthdate = birthdate,
                     hideRequestPasswordButton = !showRequestPassword,
                 )
@@ -106,16 +108,18 @@ class EditProfileViewModel @Inject constructor(
         }
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
+
             val userId = originalUser.id ?: throw NullPointerException(UNIVERSAL_ERROR_MESSAGE)
             val newId = newImage?.let { uri -> uploadImageUseCase(uri) }
             newId?.let { imageId -> uploadImageProfileUseCase(userId, imageId) }
-            updateUser(
+            updateUser.invoke(
                 userId,
                 phoneNumber,
                 birthdate,
                 originalUser.email ?: "",
                 displayName ?: originalUser.displayName ?: "",
-                userType.id
+                "",
+                currentState.user.cancerStatus
             )
             clearCurrentValues()
             currentState = currentState.copy(
@@ -130,7 +134,6 @@ class EditProfileViewModel @Inject constructor(
     private fun clearCurrentValues() {
         phoneNumber = ""
         birthdate = null
-        userType = EnumItem.EMPTY
         newImage = null
         displayName = null
     }
@@ -141,8 +144,7 @@ class EditProfileViewModel @Inject constructor(
                 phoneNumber = inputType.value
             }
             is InputType.DropDown -> {
-                userType =
-                    enums.userTypes.firstOrNull { it.id == inputType.value } ?: EnumItem.EMPTY
+                treatmentStatus = CancerStatus.valueOf(inputType.value)
             }
             is InputType.Calendar -> {
                 birthdate = inputType.value
@@ -155,15 +157,14 @@ class EditProfileViewModel @Inject constructor(
         }
         val user = currentState.user.copy(
             phone = phoneNumber,
-            userType = userType.id.toInt(),
             birthday = birthdate,
-            displayName = displayName
+            displayName = displayName,
+            cancerStatus = treatmentStatus
         )
         notifyStateChange(
             currentState.copy(
                 enableSaveButton = validate(),
                 user = user,
-                selectedUserType = userType,
                 selectedBirthdate = birthdate
             )
         )

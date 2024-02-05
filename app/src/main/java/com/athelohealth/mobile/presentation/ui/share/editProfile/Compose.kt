@@ -69,8 +69,8 @@ fun EditProfileScreen(viewModel: EditProfileViewModel) {
                     viewModel.handleEvent(it)
                 },
                 editMode = viewState.value.editMode,
-                selectedItemId = viewState.value.selectedUserType,
-                dropDownData = viewState.value.userTypes,
+                selectedItemId = viewState.value.treatmentStatus,
+                dropDownData = viewState.value.treatmentTypes,
                 user = viewState.value.user,
                 selectedBirthDate = viewState.value.selectedBirthdate
             )
@@ -156,7 +156,8 @@ fun ScrollContent(
             readOnly = !editMode,
             onItemSelect = {
                 onEvent(EditProfileEvent.InputChanged(InputType.DropDown(it.id)))
-            })
+            }
+        )
 
         InputTextField(
             modifier = Modifier

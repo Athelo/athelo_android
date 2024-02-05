@@ -18,6 +18,12 @@ interface MemberApi {
     @GET("api/v1/users/me/")
     suspend fun getMyProfile(): PageResponseDto<UserDto>
 
+    @GET("api/v1/users/me/patient/")
+    suspend fun getPatientStatus(): PatientStatus
+
+    @PUT("api/v1/users/me/patient/")
+    suspend fun updateCancerStatus(@Body body: PatientStatus): PatientStatus
+
     @POST("api/v1/users/me/")
     suspend fun postCreateMyProfile(@Body body: Map<String, String>): UserDto
 

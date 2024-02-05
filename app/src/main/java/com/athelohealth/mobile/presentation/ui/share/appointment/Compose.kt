@@ -119,7 +119,8 @@ fun EmptyAppointmentView(
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
@@ -128,8 +129,8 @@ fun EmptyAppointmentView(
             Image(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().aspectRatio(painter.intrinsicSize.width / (painter.intrinsicSize.height * 0.9f)),
-                contentScale = ContentScale.Fit
+                modifier = Modifier.fillMaxWidth().aspectRatio(painter.intrinsicSize.width / (painter.intrinsicSize.height * 0.85f)),
+                contentScale = ContentScale.FillBounds
             )
             InitToolBar(state = state, handleEvent = handleEvent)
         }
@@ -227,8 +228,7 @@ fun AppointmentList(viewModel: AppointmentViewModel) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .padding(bottom = 8.dp),
+                .padding(horizontal = 8.dp),
             state = lazyState,
             contentPadding = PaddingValues(bottom = 56.dp)
         ) {
@@ -289,7 +289,7 @@ fun ScheduledAppointmentCell(
             .clip(RoundedCornerShape(16.dp))
             .padding(all = 10.dp),
         colors = CardDefaults.cardColors(background),
-        elevation = CardDefaults.cardElevation(8.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(

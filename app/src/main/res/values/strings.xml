@@ -258,5 +258,7 @@
     <string name="appointment_not_scheduled_msg">It looks like you haven\'t booked any appointments yet. Would you like to? You can click the \"Schedule My Appointment\" button at the lower right corner of your menu</string>
     <string name="schedule_my_appointment">Schedule My Appointment</string>
     <string name="schedule_new_appointment">Schedule New Appointment</string>
+    <string name="apply_button">Apply</string>
+    <string name="schedule_button">Schedule</string>
 
 </resources>

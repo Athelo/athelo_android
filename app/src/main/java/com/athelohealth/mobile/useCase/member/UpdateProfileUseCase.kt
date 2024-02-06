@@ -13,12 +13,18 @@ class UpdateProfileUseCase @Inject constructor(private val repository: MemberRep
         email: String,
         displayName: String,
         userType: String,
-    ) = repository.updateUserProfile(
-        userId = userId,
-        phoneNumber = phoneNumber.ifEmptyNull(),
-        birthDate = birthDate.ifEmptyNull(),
-        email = email,
-        displayName = displayName,
-        userType = userType.ifEmptyNull()
-    )
+        cancerStatus: com.athelohealth.mobile.network.dto.member.CancerStatus?,
+    ) {
+        repository.updateUserProfile(
+            userId = userId,
+            phoneNumber = phoneNumber.ifEmptyNull(),
+            birthDate = birthDate.ifEmptyNull(),
+            email = email,
+            displayName = displayName,
+            userType = userType.ifEmptyNull()
+        )
+        cancerStatus?.let {
+            repository.updateCancerStatus(cancerStatus = cancerStatus)
+        }
+    }
 }

@@ -6,6 +6,8 @@ import com.athelohealth.mobile.network.dto.news.CategoryDto
 import com.athelohealth.mobile.network.dto.news.NewsDto
 import com.athelohealth.mobile.network.repository.BaseRepository
 import com.athelohealth.mobile.utils.UserManager
+import com.athelohealth.mobile.network.dto.news.FavouriteDto
+
 
 class NewsRepositoryImpl(userManager: UserManager) :
     BaseRepository<NewsApi>(userManager = userManager, clazz = NewsApi::class.java),
@@ -61,5 +63,17 @@ class NewsRepositoryImpl(userManager: UserManager) :
 
     override suspend fun removeFromFavourite(newsId: Int): Boolean {
         return service.getRemoveFavouritePost(newsId).isSuccessful
+    }
+    override suspend fun getFavouriteNews(): PageResponseDto<FavouriteDto> {
+
+        return service.getFavouritePost()
+    }
+
+    override suspend fun addToFavourite(newsId: String): Boolean {
+        return service.getAddFavouritePost(FavouriteDto(externalContentId = newsId)).isSuccessful
+    }
+
+    override suspend fun removeFromFavourite(newsId: String): Boolean {
+        return service.getRemoveFavouritePost(FavouriteDto(externalContentId = newsId)).isSuccessful
     }
 }

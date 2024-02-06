@@ -37,7 +37,7 @@
     <string name="Enter_your_display_name">Enter your display name</string>
     <string name="Not_empty">Could not be empty</string>
     <string name="Display_Name">Display Name</string>
-    <string name="What_best_describe_you">What best describes you?</string>
+    <string name="What_best_describe_you">What best describes your treatment status?</string>
     <string name="Choose_Item">Choose Item</string>
     <string name="Save">Save</string>
     <string name="Home">Home</string>
@@ -257,5 +257,6 @@
     <string name="welcome_to_the_appointments">Welcome to the Appointments!</string>
     <string name="appointment_not_scheduled_msg">It looks like you haven\'t booked any appointments yet. Would you like to? You can click the \"Schedule My Appointment\" button at the lower right corner of your menu</string>
     <string name="schedule_my_appointment">Schedule My Appointment</string>
+    <string name="cancer_status">Cancer Status: %s</string>
 
 </resources>

@@ -13,8 +13,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,27 +41,33 @@ import com.athelohealth.mobile.utils.contentful.ContentfulClient
 
 @Composable
 fun ContentfulNewsScreen(viewModel: NewsViewModel) {
-    val viewState = viewModel.viewState.collectAsState()
+    val viewState by viewModel.viewState.collectAsState()
     BoxScreen(
         modifier = Modifier.statusBarsPadding(),
-        viewModel = viewModel, showProgressProvider = { viewState.value.isLoading },
-        content = Content(state = viewState, viewModel = viewModel, handleEvent = viewModel::handleEvent)
+        viewModel = viewModel, showProgressProvider = { viewState.isLoading },
+        content = Content(
+            state = viewState,
+            viewModel = viewModel,
+            selectedTab = { viewState.screenType },
+            handleEvent = viewModel::handleEvent
+        )
     )
 }
 
 @SuppressLint("ComposableNaming")
 @Composable
 private fun Content(
-    state: State<NewsViewState>,
+    state: NewsViewState,
     viewModel: NewsViewModel,
+    selectedTab: () -> NewsListType,
     handleEvent: (NewsEvent) -> Unit = {}
 ): @Composable (BoxScope.() -> Unit) =
     {
         val contentfulViewState = viewModel.contentfulViewState.collectAsState()
         Column {
             ToolbarWithMenuAndMyProfile(
-                userAvatar = state.value.currentUser.photo?.image5050,
-                userDisplayName = state.value.currentUser.displayName ?: "",
+                userAvatar = state.currentUser.photo?.image5050,
+                userDisplayName = state.currentUser.displayName ?: "",
                 menuClick = {
                     handleEvent(NewsEvent.MenuClick)
                 },
@@ -71,7 +77,7 @@ private fun Content(
             val focusManager = LocalFocusManager.current
             RadioButtonGroup(
                 selectionProvider = {
-                    if (state.value.screenType == NewsListType.Favourites) 1 else 0
+                    if (selectedTab() == NewsListType.Favourites) 1 else 0
                 },
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
@@ -90,7 +96,7 @@ private fun Content(
                 )
             )
             val lazyState = rememberLazyListState()
-            LaunchedEffect(key1 = null) {
+            LaunchedEffect(key1 = selectedTab()) {
                 lazyState.scrollToItem(0)
             }
             SwipeRefresh(

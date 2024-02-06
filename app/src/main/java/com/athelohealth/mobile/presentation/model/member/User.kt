@@ -2,6 +2,7 @@ package com.athelohealth.mobile.presentation.model.member
 
 import android.os.Parcelable
 import com.athelohealth.mobile.extensions.displayAsDifferentDateFormat
+import com.athelohealth.mobile.network.dto.member.CancerStatus
 import com.athelohealth.mobile.presentation.model.base.Image
 import com.athelohealth.mobile.utils.consts.DATE_FORMAT_DISPLAY_BIRTH_DATE
 import kotlinx.parcelize.IgnoredOnParcel
@@ -26,7 +27,8 @@ data class User(
     val profileId: Int? = null,
     val privateProfile: Boolean? = null,
     val fitBitConnected: Boolean = false,
-    val isCaregiver: Boolean = false
+    val isCaregiver: Boolean = false,
+    val cancerStatus: CancerStatus? = null
 ) : Parcelable {
 
 

@@ -15,9 +15,9 @@ data class EditProfileViewState(
     val editMode: Boolean = true,
     val enableEditMode: Boolean = false,
     val user: User = User(),
-    val userTypes: List<EnumItem>,
+    val treatmentTypes: List<EnumItem>,
     val tmpUserImage: Uri? = null,
-    val selectedUserType: EnumItem = EnumItem.EMPTY,
+    val treatmentStatus: EnumItem = EnumItem.EMPTY,
     val selectedBirthdate: String? = null,
     val hideRequestPasswordButton: Boolean = false,
 ) : BaseViewState

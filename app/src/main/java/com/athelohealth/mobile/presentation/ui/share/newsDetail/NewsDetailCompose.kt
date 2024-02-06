@@ -29,10 +29,10 @@ fun ContentfulNewsDetailScreen(viewModel: NewsDetailViewModel) {
                 .navigationBarsPadding()
         }) {
             ToolbarWithNameBackFavourite(
-                favouriteClick = {  },
+                favouriteClick = { viewModel.handleEvent(NewsDetailEvent.FavoriteButtonClick) },
                 backClick = { viewModel.handleEvent(NewsDetailEvent.BackButtonClick) },
                 screenName = stringResource(id = R.string.Article),
-                favourite = { false }
+                favourite = { viewState.value.isFavourite }
             )
             Column(
                 modifier = Modifier

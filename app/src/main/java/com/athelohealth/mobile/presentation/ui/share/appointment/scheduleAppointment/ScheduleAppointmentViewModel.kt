@@ -1,9 +1,12 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.appointment.LoadProvidersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,8 +24,11 @@ class ScheduleAppointmentViewModel @Inject constructor(
 
     override fun loadData() {
         notifyStateChange(currentState.copy(isLoading = true))
-
-        launchRequest {
+        viewModelScope.launch {
+            delay(500)
+            pauseLoadingState()
+        }
+       /* launchRequest {
             val result = providersUseCase()
             Log.d("ApiDataSize", "ViewModel: ${result.result.size}")
             nextUrl = result.next
@@ -31,7 +37,7 @@ class ScheduleAppointmentViewModel @Inject constructor(
                 isLoading = false,
                 providers = result.result.first().providers ?: emptyList()
             ))
-        }
+        }*/
     }
 
     override fun handleEvent(event: ScheduleAppointmentEvent) {

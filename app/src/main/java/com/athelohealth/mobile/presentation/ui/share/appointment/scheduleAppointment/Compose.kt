@@ -3,7 +3,8 @@
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
@@ -123,13 +124,13 @@ fun HeaderContent(
                 handleEvent.invoke(ScheduleAppointmentEvent.OnBackButtonClicked)
             })
 
-        ExpandableList(viewState.value.providers, handleEvent)
+        ExpandableList(dataList, handleEvent)
     }
 }
 
 @Composable
 fun ExpandableList(
-    dataList: List<Provider>,
+    dataList: List<AppointmentData>,
     handleEvent: (ScheduleAppointmentEvent) -> Unit
 ) {
 
@@ -146,9 +147,9 @@ fun ExpandableList(
         content = {
             dataList.onEachIndexed { index, item ->
                 HeaderSection(
-                    name = item.displayName,
-                    hobby = "Test name",
-                    providerAvatar = item.photo,
+                    name = item.name,
+                    hobby = item.hobby,
+                    providerAvatar = "",
                     isExpanded = isExpandedMap[index] ?: true,
                     onHeaderClicked = {
                         isExpandedMap[index] = !(isExpandedMap[index] ?: false)
@@ -189,8 +190,8 @@ fun LazyListScope.HeaderSection(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AsyncImage(
-                    model = providerAvatar,
+                Image(
+                    painter = painterResource(id = R.drawable.ic_user_avatar),
                     contentDescription = stringResource(id = R.string.app_name),
                     modifier = Modifier
                         .aspectRatio(1f / 1f)

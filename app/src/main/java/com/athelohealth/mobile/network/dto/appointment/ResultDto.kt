@@ -10,5 +10,5 @@ data class ResultDto(
     val id: Int?,
     val photo: String?,
    // @SerializedName("provider_type")
-    val provider_type: String? = null
+    val provider_type: String?
 )

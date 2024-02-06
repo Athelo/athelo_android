@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
-import com.athelohealth.mobile.presentation.ui.patient.wellbeing.WellbeingEffect
 import com.athelohealth.mobile.utils.routeToBackScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +23,6 @@ class ScheduleAppointmentFragment : BaseComposeFragment<ScheduleAppointmentViewM
                 is ScheduleAppointmentEffect.ShowSuccessMessage -> {
                     viewModel.displaySuccessMessage(effect.msg)
                 }
-                else -> {}
             }
         }
     }

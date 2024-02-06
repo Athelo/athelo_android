@@ -8,21 +8,24 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProvidersDto(
     val count: Int?,
-    val results: List<ResultDto>?,
     val next: String?,
-    val previous: String?
-)
+    val previous: String?,
+    val results: List<ResultDto>?
+) {
 
-fun ProvidersDto.toProviders() = Providers(
-    count = this.count,
-    providers = this.results?.map {
-        it.toProvider()
+    fun toProviders(): Providers {
+        return Providers(
+            count = count,
+            providers = results?.map {
+                it.toProvider()
+            }
+        )
     }
-)
 
-fun ResultDto.toProvider() = Provider(
-    displayName = this.display_name,
-    id = this.id,
-    photo = this.photo,
-    providerType = this.provider_type
-)
+    private fun ResultDto.toProvider() = Provider(
+        displayName = this.display_name,
+        id = this.id,
+        photo = this.photo,
+        providerType = this.provider_type
+    )
+}

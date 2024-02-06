@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -41,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -65,8 +67,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
+import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.presentation.model.appointment.Provider
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.MainButton
@@ -94,8 +98,7 @@ fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
         modifier = Modifier
             .navigationBarsPadding()
     ) {
-        Timber.d("ScheduleMyAppointment: ${viewState.value.providers.size}")
-        HeaderContent(viewState, handleEvent = viewModel::handleEvent)
+        HeaderContent(viewModel = viewModel)
     }
 }
 
@@ -103,19 +106,10 @@ data class AppointmentData(val name: String, val hobby: String)
 
 @Composable
 fun HeaderContent(
-    viewState: State<ScheduleAppointmentViewState>,
-    handleEvent: (ScheduleAppointmentEvent) -> Unit
+    viewModel: ScheduleAppointmentViewModel
 ) {
-    val dataList = listOf(
-        AppointmentData("Ave Calvar", "Care Navigator"),
-        AppointmentData("Robert Godwin", "Care Navigator"),
-        AppointmentData("Christian Buehner", "Mentor"),
-        AppointmentData("Alison Mitchel", "Caregiver"),
-        AppointmentData("Jonas Kakaroto", "Caregiver"),
-        AppointmentData("Jonas Kakaroto", "Caregiver"),
-        AppointmentData("Jonas Kakaroto", "Caregiver"),
-        AppointmentData("Jonas Kakaroto", "Caregiver")
-    )
+
+    val handleEvent = viewModel::handleEvent
 
     Column {
         Toolbar(
@@ -125,33 +119,35 @@ fun HeaderContent(
                 handleEvent.invoke(ScheduleAppointmentEvent.OnBackButtonClicked)
             })
 
-        ExpandableList(dataList, handleEvent)
+        ExpandableList(viewModel)
     }
 }
 
 @Composable
 fun ExpandableList(
-    dataList: List<AppointmentData>,
-    handleEvent: (ScheduleAppointmentEvent) -> Unit
+    viewModel: ScheduleAppointmentViewModel
 ) {
 
+    val contentFullViewState = viewModel.contentfulViewState.collectAsState()
+
     val isExpandedMap = rememberSavableSnapshotStateMap {
-        List(dataList.size) { index: Int -> index to false }
+        List(contentFullViewState.value.size) { index: Int -> index to false }
             .toMutableStateMap()
     }
-    Timber.d("ExpandableList: ${dataList.size}")
+
+    debugPrint("ExpandableList: ${contentFullViewState.value.size}")
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(all = 12.dp),
         content = {
-            dataList.onEachIndexed { index, item ->
+            contentFullViewState.value.forEachIndexed { index, provider ->
                 HeaderSection(
-                    name = item.name,
-                    hobby = item.hobby,
-                    providerAvatar = "",
-                    isExpanded = isExpandedMap[index] ?: true,
-                    handleEvent = handleEvent,
+                    name = provider.displayName,
+                    hobby = "Test",
+                    providerAvatar = provider.photo,
+                    isExpanded = isExpandedMap[index] ?: false,
+                    viewModel = viewModel,
                     onHeaderClicked = {
                         isExpandedMap[index] = !(isExpandedMap[index] ?: false)
                     }
@@ -166,11 +162,10 @@ fun LazyListScope.HeaderSection(
     hobby: String?,
     providerAvatar: String?,
     isExpanded: Boolean,
-    handleEvent: (ScheduleAppointmentEvent) -> Unit,
+    viewModel: ScheduleAppointmentViewModel,
     onHeaderClicked: () -> Unit
 ) {
     item {
-
         val rotationState by animateFloatAsState(
             targetValue = if (isExpanded) 180f else 0f
         )
@@ -192,8 +187,8 @@ fun LazyListScope.HeaderSection(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_user_avatar),
+                AsyncImage(
+                    model = providerAvatar,
                     contentDescription = stringResource(id = R.string.app_name),
                     modifier = Modifier
                         .aspectRatio(1f / 1f)
@@ -239,7 +234,7 @@ fun LazyListScope.HeaderSection(
 
         if (isExpanded) {
             SectionItemContent(
-                handleEvent = handleEvent,
+                viewModel = viewModel,
                 onHeaderClicked = {
                 onHeaderClicked.invoke()
             })
@@ -250,7 +245,7 @@ fun LazyListScope.HeaderSection(
 
 @Composable
 fun SectionItemContent(
-    handleEvent: (ScheduleAppointmentEvent) -> Unit,
+    viewModel: ScheduleAppointmentViewModel,
     onHeaderClicked: () -> Unit
 ) {
     Column(
@@ -260,31 +255,31 @@ fun SectionItemContent(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
 
-        var ctaButtonEnabled by remember { mutableStateOf(true) }
-        var shouldShowChooseDateUI by remember { mutableStateOf(true) }
+        var isCTAButtonEnabled by remember { mutableStateOf(true) }
+        var isDateSelectionUiVisible by remember { mutableStateOf(true) }
         var selectedDate by remember { mutableStateOf("") }
         var selectedTime by remember { mutableStateOf("") }
-        var textId = if (shouldShowChooseDateUI) R.string.apply_button else R.string.schedule_button
+        var textId = if (isDateSelectionUiVisible) R.string.apply_button else R.string.schedule_button
 
         Text(
-            text = if (shouldShowChooseDateUI) "Choose date:" else "Free time:",
+            text = if (isDateSelectionUiVisible) "Choose date:" else "Free time:",
             color = gray,
             fontSize = 16.sp,
             modifier = Modifier.padding(start = 12.dp, top = 12.dp)
         )
 
-        if (shouldShowChooseDateUI) {
+        if (isDateSelectionUiVisible) {
             ChooseDate(onDateSelected = { date ->
                 selectedDate = date
-                if(ctaButtonEnabled.not()) ctaButtonEnabled = true
+                if(isCTAButtonEnabled.not()) isCTAButtonEnabled = true
             })
         } else {
-            ChooseTime(selectedDate, onTimeSelected = { time ->
+            ChooseTime(selectedDate, viewModel, onTimeSelected = { time ->
                 selectedTime = time
-                if(ctaButtonEnabled.not()) ctaButtonEnabled = true
+                if(isCTAButtonEnabled.not()) isCTAButtonEnabled = true
             }, changeUi = {
-                shouldShowChooseDateUI = !shouldShowChooseDateUI
-                ctaButtonEnabled = !ctaButtonEnabled
+                isDateSelectionUiVisible = !isDateSelectionUiVisible
+                isCTAButtonEnabled = !isCTAButtonEnabled
             })
         }
 
@@ -294,20 +289,21 @@ fun SectionItemContent(
                 .padding(start = 10.dp, end = 10.dp, bottom = 10.dp),
             textId = textId,
             background = purple,
-            enableButton = ctaButtonEnabled,
+            enableButton = isCTAButtonEnabled,
             onClick = {
-                shouldShowChooseDateUI = !shouldShowChooseDateUI
-                ctaButtonEnabled = !ctaButtonEnabled
 
-                Log.d("TextIdCheck", "TextIds: $textId ==> ${R.string.schedule_button}")
+                if(isCTAButtonEnabled) {
+                    isDateSelectionUiVisible = !isDateSelectionUiVisible
+                    isCTAButtonEnabled = !isCTAButtonEnabled
 
-                if (shouldShowChooseDateUI) {
                     if(textId == R.string.schedule_button) {
-                        handleEvent.invoke(ScheduleAppointmentEvent.OnAppointmentScheduled("Great! Your appointment has been scheduled successfully!"))
+                        viewModel::handleEvent.invoke(ScheduleAppointmentEvent.OnAppointmentScheduled("Great! Your appointment has been scheduled successfully!"))
                         onHeaderClicked.invoke()
                         Log.d("TextIdCheck", "SectionItemContent: ")
+                    } else {
+                        // Get the time slot for the selected date from the API
+                        viewModel.getProvidersAvailability("02/07/2024")
                     }
-                    // TODO: Hit the api to confirm booking schedule
                 }
             }
         )
@@ -357,7 +353,12 @@ fun ChooseDate(onDateSelected: (String) -> Unit) {
 }
 
 @Composable
-fun ChooseTime(selectedDate: String, onTimeSelected: (String) -> Unit, changeUi: () -> Unit) {
+fun ChooseTime(
+    selectedDate: String,
+    viewModel: ScheduleAppointmentViewModel,
+    onTimeSelected: (String) -> Unit,
+    changeUi: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -368,11 +369,7 @@ fun ChooseTime(selectedDate: String, onTimeSelected: (String) -> Unit, changeUi:
         shape = RoundedCornerShape(16.dp)
     ) {
 
-        val timeSlots = listOf(
-            "10:00 AM", "10:30 AM", "11:00 AM",
-            "11:30 AM", "12:30 PM", "02:20 PM",
-            "04:30 PM", "05:30 PM", "06:00 PM"
-        )
+        val timeSlots = viewModel.providersAvailability.collectAsState().value
 
         var selected by remember { mutableStateOf<Int?>(null) }
 
@@ -470,11 +467,11 @@ fun GridItem(
 @Preview
 @Composable
 fun ContentPreview() {
-//    val viewModel: ScheduleAppointmentViewModel = viewModel()
+    val viewModel: ScheduleAppointmentViewModel = viewModel()
 //    ScheduleMyAppointment(viewModel)
 //    HeaderSectionContent(name = "Ave Calvar", hobby = "Care Navigator", isExpanded = false) {}
 
-    ChooseTime("17 Jan, Thursday", {}) {}
+    ChooseTime("17 Jan, Thursday", viewModel, {}) {}
 //    ChooseDate {}
 //    SectionItemContent()
 }

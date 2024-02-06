@@ -1,6 +1,5 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.extensions.onEachCollect
@@ -8,7 +7,6 @@ import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
 import com.athelohealth.mobile.utils.routeToMyProfile
 import com.athelohealth.mobile.utils.routeToScheduleMyAppointment
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class AppointmentFragment : BaseComposeFragment<AppointmentViewModel>() {
@@ -29,14 +27,7 @@ class AppointmentFragment : BaseComposeFragment<AppointmentViewModel>() {
                 AppointmentEffect.ShowScheduleMyAppointment -> {
                     routeToScheduleMyAppointment()
                 }
-
-                else -> {}
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Timber.d("onResume: AppointmentFragment")
     }
 }

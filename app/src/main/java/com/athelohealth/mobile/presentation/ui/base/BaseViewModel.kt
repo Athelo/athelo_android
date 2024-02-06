@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.extensions.errorMessageOrUniversalMessage
 import com.athelohealth.mobile.extensions.parseMessage
+import com.athelohealth.mobile.presentation.model.member.Token
+import com.athelohealth.mobile.useCase.member.StoreSessionUseCase
 import com.athelohealth.mobile.utils.AuthorizationException
+import com.athelohealth.mobile.utils.UserManager
 import com.athelohealth.mobile.utils.conectivity.CONNECTED
 import com.athelohealth.mobile.utils.conectivity.DISCONNECTED
 import com.athelohealth.mobile.utils.conectivity.NetWorkDisconnectedException
 import com.athelohealth.mobile.utils.conectivity.NetWorkManager
 import com.athelohealth.mobile.utils.consts.Const
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,10 +22,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : BaseEvent, Ef : BaseEffect, st: BaseViewState {
     private val _messageStateFlow = MutableStateFlow<MessageState>(MessageState.NoMessageState(""))
     val errorStateFlow = _messageStateFlow.asSharedFlow()
+
+    @Inject
+    lateinit var userManager: UserManager
 
     @Suppress("PropertyName")
     protected val _effect: MutableSharedFlow<Ef> = MutableSharedFlow()
@@ -109,6 +117,10 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
                 401 -> {
                     logoutEffect()
                 }
+
+                403 -> {
+                    tokenRefreshListener()
+                }
                 else -> {
                     errorMessage(authError)
                 }
@@ -118,6 +130,20 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
         }
     }
 
+    private fun tokenRefreshListener() {
+        FirebaseAuth.getInstance().addIdTokenListener(FirebaseAuth.IdTokenListener { auth ->
+            auth.currentUser?.getIdToken(false)?.addOnCompleteListener {
+                val token = Token(
+                    it.result.token ?: "",
+                    it.result.token ?: "",
+                    it.result.signInProvider ?: "",
+                    "",
+                    it.result.expirationTimestamp.toInt()
+                )
+                userManager.storeSession(token)
+            }
+        })
+    }
 
     protected open fun notifyEffectChanged(effect: Ef) {
         launchOnUI { _effect.emit(effect) }

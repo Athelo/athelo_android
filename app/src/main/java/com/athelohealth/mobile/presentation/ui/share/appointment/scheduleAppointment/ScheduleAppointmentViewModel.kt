@@ -2,6 +2,7 @@ package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppoin
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.appointment.LoadProvidersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,14 @@ class ScheduleAppointmentViewModel @Inject constructor(
             is ScheduleAppointmentEvent.OnBackButtonClicked -> {
                 notifyEffectChanged(ScheduleAppointmentEffect.ShowPrevScreen)
             }
+
+            is ScheduleAppointmentEvent.OnAppointmentScheduled -> {
+                notifyEffectChanged(ScheduleAppointmentEffect.ShowSuccessMessage(event.msg))
+            }
         }
+    }
+
+    fun displaySuccessMessage(message: String) {
+        sendBaseEvent(BaseEvent.DisplaySuccess(message))
     }
 }

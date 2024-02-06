@@ -20,9 +20,12 @@ class ScheduleAppointmentFragment : BaseComposeFragment<ScheduleAppointmentViewM
 
         viewModel.effect.onEachCollect(viewLifecycleOwner) { effect ->
             when(effect) {
-                ScheduleAppointmentEffect.ShowPrevScreen -> routeToBackScreen()
+                is ScheduleAppointmentEffect.ShowPrevScreen -> routeToBackScreen()
+                is ScheduleAppointmentEffect.ShowSuccessMessage -> {
+                    viewModel.displaySuccessMessage(effect.msg)
+                }
+                else -> {}
             }
         }
-
     }
 }

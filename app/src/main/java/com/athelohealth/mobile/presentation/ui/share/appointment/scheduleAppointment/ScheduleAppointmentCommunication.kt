@@ -14,8 +14,10 @@ data class ScheduleAppointmentViewState(
 
 sealed interface ScheduleAppointmentEvent: BaseEvent {
     object OnBackButtonClicked: ScheduleAppointmentEvent
+    data class OnAppointmentScheduled(val msg: String): ScheduleAppointmentEvent
 }
 
 sealed interface ScheduleAppointmentEffect: BaseEffect {
     object ShowPrevScreen : ScheduleAppointmentEffect
+    data class ShowSuccessMessage(val msg: String): ScheduleAppointmentEffect
 }

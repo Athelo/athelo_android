@@ -79,6 +79,7 @@ import com.athelohealth.mobile.presentation.ui.theme.lightOlivaceous
 import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -93,7 +94,7 @@ fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
         modifier = Modifier
             .navigationBarsPadding()
     ) {
-        Log.d("ApiDataSize", "ScheduleMyAppointment: ${viewState.value.providers.size}")
+        Timber.d("ScheduleMyAppointment: ${viewState.value.providers.size}")
         HeaderContent(viewState, handleEvent = viewModel::handleEvent)
     }
 }
@@ -138,8 +139,7 @@ fun ExpandableList(
         List(dataList.size) { index: Int -> index to false }
             .toMutableStateMap()
     }
-
-    Log.d("ApiDataSize", "ExpandableList: ${dataList.size}")
+    Timber.d("ExpandableList: ${dataList.size}")
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -151,6 +151,7 @@ fun ExpandableList(
                     hobby = item.hobby,
                     providerAvatar = "",
                     isExpanded = isExpandedMap[index] ?: true,
+                    handleEvent = handleEvent,
                     onHeaderClicked = {
                         isExpandedMap[index] = !(isExpandedMap[index] ?: false)
                     }
@@ -165,6 +166,7 @@ fun LazyListScope.HeaderSection(
     hobby: String?,
     providerAvatar: String?,
     isExpanded: Boolean,
+    handleEvent: (ScheduleAppointmentEvent) -> Unit,
     onHeaderClicked: () -> Unit
 ) {
     item {
@@ -236,7 +238,9 @@ fun LazyListScope.HeaderSection(
         }
 
         if (isExpanded) {
-            SectionItemContent(onHeaderClicked = {
+            SectionItemContent(
+                handleEvent = handleEvent,
+                onHeaderClicked = {
                 onHeaderClicked.invoke()
             })
         }
@@ -245,7 +249,10 @@ fun LazyListScope.HeaderSection(
 }
 
 @Composable
-fun SectionItemContent(onHeaderClicked: () -> Unit) {
+fun SectionItemContent(
+    handleEvent: (ScheduleAppointmentEvent) -> Unit,
+    onHeaderClicked: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -296,6 +303,7 @@ fun SectionItemContent(onHeaderClicked: () -> Unit) {
 
                 if (shouldShowChooseDateUI) {
                     if(textId == R.string.schedule_button) {
+                        handleEvent.invoke(ScheduleAppointmentEvent.OnAppointmentScheduled("Great! Your appointment has been scheduled successfully!"))
                         onHeaderClicked.invoke()
                         Log.d("TextIdCheck", "SectionItemContent: ")
                     }

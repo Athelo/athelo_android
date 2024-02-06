@@ -5,8 +5,11 @@ import com.athelohealth.mobile.presentation.ui.base.BaseEffect
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewState
 
-data class NewsDetailViewState(override val isLoading: Boolean = false, val news: News) :
-    BaseViewState
+data class NewsDetailViewState(
+    override val isLoading: Boolean = false,
+    val isFavourite: Boolean = false,
+    val news: News
+) : BaseViewState
 
 sealed interface NewsDetailEvent : BaseEvent {
     object FavoriteButtonClick : NewsDetailEvent

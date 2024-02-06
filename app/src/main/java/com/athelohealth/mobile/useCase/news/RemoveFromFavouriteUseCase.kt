@@ -9,4 +9,7 @@ class RemoveFromFavouriteUseCase @Inject constructor(private val repository: New
         repository.removeFromFavourite(newsId)
         return repository.loadNewsDetail(newsId).toNews()
     }
+    suspend operator fun invoke(newsId: String): Boolean {
+        return repository.removeFromFavourite(newsId = newsId)
+    }
 }

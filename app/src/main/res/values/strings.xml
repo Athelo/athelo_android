@@ -37,7 +37,7 @@
     <string name="Enter_your_display_name">Enter your display name</string>
     <string name="Not_empty">Could not be empty</string>
     <string name="Display_Name">Display Name</string>
-    <string name="What_best_describe_you">What best describes you?</string>
+    <string name="What_best_describe_you">What best describes your treatment status?</string>
     <string name="Choose_Item">Choose Item</string>
     <string name="Save">Save</string>
     <string name="Home">Home</string>
@@ -260,5 +260,6 @@
     <string name="schedule_new_appointment">Schedule New Appointment</string>
     <string name="apply_button">Apply</string>
     <string name="schedule_button">Schedule</string>
+    <string name="cancer_status">Cancer Status: %s</string>
 
 </resources>

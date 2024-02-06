@@ -35,7 +35,7 @@ class NewsFragment : BaseComposeFragment<NewsViewModel>() {
                     if (effect.news.shouldOpenInBrowser && !effect.news.browserUrl.isNullOrEmpty()) {
                         navigateToInAppBrowser(effect.news.browserUrl)
                     } else {
-                        routeToNewsDetail(effect.news.key)
+                        routeToNewsDetail(effect.news.key, effect.isFavourite)
                     }
                 }
             }

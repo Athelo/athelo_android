@@ -5,7 +5,6 @@ import com.athelohealth.mobile.presentation.model.news.News
 import com.athelohealth.mobile.presentation.model.news.NewsData
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.news.AddToFavouriteUseCase
-import com.athelohealth.mobile.useCase.news.LoadNewsDetailUseCase
 import com.athelohealth.mobile.useCase.news.RemoveFromFavouriteUseCase
 import com.athelohealth.mobile.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,13 +14,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsDetailViewModel @Inject constructor(
-    private val loadNewsDetail: LoadNewsDetailUseCase,
     private val addToFavourite: AddToFavouriteUseCase,
     private val removeFromFavourite: RemoveFromFavouriteUseCase,
     private val contentfulClient: ContentfulClient,
     savedStateHandle: SavedStateHandle
-) : BaseViewModel<NewsDetailEvent, NewsDetailEffect, NewsDetailViewState>(NewsDetailViewState(true, News())) {
+) : BaseViewModel<NewsDetailEvent, NewsDetailEffect, NewsDetailViewState>(
+    NewsDetailViewState(isLoading = true, isFavourite = false, News())
+) {
     private val newsId: String = NewsDetailFragmentArgs.fromSavedStateHandle(savedStateHandle).newsId
+    private var isFavourite: Boolean = NewsDetailFragmentArgs.fromSavedStateHandle(savedStateHandle).isFavourite
     private lateinit var news: News
 
     private val _contentfulViewState = MutableStateFlow(NewsData())
@@ -31,9 +32,8 @@ class NewsDetailViewModel @Inject constructor(
 
     override fun loadData() {
         launchRequest {
-//            news = loadNewsDetail(newsId)
             _contentfulViewState.emit(contentfulClient.getNewsById(newsId))
-            notifyStateChange(currentState.copy(isLoading = false))
+            notifyStateChange(currentState.copy(isLoading = false, isFavourite = isFavourite))
         }
     }
 
@@ -51,12 +51,13 @@ class NewsDetailViewModel @Inject constructor(
 
     private fun toggleFavouriteState() = launchRequest {
         notifyStateChange(currentState.copy(isLoading = true))
-        news = if (news.isFavourite) {
-            removeFromFavourite(0)
+        val isSuccess = if (currentState.isFavourite) {
+            removeFromFavourite(newsId = newsId)
         } else {
-            addToFavourite(0)
+            addToFavourite(newsId = newsId)
         }
-        notifyStateChange(currentState.copy(isLoading = false, news = news))
+        if (!isSuccess) throw Exception()
+        notifyStateChange(currentState.copy(isLoading = false, isFavourite = !currentState.isFavourite))
     }
 
 }

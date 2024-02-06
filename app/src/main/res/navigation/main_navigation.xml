@@ -110,9 +110,13 @@
         <argument
             android:name="newsId"
             app:argType="string" />
+        <argument
+            android:name="isFavourite"
+            android:defaultValue="false"
+            app:argType="boolean" />
         <deepLink
             android:id="@+id/deepLink13"
-            app:uri="atheloapp://newsDetail?id={newsId}" />
+            app:uri="atheloapp://newsDetail?id={newsId}&amp;isFavourite={isFavourite}" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"

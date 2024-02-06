@@ -3,6 +3,7 @@ package com.athelohealth.mobile.presentation.ui.share.changePassword
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.member.ChangePasswordUseCase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -83,23 +84,22 @@ class ChangePasswordViewModel @Inject constructor(private val changePasswordUseC
             )
         ) {
             notifyStateChange(currentState.copy(isLoading = true))
-            launchRequest {
-                val result = changePasswordUseCase(
-                    newPassword = newPassword,
-                    repeatNewPassword = repeatPassword,
-                    oldPassword = currentPassword
-                )
-                notifyStateChange(
-                    currentState.copy(
-                        isLoading = false,
-                        currentPassword = "",
-                        repeatNewPassword = "",
-                        newPassword = "",
-                        enableButton = false
-                    )
-                )
-                successMessage(result)
-            }
+            FirebaseAuth.getInstance().currentUser?.updatePassword(newPassword)?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        notifyStateChange(
+                            currentState.copy(
+                                isLoading = false,
+                                currentPassword = "",
+                                repeatNewPassword = "",
+                                newPassword = "",
+                                enableButton = false
+                            )
+                        )
+                        successMessage("Password has been updated")
+                    } else {
+                        errorMessage("Something went wrong.")
+                    }
+                } ?: errorMessage("Something went wrong.")
         }
     }
 }

@@ -9,4 +9,8 @@ class AddToFavouriteUseCase @Inject constructor(private val repository: NewsRepo
         repository.addToFavourite(newsId)
         return repository.loadNewsDetail(newsId).toNews()
     }
+
+    suspend operator fun invoke(newsId: String): Boolean {
+        return repository.addToFavourite(newsId)
+    }
 }

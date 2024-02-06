@@ -1,6 +1,7 @@
 package com.athelohealth.mobile.presentation.ui.share.myProfile
 
 import com.athelohealth.mobile.R
+import com.athelohealth.mobile.network.dto.member.CancerStatus
 import com.athelohealth.mobile.presentation.model.member.IdentityType
 import com.athelohealth.mobile.presentation.model.member.User
 import com.athelohealth.mobile.presentation.model.profile.ProfileItems
@@ -34,10 +35,12 @@ class MyProfileViewModel @Inject constructor(
 
     override fun loadData() {
         launchRequest {
-            val user: User = loadMyProfileUseCase()?.also { storeUser(it) }
+            val treatmentStatus = loadMyProfileUseCase.treatmentStatus().cancerStatus
+            val user: User = loadMyProfileUseCase()?.also { storeUser(it) }?.copy(cancerStatus = treatmentStatus)
                 ?: throw AuthorizationException("Session expired")
             showChangePasswordButton = appManager.authenticationType == IdentityType.Native
             showMyDeviceButton = user.fitBitConnected == true
+
             notifyStateChange(
                 currentState.copy(
                     user = user,

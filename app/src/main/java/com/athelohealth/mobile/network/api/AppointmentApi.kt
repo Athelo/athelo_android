@@ -11,7 +11,7 @@ interface AppointmentApi {
 
     @GET
     suspend fun getAppointments(
-        @Url url: String = "api/v1/appointments"
+        @Url url: String = "api/v1/appointments/"
     ): AppointmentsDto
 
     @GET
@@ -21,6 +21,7 @@ interface AppointmentApi {
 
     @GET("api/v1/providers/1/availability/")
     suspend fun getProvidersAvailability(
-        @Query(value = "date") date: String
+        @Query(value = "date") date: String,
+        @Query("tz") timeZone: String
     ): ProvidersAvailabilityDto
 }

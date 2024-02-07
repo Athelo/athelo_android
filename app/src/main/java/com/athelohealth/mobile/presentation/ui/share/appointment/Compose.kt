@@ -1,15 +1,10 @@
 @file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,8 +59,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.presentation.ui.base.BaseEvent
+import com.athelohealth.mobile.extensions.formatDateTime
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.DropdownMenu
 import com.athelohealth.mobile.presentation.ui.base.MainButton
@@ -85,13 +82,14 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 @Composable
 fun AppointmentScreen(viewModel: AppointmentViewModel) {
     val viewState = viewModel.viewState.collectAsState()
+    val appointments = viewModel.appointments.collectAsState().value
     BoxScreen(
         viewModel = viewModel,
         showProgressProvider = { viewState.value.isLoading },
         modifier = Modifier.statusBarsPadding(),
         includeStatusBarPadding = false
     ) {
-        if (viewModel.isAppointmentListEmpty.value == true) {
+        if (appointments.isEmpty()) {
             EmptyAppointmentView(
                 state = viewState,
                 handleEvent = viewModel::handleEvent
@@ -182,6 +180,7 @@ fun ScheduledAppointmentList(
     handleEvent: (AppointmentEvent) -> Unit,
     viewModel: AppointmentViewModel
 ) {
+
     Column {
         InitToolBar(state = state, handleEvent = handleEvent)
 
@@ -214,7 +213,12 @@ fun InitToolBar(state: State<AppointmentViewState>, handleEvent: (AppointmentEve
 }
 
 @Composable
-fun AppointmentList(viewModel: AppointmentViewModel) {
+fun AppointmentList(
+    viewModel: AppointmentViewModel
+) {
+
+    val appointments = viewModel.appointments.collectAsState().value
+
     val lazyState = rememberLazyListState()
     LaunchedEffect(key1 = null) {
         lazyState.scrollToItem(0)
@@ -229,53 +233,28 @@ fun AppointmentList(viewModel: AppointmentViewModel) {
             state = lazyState,
             contentPadding = PaddingValues(bottom = 56.dp)
         ) {
-            stickyHeader {
-                /*         Box {
-                             Text(
-                                 text = "", modifier = Modifier
-                                     .height(54.dp)
-                                     .fillMaxWidth()
-                                     .background(background)
-                             )
-                             SearchInputTextField(
-                                 initialValue= viewModel.currentQuery(),
-                                 modifier = Modifier
-                                     .padding(horizontal = 16.dp)
-                                     .padding(bottom = 24.dp, top = 24.dp),
-                                 onChange = { search ->
-                                     viewModel.updateNewsList(search.text)
-                                 },
-                                 keyboardActions = KeyboardActions(onSearch = {
-                                     focusManager.clearFocus()
-                                 }),
-                                 hint = stringResource(id = R.string.Search)
-                             )
-                         }*/
-            }
-            /*        if (contentfulViewState.value.isEmpty()) {
-                        item {
-                            noAppointment()
-                        }
-                    } else {*/
-            items(5) { _ ->
+            items(appointments) { appointment ->
                 ScheduledAppointmentCell(
-                    name = "Ave Calvar",
+                    name = appointment.providerName.orEmpty(),
                     hobby = "Car Navigator",
-                    viewModel = viewModel
+                    photo = appointment.providerPhoto.orEmpty(),
+                    appointmentDate = appointment.startTime.orEmpty(),
+                    endTime = appointment.endTime.orEmpty(),
+                    handleEvent = viewModel::handleEvent
                 )
-
-                //         }
             }
         }
     }
-
 }
 
 @Composable
 fun ScheduledAppointmentCell(
     name: String,
     hobby: String,
-    viewModel: AppointmentViewModel
+    photo: String,
+    appointmentDate: String,
+    endTime: String = "",
+    handleEvent: (AppointmentEvent) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
@@ -295,8 +274,8 @@ fun ScheduledAppointmentCell(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_user_avatar),
+            AsyncImage(
+                model = photo.ifEmpty { R.drawable.ic_user_avatar },
                 contentDescription = stringResource(id = R.string.app_name),
                 modifier = Modifier
                     .aspectRatio(1f / 1f)
@@ -343,7 +322,7 @@ fun ScheduledAppointmentCell(
                     )
                 }
 
-                DropDownMenu(expanded = expanded, viewModel) {
+                DropDownMenu(expanded = expanded, handleEvent = handleEvent) {
                     expanded = it
                 }
             }
@@ -364,7 +343,7 @@ fun ScheduledAppointmentCell(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "17 JAN, 12:30 PM",
+                text = formatDateTime(appointmentDate),
                 color = lightOlivaceous,
                 modifier = Modifier
                     .border(
@@ -390,7 +369,7 @@ fun ScheduledAppointmentCell(
 @Composable
 fun DropDownMenu(
     expanded: Boolean,
-    viewModel: AppointmentViewModel,
+    handleEvent: (AppointmentEvent) -> Unit,
     onStateChange: (Boolean) -> Unit
 ) {
     val openDialog = remember { mutableStateOf(false) }
@@ -465,12 +444,12 @@ fun DropDownMenu(
             },
             onNegativeBtnClicked = {
                 shouldShowRescheduleDialog.value = false
-                viewModel.sendBaseEvent(BaseEvent.DisplaySuccess("Never mind! You can schedule new appointment!"))
+                handleEvent.invoke(AppointmentEvent.ShowSuccessMessage("Never mind! You can schedule new appointment!"))
 
             },
             onPositiveBtnClicked = {
                 shouldShowRescheduleDialog.value = false
-                viewModel.handleEvent(AppointmentEvent.ScheduleMyAppointmentClick)
+                handleEvent.invoke(AppointmentEvent.ScheduleMyAppointmentClick)
             })
     }
 }
@@ -511,12 +490,5 @@ fun MyDropDownMenuItem(
 fun PreviewAppointmentScreen() {
     val viewModel: AppointmentViewModel = viewModel()
     val state = viewModel.viewState.collectAsState()
-
     EmptyAppointmentView(state = state, handleEvent = viewModel::handleEvent)
-
-//    ScheduledAppointmentList(
-//        state = state,
-//        handleEvent = viewModel::handleEvent,
-//        viewModel = viewModel
-//    )
 }

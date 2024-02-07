@@ -1,13 +1,15 @@
 package com.athelohealth.mobile.extensions
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.athelohealth.mobile.presentation.model.timeDate.BirthDate
 import com.athelohealth.mobile.presentation.model.timeDate.Year
 import com.athelohealth.mobile.presentation.model.timeDate.parse
 import com.athelohealth.mobile.utils.DateTimeFormat
 import com.athelohealth.mobile.utils.consts.*
-import com.athelohealth.mobile.utils.consts.isoRegex
-import com.athelohealth.mobile.utils.consts.yyyyMMddRegex
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -147,4 +149,34 @@ fun Calendar.getEndOfDay(): Calendar {
         set(Calendar.SECOND, 59)
         set(Calendar.MILLISECOND, 999)
     }
+}
+
+fun getCurrentTimezone(): String {
+    val calendar = Calendar.getInstance()
+    return calendar.timeZone.id
+}
+
+fun formatDateTime(dateString: String): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        formatDateTimeApi26AndAbove(dateString)
+    } else {
+        formatDateTimeBelowApi26(dateString)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatDateTimeApi26AndAbove(dateString: String): String {
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val outputFormatter = DateTimeFormatter.ofPattern("MMM dd, EEEE", Locale.ENGLISH)
+
+    val dateTime = LocalDateTime.parse(dateString, inputFormatter)
+    return dateTime.format(outputFormatter)
+}
+
+fun formatDateTimeBelowApi26(dateString: String): String {
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
+    val outputFormat = SimpleDateFormat("MMM dd, EEEE", Locale.ENGLISH)
+
+    val date = inputFormat.parse(dateString)
+    return date?.let { outputFormat.format(date) } ?: ""
 }

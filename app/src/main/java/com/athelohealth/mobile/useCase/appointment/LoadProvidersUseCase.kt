@@ -10,7 +10,7 @@ class LoadProvidersUseCase @Inject constructor(private val repository: Appointme
           return repository.loadProviders().toProviders()
      }
 
-     suspend operator fun invoke(date: String): ProvidersAvailability {
-          return repository.getProvidersAvailability(date).toProvidersAvailability()
+     suspend operator fun invoke(date: String, timeZone: String): ProvidersAvailability {
+          return repository.getProvidersAvailability(date, timeZone).toProvidersAvailability()
      }
 }

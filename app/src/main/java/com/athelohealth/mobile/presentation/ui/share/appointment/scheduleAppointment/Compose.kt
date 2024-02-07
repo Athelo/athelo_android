@@ -9,10 +9,10 @@
 
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
-import android.util.Log
+import android.content.Context
 import android.widget.CalendarView
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -42,8 +41,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -59,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,12 +68,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.extensions.debugPrint
-import com.athelohealth.mobile.presentation.model.appointment.Provider
+import com.athelohealth.mobile.extensions.getCurrentTimezone
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.MainButton
 import com.athelohealth.mobile.presentation.ui.base.Toolbar
 import com.athelohealth.mobile.presentation.ui.theme.background
+import com.athelohealth.mobile.presentation.ui.theme.black
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.dividerColor
 import com.athelohealth.mobile.presentation.ui.theme.gray
@@ -83,7 +81,6 @@ import com.athelohealth.mobile.presentation.ui.theme.lightOlivaceous
 import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -129,13 +126,12 @@ fun ExpandableList(
 ) {
 
     val contentFullViewState = viewModel.contentfulViewState.collectAsState()
+    val context = LocalContext.current
 
     val isExpandedMap = rememberSavableSnapshotStateMap {
         List(contentFullViewState.value.size) { index: Int -> index to false }
             .toMutableStateMap()
     }
-
-    debugPrint("ExpandableList: ${contentFullViewState.value.size}")
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -143,6 +139,7 @@ fun ExpandableList(
         content = {
             contentFullViewState.value.forEachIndexed { index, provider ->
                 HeaderSection(
+                    context = context,
                     name = provider.displayName,
                     hobby = "Test",
                     providerAvatar = provider.photo,
@@ -158,6 +155,7 @@ fun ExpandableList(
 }
 
 fun LazyListScope.HeaderSection(
+    context: Context,
     name: String?,
     hobby: String?,
     providerAvatar: String?,
@@ -234,10 +232,11 @@ fun LazyListScope.HeaderSection(
 
         if (isExpanded) {
             SectionItemContent(
+                context = context,
                 viewModel = viewModel,
                 onHeaderClicked = {
-                onHeaderClicked.invoke()
-            })
+                    onHeaderClicked.invoke()
+                })
         }
     }
 
@@ -245,6 +244,7 @@ fun LazyListScope.HeaderSection(
 
 @Composable
 fun SectionItemContent(
+    context: Context,
     viewModel: ScheduleAppointmentViewModel,
     onHeaderClicked: () -> Unit
 ) {
@@ -258,8 +258,10 @@ fun SectionItemContent(
         var isCTAButtonEnabled by remember { mutableStateOf(true) }
         var isDateSelectionUiVisible by remember { mutableStateOf(true) }
         var selectedDate by remember { mutableStateOf("") }
+        var apiFormattedSelectedDate by remember { mutableStateOf("") }
         var selectedTime by remember { mutableStateOf("") }
-        var textId = if (isDateSelectionUiVisible) R.string.apply_button else R.string.schedule_button
+        var textId =
+            if (isDateSelectionUiVisible) R.string.apply_button else R.string.schedule_button
 
         Text(
             text = if (isDateSelectionUiVisible) "Choose date:" else "Free time:",
@@ -269,14 +271,15 @@ fun SectionItemContent(
         )
 
         if (isDateSelectionUiVisible) {
-            ChooseDate(onDateSelected = { date ->
+            ChooseDate(onDateSelected = { date, apiFormattedDate ->
                 selectedDate = date
-                if(isCTAButtonEnabled.not()) isCTAButtonEnabled = true
+                apiFormattedSelectedDate = apiFormattedDate
+                if (isCTAButtonEnabled.not()) isCTAButtonEnabled = true
             })
         } else {
             ChooseTime(selectedDate, viewModel, onTimeSelected = { time ->
                 selectedTime = time
-                if(isCTAButtonEnabled.not()) isCTAButtonEnabled = true
+                if (isCTAButtonEnabled.not()) isCTAButtonEnabled = true
             }, changeUi = {
                 isDateSelectionUiVisible = !isDateSelectionUiVisible
                 isCTAButtonEnabled = !isCTAButtonEnabled
@@ -291,19 +294,37 @@ fun SectionItemContent(
             background = purple,
             enableButton = isCTAButtonEnabled,
             onClick = {
+                if (isCTAButtonEnabled) {
 
-                if(isCTAButtonEnabled) {
+                    when (textId) {
+                        R.string.schedule_button -> {
+                            if (selectedTime.isEmpty()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please select your availability time slot.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@MainButton
+                            }
+                            viewModel::handleEvent.invoke(
+                                ScheduleAppointmentEvent.OnAppointmentScheduled(
+                                    "Great! Your appointment has been scheduled successfully!"
+                                )
+                            )
+                            onHeaderClicked.invoke()
+                        }
+
+                        R.string.apply_button -> {
+                            // Get the time slot for the selected date from the API
+                            viewModel.getProvidersAvailability(
+                                apiFormattedSelectedDate,
+                                getCurrentTimezone()
+                            )
+                        }
+                    }
+
                     isDateSelectionUiVisible = !isDateSelectionUiVisible
                     isCTAButtonEnabled = !isCTAButtonEnabled
-
-                    if(textId == R.string.schedule_button) {
-                        viewModel::handleEvent.invoke(ScheduleAppointmentEvent.OnAppointmentScheduled("Great! Your appointment has been scheduled successfully!"))
-                        onHeaderClicked.invoke()
-                        Log.d("TextIdCheck", "SectionItemContent: ")
-                    } else {
-                        // Get the time slot for the selected date from the API
-                        viewModel.getProvidersAvailability("02/07/2024")
-                    }
                 }
             }
         )
@@ -311,15 +332,21 @@ fun SectionItemContent(
 }
 
 @Composable
-fun ChooseDate(onDateSelected: (String) -> Unit) {
+fun ChooseDate(onDateSelected: (String, String) -> Unit) {
 
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     val formatter = DateTimeFormatter.ofPattern("dd LLL, EEEE")
+    val apiFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
 
     val currrentDate = Calendar.getInstance()
     currrentDate.add(Calendar.DATE, 0)
+    val dd = currrentDate.timeZone
+    dd.displayName
 
-    onDateSelected.invoke(selectedDate.format(formatter))
+    onDateSelected.invoke(
+        selectedDate.format(formatter),
+        selectedDate.format(apiFormatter)
+    )
 
     Card(
         modifier = Modifier
@@ -339,8 +366,8 @@ fun ChooseDate(onDateSelected: (String) -> Unit) {
                     setOnDateChangeListener { _, year, month, dayOfMonth ->
                         selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
                         val formattedDate: String = selectedDate.format(formatter)
-                        Log.d("FormattedDate", "ChooseDate: $formattedDate")
-                        onDateSelected.invoke(formattedDate)
+                        val apiFormattedDate = selectedDate.format(apiFormatter)
+                        onDateSelected.invoke(formattedDate, apiFormattedDate)
                     }
                     minDate = currrentDate.timeInMillis
                 }
@@ -373,11 +400,13 @@ fun ChooseTime(
 
         var selected by remember { mutableStateOf<Int?>(null) }
 
-        var height = when  {
+        var height = when {
             timeSlots.size <= 3 -> 74.dp
             timeSlots.size <= 6 -> 126.dp
             timeSlots.size > 6 -> 186.dp
-            else -> { 186.dp}
+            else -> {
+                186.dp
+            }
         }
 
         Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
@@ -403,26 +432,37 @@ fun ChooseTime(
                 thickness = 2.dp
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(timeSlots) { timeSlot ->
-                    GridItem(
-                        timeSlot = timeSlot,
-                        isSelected = selected == timeSlots.indexOf(timeSlot),
-                        onSelected = { selectedTime ->
-                            selected = if (selected == timeSlots.indexOf(timeSlot)) null
-                            else timeSlots.indexOf(timeSlot)
-
-                            onTimeSelected.invoke(selectedTime)
-                        }
-                    )
+            if(timeSlots.isEmpty()) {
+                Text(
+                    text = "Time slot is not available for the selected date. Please choose another date!",
+                    color = black,
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2
+                )
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(height)
+                        .padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(timeSlots) { timeSlot ->
+                        GridItem(
+                            timeSlot = timeSlot,
+                            isSelected = selected == timeSlots.indexOf(timeSlot),
+                            onSelected = { selectedTime ->
+                                selected = if (selected == timeSlots.indexOf(timeSlot)) null
+                                else timeSlots.indexOf(timeSlot)
+                                onTimeSelected.invoke(selectedTime)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -443,7 +483,7 @@ fun GridItem(
                 .clip(RoundedCornerShape(24.dp))
                 .background(color = lightOlivaceous)
                 .padding(all = 12.dp)
-                .clickable { onSelected(timeSlot) },
+                .clickable { onSelected("") },
             fontSize = 12.sp,
             textAlign = TextAlign.Center
         )

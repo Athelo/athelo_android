@@ -15,8 +15,8 @@ class AppointmentRepositoryImpl @Inject constructor(userManager: UserManager):
         return service.loadProviders()
     }
 
-    override suspend fun getProvidersAvailability(date: String): ProvidersAvailabilityDto {
-        return service.getProvidersAvailability(date = date)
+    override suspend fun getProvidersAvailability(date: String, timeZone: String): ProvidersAvailabilityDto {
+        return service.getProvidersAvailability(date = date, timeZone = timeZone)
     }
 
     override suspend fun getAppointments(): AppointmentsDto {

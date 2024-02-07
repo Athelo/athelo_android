@@ -3,6 +3,7 @@ package com.athelohealth.mobile.presentation.ui.share.appointment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.athelohealth.mobile.presentation.model.appointment.Appointments
+import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
 import com.athelohealth.mobile.useCase.appointment.LoadAppointmentsUseCase
 import com.athelohealth.mobile.useCase.member.LoadCachedUserUseCase
@@ -22,7 +23,7 @@ class AppointmentViewModel @Inject constructor(
     private val loadAppointmentsUseCase: LoadAppointmentsUseCase
 ): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
-    private val _isAppointmentListEmpty = MutableLiveData(false)
+    private val _isAppointmentListEmpty = MutableLiveData(true)
     val isAppointmentListEmpty: LiveData<Boolean> get() = _isAppointmentListEmpty
 
     private val _appointments = MutableStateFlow(listOf<Appointments.Appointment>())
@@ -33,10 +34,16 @@ class AppointmentViewModel @Inject constructor(
     }
 
     override fun loadData() {
-        notifyStateChange(currentState.copy(isLoading = false))
+        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val user =
                 loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
+
+            // Get Appointment List from the API
+            val response = loadAppointmentsUseCase()
+            _appointments.emit(response.appointments ?: emptyList())
+
+            // Update States
             notifyStateChange(
                 currentState.copy(
                     initialized = true,
@@ -44,15 +51,10 @@ class AppointmentViewModel @Inject constructor(
                     user = user
                 )
             )
-
-            // Get Appointment List from the API
-            //  newsList = contentfulClient.getAllNews()
-            //  _contentfulViewState.emit(currentNewsList())
         }
     }
 
     fun loadAppointments() {
-        notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val response = loadAppointmentsUseCase()
             pauseLoadingState()
@@ -60,6 +62,7 @@ class AppointmentViewModel @Inject constructor(
             if (response.appointments?.isEmpty() == true) {
                 _isAppointmentListEmpty.value = true
             } else {
+                _isAppointmentListEmpty.value = false
                 _appointments.emit(response.appointments ?: emptyList())
             }
         }
@@ -75,6 +78,9 @@ class AppointmentViewModel @Inject constructor(
             }
             is AppointmentEvent.ScheduleMyAppointmentClick -> {
                 notifyEffectChanged(AppointmentEffect.ShowScheduleMyAppointment)
+            }
+            is AppointmentEvent.ShowSuccessMessage -> {
+                sendBaseEvent(BaseEvent.DisplaySuccess(event.msg))
             }
         }
     }

@@ -6,8 +6,6 @@ import com.athelohealth.mobile.presentation.model.profile.ProfileItems
 import com.athelohealth.mobile.presentation.ui.base.BaseEffect
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewState
-import com.athelohealth.mobile.presentation.ui.share.news.NewsEffect
-import com.athelohealth.mobile.presentation.ui.share.news.NewsEvent
 
 
 data class AppointmentViewState(
@@ -24,6 +22,7 @@ sealed interface AppointmentEvent : BaseEvent {
     object MenuClick : AppointmentEvent
     object MyProfileClick : AppointmentEvent
     object ScheduleMyAppointmentClick : AppointmentEvent
+    data class ShowSuccessMessage(val msg: String): AppointmentEvent
 
 }
 

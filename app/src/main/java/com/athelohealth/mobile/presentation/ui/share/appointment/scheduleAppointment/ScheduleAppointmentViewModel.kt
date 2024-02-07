@@ -51,10 +51,10 @@ class ScheduleAppointmentViewModel @Inject constructor(
         sendBaseEvent(BaseEvent.DisplaySuccess(message))
     }
 
-    fun getProvidersAvailability(date: String) {
+    fun getProvidersAvailability(date: String, timeZone: String) {
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
-            val response = providersUseCase(date)
+            val response = providersUseCase(date, timeZone)
             pauseLoadingState()
             _providersAvailability.emit(response.results ?: emptyList())
         }

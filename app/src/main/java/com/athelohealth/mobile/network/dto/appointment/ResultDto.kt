@@ -1,14 +1,17 @@
 package com.athelohealth.mobile.network.dto.appointment
 
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ResultDto(
-  //  @SerializedName("display_name")
-    val display_name: String?,
+    @SerialName("display_name")
+    val displayName: String?,
+    @SerialName("id")
     val id: Int?,
+    @SerialName("photo")
     val photo: String?,
-   // @SerializedName("provider_type")
-    val provider_type: String?
+    @SerialName("provider_type")
+    val providerType: String?
 )

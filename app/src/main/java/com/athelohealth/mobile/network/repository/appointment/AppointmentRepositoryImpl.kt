@@ -2,6 +2,7 @@ package com.athelohealth.mobile.network.repository.appointment
 
 import com.athelohealth.mobile.network.api.AppointmentApi
 import com.athelohealth.mobile.network.dto.appointment.AppointmentsDto
+import com.athelohealth.mobile.network.dto.appointment.BookAppointmentDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersAvailabilityDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersDto
 import com.athelohealth.mobile.network.repository.BaseRepository
@@ -21,5 +22,25 @@ class AppointmentRepositoryImpl @Inject constructor(userManager: UserManager):
 
     override suspend fun getAppointments(): AppointmentsDto {
         return service.getAppointments()
+    }
+
+    override suspend fun bookAppointment(
+        providerId: Int,
+        startTime: String,
+        endTime: String,
+        timeZone: String
+    ): AppointmentsDto {
+        return service.bookAppointment(
+            body = BookAppointmentDto(
+                providerId = providerId,
+                startTime = startTime,
+                endTime = endTime,
+                timeZone = timeZone
+            )
+        )
+    }
+
+    override suspend fun deleteAppointment(id: Int): Boolean {
+        return service.deleteAppointment(id = id.toString()).isSuccessful
     }
 }

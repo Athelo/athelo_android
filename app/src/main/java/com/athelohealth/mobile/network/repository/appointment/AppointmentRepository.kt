@@ -9,4 +9,11 @@ interface AppointmentRepository {
     suspend fun loadProviders(): ProvidersDto
     suspend fun getProvidersAvailability(date: String, timeZone: String): ProvidersAvailabilityDto
     suspend fun getAppointments(): AppointmentsDto
+    suspend fun bookAppointment(
+        providerId: Int,
+        startTime: String,
+        endTime: String,
+        timeZone: String
+    ): AppointmentsDto
+    suspend fun deleteAppointment(id: Int): Boolean
 }

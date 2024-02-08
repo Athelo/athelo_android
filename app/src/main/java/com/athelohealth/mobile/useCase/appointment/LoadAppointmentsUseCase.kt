@@ -6,7 +6,10 @@ import javax.inject.Inject
 
 class LoadAppointmentsUseCase @Inject constructor(private val repository: AppointmentRepository) {
     suspend operator fun invoke(): Appointments {
-         val appointmentsDto = repository.getAppointments()
-        return appointmentsDto.toAppointments()
+        return repository.getAppointments().toAppointments()
+    }
+
+    suspend operator fun invoke(id: Int): Boolean {
+        return repository.deleteAppointment(id)
     }
 }

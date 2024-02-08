@@ -3,21 +3,26 @@ package com.athelohealth.mobile.network.dto.appointment
 
 import androidx.annotation.Keep
 import com.athelohealth.mobile.presentation.model.appointment.Appointments
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
 data class AppointmentsDto(
+    @SerialName("count")
     val count: Int?,
+    @SerialName("next")
     val next: String?,
+    @SerialName("previous")
     val previous: String?,
-    val results: List<AppointmentDto>?
+    @SerialName("results")
+    val appointments: List<AppointmentDto>?
 ) {
 
     fun toAppointments(): Appointments {
         return Appointments(
             next,
-            appointments = results?.map {
+            appointments = appointments?.map {
                 it.toAppointment()
             }
         )
@@ -26,12 +31,12 @@ data class AppointmentsDto(
     private fun AppointmentDto.toAppointment() =
         Appointments.Appointment(
             id = id,
-            startTime = start_time,
-            endTime = end_time,
-            providerName = provider?.display_name,
+            startTime = startTime,
+            endTime = endTime,
+            providerName = provider?.displayName,
             providerPhoto = provider?.photo,
-            vonageSessionKey = vonage_session,
-            zoomHostUrl = zoom_host_url,
-            zoomJoinUrl = zoom_join_url
+            vonageSessionKey = vonageSession,
+            zoomHostUrl = zoomHostUrl,
+            zoomJoinUrl = zoomJoinUrl
         )
 }

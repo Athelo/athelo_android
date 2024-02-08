@@ -10,8 +10,10 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
 import android.content.Context
+import android.os.Build
 import android.widget.CalendarView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -68,6 +70,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
+import com.athelohealth.mobile.extensions.DATE_FORMAT_1
+import com.athelohealth.mobile.extensions.DATE_FORMAT_3
+import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.extensions.getCurrentTimezone
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.MainButton
@@ -81,9 +86,12 @@ import com.athelohealth.mobile.presentation.ui.theme.lightOlivaceous
 import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Locale
 
 
 @Composable
@@ -102,12 +110,9 @@ fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
 data class AppointmentData(val name: String, val hobby: String)
 
 @Composable
-fun HeaderContent(
-    viewModel: ScheduleAppointmentViewModel
-) {
+fun HeaderContent(viewModel: ScheduleAppointmentViewModel) {
 
     val handleEvent = viewModel::handleEvent
-
     Column {
         Toolbar(
             screenName = stringResource(id = R.string.schedule_my_appointment),
@@ -121,12 +126,15 @@ fun HeaderContent(
 }
 
 @Composable
-fun ExpandableList(
-    viewModel: ScheduleAppointmentViewModel
-) {
+fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
 
     val contentFullViewState = viewModel.contentfulViewState.collectAsState()
     val context = LocalContext.current
+    val appointmentBookedState = viewModel.appointments.collectAsState().value
+
+    debugPrint("Checking booked appointment size ==> ${appointmentBookedState.size}")
+
+    if (appointmentBookedState.isNotEmpty()) viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked)
 
     val isExpandedMap = rememberSavableSnapshotStateMap {
         List(contentFullViewState.value.size) { index: Int -> index to false }
@@ -140,6 +148,7 @@ fun ExpandableList(
             contentFullViewState.value.forEachIndexed { index, provider ->
                 HeaderSection(
                     context = context,
+                    id = provider.id ?: -1,
                     name = provider.displayName,
                     hobby = "Test",
                     providerAvatar = provider.photo,
@@ -156,6 +165,7 @@ fun ExpandableList(
 
 fun LazyListScope.HeaderSection(
     context: Context,
+    id: Int,
     name: String?,
     hobby: String?,
     providerAvatar: String?,
@@ -233,8 +243,9 @@ fun LazyListScope.HeaderSection(
         if (isExpanded) {
             SectionItemContent(
                 context = context,
+                id = id,
                 viewModel = viewModel,
-                onHeaderClicked = {
+                onCTAButtonClicked = {
                     onHeaderClicked.invoke()
                 })
         }
@@ -245,8 +256,9 @@ fun LazyListScope.HeaderSection(
 @Composable
 fun SectionItemContent(
     context: Context,
+    id: Int,
     viewModel: ScheduleAppointmentViewModel,
-    onHeaderClicked: () -> Unit
+    onCTAButtonClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -306,12 +318,27 @@ fun SectionItemContent(
                                 ).show()
                                 return@MainButton
                             }
-                            viewModel::handleEvent.invoke(
+
+                            if (id != -1) {
+                                val starTime = formatDateTime(selectedTime, DATE_FORMAT_3, DATE_FORMAT_1, false)
+                                val endTime = formatDateTime(selectedTime, DATE_FORMAT_3, DATE_FORMAT_1, true)
+
+                                debugPrint("Converted Time ==> $starTime ==> $endTime")
+
+                                viewModel.bookAppointment(
+                                    providerId = id,
+                                    startTime = starTime,
+                                    endTime = endTime,
+                                    getCurrentTimezone()
+                                )
+                            }
+                            onCTAButtonClicked.invoke()
+
+                            /*viewModel::handleEvent.invoke(
                                 ScheduleAppointmentEvent.OnAppointmentScheduled(
                                     "Great! Your appointment has been scheduled successfully!"
                                 )
-                            )
-                            onHeaderClicked.invoke()
+                            )*/
                         }
 
                         R.string.apply_button -> {
@@ -402,7 +429,7 @@ fun ChooseTime(
 
         var height = when {
             timeSlots.size <= 3 -> 74.dp
-            timeSlots.size <= 6 -> 126.dp
+            timeSlots.size <= 6 -> 129.dp
             timeSlots.size > 6 -> 186.dp
             else -> {
                 186.dp
@@ -477,7 +504,7 @@ fun GridItem(
 ) {
     if (isSelected) {
         Text(
-            text = timeSlot,
+            text = timeSlot.substringAfter(" "),
             color = white,
             modifier = Modifier
                 .clip(RoundedCornerShape(24.dp))
@@ -489,7 +516,7 @@ fun GridItem(
         )
     } else {
         Text(
-            text = timeSlot,
+            text = timeSlot.substringAfter(" "),
             color = darkPurple,
             modifier = Modifier
                 .border(
@@ -527,3 +554,52 @@ fun <K, V> snapshotStateMapSaver() = Saver<SnapshotStateMap<K, V>, Any>(
 @Composable
 fun <K, V> rememberSavableSnapshotStateMap(init: () -> SnapshotStateMap<K, V>): SnapshotStateMap<K, V> =
     rememberSaveable(saver = snapshotStateMapSaver(), init = init)
+
+fun formatDateTime(dateString: String, inputFormat: String, outputFormat: String, shouldAddMin: Boolean): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        formatDateTimeApi26AndAbove(dateString, inputFormat, outputFormat, shouldAddMin)
+    } else {
+        formatDateTimeBelowApi26(dateString, inputFormat, outputFormat, shouldAddMin)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatDateTimeApi26AndAbove(
+    dateString: String,
+    inputFormat: String,
+    outputFormat: String,
+    shouldAddMin: Boolean
+): String {
+    val inputFormatter = DateTimeFormatter.ofPattern(inputFormat)
+    val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
+
+    val dateTime = if(shouldAddMin) {
+        LocalDateTime.parse(dateString, inputFormatter).plusMinutes(30)
+    } else {
+        LocalDateTime.parse(dateString, inputFormatter)
+    }
+    return dateTime.format(outputFormatter)
+}
+
+fun formatDateTimeBelowApi26(
+    dateString: String,
+    inputFormat: String,
+    outputFormat: String,
+    shouldAddMin: Boolean
+): String {
+    val inputFormatter = SimpleDateFormat(inputFormat, Locale.getDefault())
+    val outputFormatter = SimpleDateFormat(outputFormat, Locale.getDefault())
+
+    val date = inputFormatter.parse(dateString)
+
+    date?.let {
+        val newDate = if(shouldAddMin) {
+            val cal = Calendar.getInstance()
+            cal.time = date
+            cal.add(Calendar.MINUTE, 30)
+            cal.time
+        } else date
+        return outputFormatter.format(newDate)
+    }
+    return ""
+}

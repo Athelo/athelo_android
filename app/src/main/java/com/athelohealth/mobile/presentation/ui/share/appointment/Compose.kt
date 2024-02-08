@@ -1,6 +1,6 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment
@@ -61,11 +61,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.extensions.formatDateTime
+import com.athelohealth.mobile.extensions.DATE_FORMAT_1
+import com.athelohealth.mobile.extensions.DATE_FORMAT_2
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.DropdownMenu
 import com.athelohealth.mobile.presentation.ui.base.MainButton
 import com.athelohealth.mobile.presentation.ui.base.ToolbarWithMenuAndMyProfile
+import com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment.formatDateTime
 import com.athelohealth.mobile.presentation.ui.theme.background
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.dividerColor
@@ -83,6 +85,12 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun AppointmentScreen(viewModel: AppointmentViewModel) {
     val viewState = viewModel.viewState.collectAsState()
     val appointments = viewModel.appointments.collectAsState().value
+    val isAppointmentDeleted = viewModel.isAppointmentDeleted.collectAsState().value
+
+    if (isAppointmentDeleted) viewModel.handleEvent(
+        AppointmentEvent.ShowSuccessMessage("Never mind! You can schedule new appointment!")
+    )
+
     BoxScreen(
         viewModel = viewModel,
         showProgressProvider = { viewState.value.isLoading },
@@ -235,11 +243,11 @@ fun AppointmentList(
         ) {
             items(appointments) { appointment ->
                 ScheduledAppointmentCell(
+                    appointmentId = appointment.id,
                     name = appointment.providerName.orEmpty(),
                     hobby = "Car Navigator",
                     photo = appointment.providerPhoto.orEmpty(),
                     appointmentDate = appointment.startTime.orEmpty(),
-                    endTime = appointment.endTime.orEmpty(),
                     handleEvent = viewModel::handleEvent
                 )
             }
@@ -249,11 +257,11 @@ fun AppointmentList(
 
 @Composable
 fun ScheduledAppointmentCell(
+    appointmentId: Int?,
     name: String,
     hobby: String,
     photo: String,
     appointmentDate: String,
-    endTime: String = "",
     handleEvent: (AppointmentEvent) -> Unit
 ) {
 
@@ -322,7 +330,11 @@ fun ScheduledAppointmentCell(
                     )
                 }
 
-                DropDownMenu(expanded = expanded, handleEvent = handleEvent) {
+                DropDownMenu(
+                    expanded = expanded,
+                    appointmentId = appointmentId,
+                    handleEvent = handleEvent
+                ) {
                     expanded = it
                 }
             }
@@ -343,7 +355,7 @@ fun ScheduledAppointmentCell(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = formatDateTime(appointmentDate),
+                text = formatDateTime(appointmentDate, DATE_FORMAT_1, DATE_FORMAT_2, false),
                 color = lightOlivaceous,
                 modifier = Modifier
                     .border(
@@ -369,6 +381,7 @@ fun ScheduledAppointmentCell(
 @Composable
 fun DropDownMenu(
     expanded: Boolean,
+    appointmentId: Int?,
     handleEvent: (AppointmentEvent) -> Unit,
     onStateChange: (Boolean) -> Unit
 ) {
@@ -444,8 +457,9 @@ fun DropDownMenu(
             },
             onNegativeBtnClicked = {
                 shouldShowRescheduleDialog.value = false
-                handleEvent.invoke(AppointmentEvent.ShowSuccessMessage("Never mind! You can schedule new appointment!"))
-
+                appointmentId?.let {
+                    handleEvent.invoke(AppointmentEvent.DeleteAppointment(appointmentId))
+                }
             },
             onPositiveBtnClicked = {
                 shouldShowRescheduleDialog.value = false

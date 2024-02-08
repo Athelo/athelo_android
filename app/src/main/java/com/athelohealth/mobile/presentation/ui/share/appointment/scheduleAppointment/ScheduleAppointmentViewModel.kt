@@ -1,5 +1,6 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
+import com.athelohealth.mobile.presentation.model.appointment.Appointments
 import com.athelohealth.mobile.presentation.model.appointment.Provider
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
@@ -22,6 +23,9 @@ class ScheduleAppointmentViewModel @Inject constructor(
     private val _providersAvailability = MutableStateFlow(listOf<String>())
     val providersAvailability = _providersAvailability.asStateFlow()
 
+    private val _appointments = MutableStateFlow(listOf<Appointments.Appointment>())
+    val appointments = _appointments.asStateFlow()
+
     override fun pauseLoadingState() {
         notifyStateChange(currentState.copy(isLoading = false))
     }
@@ -35,6 +39,28 @@ class ScheduleAppointmentViewModel @Inject constructor(
         }
     }
 
+    fun getProvidersAvailability(date: String, timeZone: String) {
+        notifyStateChange(currentState.copy(isLoading = true))
+        launchRequest {
+            val response = providersUseCase(date, timeZone)
+            pauseLoadingState()
+            _providersAvailability.emit(response.results ?: emptyList())
+        }
+    }
+
+    fun bookAppointment(providerId: Int, startTime: String, endTime: String, timeZone: String) {
+        notifyStateChange(currentState.copy(isLoading = true))
+        launchRequest {
+            val response = providersUseCase(providerId, startTime, endTime, timeZone)
+            pauseLoadingState()
+            _appointments.emit(response.appointments ?: emptyList())
+        }
+    }
+
+    fun displaySuccessMessage(message: String) {
+        sendBaseEvent(BaseEvent.DisplaySuccess(message))
+    }
+
     override fun handleEvent(event: ScheduleAppointmentEvent) {
         when(event) {
             is ScheduleAppointmentEvent.OnBackButtonClicked -> {
@@ -44,19 +70,6 @@ class ScheduleAppointmentViewModel @Inject constructor(
             is ScheduleAppointmentEvent.OnAppointmentScheduled -> {
                 notifyEffectChanged(ScheduleAppointmentEffect.ShowSuccessMessage(event.msg))
             }
-        }
-    }
-
-    fun displaySuccessMessage(message: String) {
-        sendBaseEvent(BaseEvent.DisplaySuccess(message))
-    }
-
-    fun getProvidersAvailability(date: String, timeZone: String) {
-        notifyStateChange(currentState.copy(isLoading = true))
-        launchRequest {
-            val response = providersUseCase(date, timeZone)
-            pauseLoadingState()
-            _providersAvailability.emit(response.results ?: emptyList())
         }
     }
 }

@@ -1,18 +1,30 @@
 package com.athelohealth.mobile.extensions
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.athelohealth.mobile.presentation.model.timeDate.BirthDate
 import com.athelohealth.mobile.presentation.model.timeDate.Year
 import com.athelohealth.mobile.presentation.model.timeDate.parse
 import com.athelohealth.mobile.utils.DateTimeFormat
-import com.athelohealth.mobile.utils.consts.*
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_2
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_3
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_NO_TIMEZONE
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_SIMPLE_DAY
+import com.athelohealth.mobile.utils.consts.isoNoTimezoneRegex
+import com.athelohealth.mobile.utils.consts.isoRegex
+import com.athelohealth.mobile.utils.consts.isoRegex2
+import com.athelohealth.mobile.utils.consts.isoRegex3
+import com.athelohealth.mobile.utils.consts.yyyyMMddRegex
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+
+const val DATE_FORMAT_1 = "yyyy-MM-dd'T'HH:mm:ss"
+const val DATE_FORMAT_2 = "MMM dd, EEEE"
+const val DATE_FORMAT_3 = "MM/dd/yyyy hh:mm a"
 
 fun Date?.displayAsString(
     format: String,
@@ -154,29 +166,4 @@ fun Calendar.getEndOfDay(): Calendar {
 fun getCurrentTimezone(): String {
     val calendar = Calendar.getInstance()
     return calendar.timeZone.id
-}
-
-fun formatDateTime(dateString: String): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        formatDateTimeApi26AndAbove(dateString)
-    } else {
-        formatDateTimeBelowApi26(dateString)
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun formatDateTimeApi26AndAbove(dateString: String): String {
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-    val outputFormatter = DateTimeFormatter.ofPattern("MMM dd, EEEE", Locale.ENGLISH)
-
-    val dateTime = LocalDateTime.parse(dateString, inputFormatter)
-    return dateTime.format(outputFormatter)
-}
-
-fun formatDateTimeBelowApi26(dateString: String): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
-    val outputFormat = SimpleDateFormat("MMM dd, EEEE", Locale.ENGLISH)
-
-    val date = inputFormat.parse(dateString)
-    return date?.let { outputFormat.format(date) } ?: ""
 }

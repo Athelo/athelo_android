@@ -29,6 +29,9 @@ class AppointmentViewModel @Inject constructor(
     private val _appointments = MutableStateFlow(listOf<Appointments.Appointment>())
     val appointments = _appointments.asStateFlow()
 
+    private val _isAppointmentDeleted = MutableStateFlow(false)
+    val isAppointmentDeleted = _isAppointmentDeleted.asStateFlow()
+
     override fun pauseLoadingState() {
         notifyStateChange(currentState.copy(isLoading = false))
     }
@@ -54,17 +57,22 @@ class AppointmentViewModel @Inject constructor(
         }
     }
 
-    fun loadAppointments() {
+    private fun deleteAppointment(appointmentId: Int) {
         launchRequest {
-            val response = loadAppointmentsUseCase()
-            pauseLoadingState()
-
-            if (response.appointments?.isEmpty() == true) {
-                _isAppointmentListEmpty.value = true
-            } else {
-                _isAppointmentListEmpty.value = false
-                _appointments.emit(response.appointments ?: emptyList())
+            notifyStateChange(currentState.copy(isLoading = true))
+            val isAppointmentDeleted = loadAppointmentsUseCase(appointmentId)
+            if (isAppointmentDeleted) {
+                val mutableList = mutableListOf<Appointments.Appointment>()
+                mutableList.addAll(_appointments.value)
+                for (i in mutableList.indices) {
+                    if (mutableList[i].id == appointmentId) {
+                        mutableList.removeAt(i)
+                    }
+                }
+                _appointments.emit(mutableList)
             }
+            pauseLoadingState()
+            _isAppointmentDeleted.emit(isAppointmentDeleted)
         }
     }
 
@@ -81,6 +89,12 @@ class AppointmentViewModel @Inject constructor(
             }
             is AppointmentEvent.ShowSuccessMessage -> {
                 sendBaseEvent(BaseEvent.DisplaySuccess(event.msg))
+            }
+            is AppointmentEvent.DeleteAppointment -> {
+                deleteAppointment(event.appointmentId)
+                launchRequest {
+                    _isAppointmentDeleted.emit(false)
+                }
             }
         }
     }

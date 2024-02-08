@@ -23,9 +23,9 @@ data class ProvidersDto(
     }
 
     private fun ResultDto.toProvider() = Provider(
-        displayName = this.display_name,
+        displayName = this.displayName,
         id = this.id,
         photo = this.photo,
-        providerType = this.provider_type
+        providerType = this.providerType
     )
 }

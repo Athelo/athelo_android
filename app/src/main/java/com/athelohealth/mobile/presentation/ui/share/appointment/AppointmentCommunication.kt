@@ -23,7 +23,7 @@ sealed interface AppointmentEvent : BaseEvent {
     object MyProfileClick : AppointmentEvent
     object ScheduleMyAppointmentClick : AppointmentEvent
     data class ShowSuccessMessage(val msg: String): AppointmentEvent
-
+    data class DeleteAppointment(val appointmentId: Int): AppointmentEvent
 }
 
 sealed interface AppointmentEffect : BaseEffect {

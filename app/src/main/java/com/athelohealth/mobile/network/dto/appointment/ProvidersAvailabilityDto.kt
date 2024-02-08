@@ -17,9 +17,7 @@ data class ProvidersAvailabilityDto(
     fun toProvidersAvailability(): ProvidersAvailability {
         return ProvidersAvailability(
             next = next,
-            results = results?.firstOrNull()?.map {
-                it.substringAfter(" ")
-            }
+            results = results?.firstOrNull()?.map { it }
         )
     }
 }

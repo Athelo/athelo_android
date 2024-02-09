@@ -1,7 +1,7 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.os.Build
+import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.presentation.model.appointment.Appointments
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
@@ -21,10 +21,7 @@ class AppointmentViewModel @Inject constructor(
     private val storeProfile: StoreUserUseCase,
     private val loadCachedUserUseCase: LoadCachedUserUseCase,
     private val loadAppointmentsUseCase: LoadAppointmentsUseCase
-): BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
-
-    private val _isAppointmentListEmpty = MutableLiveData(true)
-    val isAppointmentListEmpty: LiveData<Boolean> get() = _isAppointmentListEmpty
+) : BaseViewModel<AppointmentEvent, AppointmentEffect, AppointmentViewState>(AppointmentViewState()) {
 
     private val _appointments = MutableStateFlow(listOf<Appointments.Appointment>())
     val appointments = _appointments.asStateFlow()
@@ -40,7 +37,8 @@ class AppointmentViewModel @Inject constructor(
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val user =
-                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
+                loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) }
+                ?: throw AuthorizationException()
 
             // Get Appointment List from the API
             val response = loadAppointmentsUseCase()
@@ -62,14 +60,20 @@ class AppointmentViewModel @Inject constructor(
             notifyStateChange(currentState.copy(isLoading = true))
             val isAppointmentDeleted = loadAppointmentsUseCase(appointmentId)
             if (isAppointmentDeleted) {
-                val mutableList = mutableListOf<Appointments.Appointment>()
-                mutableList.addAll(_appointments.value)
-                for (i in mutableList.indices) {
-                    if (mutableList[i].id == appointmentId) {
-                        mutableList.removeAt(i)
+
+                val mutableList = _appointments.value.toMutableList()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    mutableList.removeIf { it.id == appointmentId }
+                } else {
+                    for (appointment in mutableList) {
+                        if (appointment.id == appointmentId) {
+                            debugPrint("Size ==> ${mutableList.size}")
+                            mutableList.remove(appointment)
+                        }
                     }
                 }
-                _appointments.emit(mutableList)
+
+                _appointments.value = mutableList
             }
             pauseLoadingState()
             _isAppointmentDeleted.emit(isAppointmentDeleted)
@@ -77,19 +81,26 @@ class AppointmentViewModel @Inject constructor(
     }
 
     override fun handleEvent(event: AppointmentEvent) {
-        when(event) {
+        when (event) {
             is AppointmentEvent.MenuClick -> {
                 notifyEffectChanged(AppointmentEffect.ShowMenuScreen)
             }
+
             is AppointmentEvent.MyProfileClick -> {
                 notifyEffectChanged(AppointmentEffect.ShowMyProfileScreen)
             }
+
             is AppointmentEvent.ScheduleMyAppointmentClick -> {
                 notifyEffectChanged(AppointmentEffect.ShowScheduleMyAppointment)
             }
+
             is AppointmentEvent.ShowSuccessMessage -> {
                 sendBaseEvent(BaseEvent.DisplaySuccess(event.msg))
+                launchRequest {
+                    _isAppointmentDeleted.emit(false)
+                }
             }
+
             is AppointmentEvent.DeleteAppointment -> {
                 deleteAppointment(event.appointmentId)
                 launchRequest {

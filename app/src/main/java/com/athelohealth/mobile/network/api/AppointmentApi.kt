@@ -2,6 +2,7 @@ package com.athelohealth.mobile.network.api
 
 import com.athelohealth.mobile.network.dto.appointment.AppointmentsDto
 import com.athelohealth.mobile.network.dto.appointment.BookAppointmentDto
+import com.athelohealth.mobile.network.dto.appointment.BookAppointmentRequestDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersAvailabilityDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersDto
 import retrofit2.Response
@@ -34,8 +35,8 @@ interface AppointmentApi {
     @POST
     suspend fun bookAppointment(
         @Url url: String = "api/v1/appointments/",
-        @Body body: BookAppointmentDto
-    ): AppointmentsDto
+        @Body body: BookAppointmentRequestDto
+    ): BookAppointmentDto
 
     @DELETE("api/v1/appointment/{id}/")
     suspend fun deleteAppointment(

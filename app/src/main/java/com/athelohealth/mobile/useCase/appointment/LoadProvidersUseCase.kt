@@ -20,12 +20,12 @@ class LoadProvidersUseCase @Inject constructor(private val repository: Appointme
           startTime: String,
           endTime: String,
           timeZone: String
-     ): Appointments {
+     ): List<Appointments.Appointment> {
           return repository.bookAppointment(
                providerId,
                startTime,
                endTime,
                timeZone
-          ).toAppointments()
+          ).toBookAppointment()
      }
 }

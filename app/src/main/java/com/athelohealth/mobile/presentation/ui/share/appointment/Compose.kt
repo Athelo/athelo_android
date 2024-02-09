@@ -62,12 +62,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.extensions.DATE_FORMAT_1
-import com.athelohealth.mobile.extensions.DATE_FORMAT_2
+import com.athelohealth.mobile.extensions.DATE_FORMAT_5
+import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.DropdownMenu
 import com.athelohealth.mobile.presentation.ui.base.MainButton
 import com.athelohealth.mobile.presentation.ui.base.ToolbarWithMenuAndMyProfile
-import com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment.formatDateTime
 import com.athelohealth.mobile.presentation.ui.theme.background
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.dividerColor
@@ -80,16 +80,19 @@ import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun AppointmentScreen(viewModel: AppointmentViewModel) {
     val viewState = viewModel.viewState.collectAsState()
     val appointments = viewModel.appointments.collectAsState().value
     val isAppointmentDeleted = viewModel.isAppointmentDeleted.collectAsState().value
-
-    if (isAppointmentDeleted) viewModel.handleEvent(
-        AppointmentEvent.ShowSuccessMessage("Never mind! You can schedule new appointment!")
-    )
+    if(isAppointmentDeleted)
+        viewModel.sendBaseEvent(BaseEvent.DisplaySuccess(
+            "Never mind! You can schedule new appointment!"
+        ))
 
     BoxScreen(
         viewModel = viewModel,
@@ -355,7 +358,7 @@ fun ScheduledAppointmentCell(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = formatDateTime(appointmentDate, DATE_FORMAT_1, DATE_FORMAT_2, false),
+                text = getLocalTimeFromUtc(appointmentDate, DATE_FORMAT_1, DATE_FORMAT_5),
                 color = lightOlivaceous,
                 modifier = Modifier
                     .border(
@@ -366,14 +369,13 @@ fun ScheduledAppointmentCell(
             )
 
             Text(
-                text = "UTC-12:00",
+                text = timeZoneName,
                 color = gray,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
                 fontSize = 13.sp
             )
         }
-
     }
 }
 
@@ -506,3 +508,19 @@ fun PreviewAppointmentScreen() {
     val state = viewModel.viewState.collectAsState()
     EmptyAppointmentView(state = state, handleEvent = viewModel::handleEvent)
 }
+
+fun getLocalTimeFromUtc(dateString: String, inputFormat: String, outputFormat: String): String {
+    val inputFormatter = SimpleDateFormat(inputFormat, Locale.getDefault())
+    val outputFormatter = SimpleDateFormat(outputFormat, Locale.getDefault())
+    inputFormatter.timeZone = TimeZone.getTimeZone("UTC")
+
+    val date = inputFormatter.parse(dateString)
+    return date?.let {
+         outputFormatter.format(it)
+    } ?: ""
+}
+
+private val timeZoneName = TimeZone.getDefault()
+.getDisplayName(
+false,
+TimeZone.SHORT)

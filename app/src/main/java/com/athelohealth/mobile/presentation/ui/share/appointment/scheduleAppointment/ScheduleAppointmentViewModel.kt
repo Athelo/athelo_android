@@ -39,21 +39,30 @@ class ScheduleAppointmentViewModel @Inject constructor(
         }
     }
 
-    fun getProvidersAvailability(date: String, timeZone: String) {
+    fun getProvidersAvailability(date: String, timeZone: String, isResponseEmpty: (Boolean) -> Unit) {
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val response = providersUseCase(date, timeZone)
             pauseLoadingState()
-            _providersAvailability.emit(response.results ?: emptyList())
+            val responseList = response.results ?: emptyList()
+            _providersAvailability.emit(responseList)
+            isResponseEmpty(responseList.isEmpty())
         }
     }
 
-    fun bookAppointment(providerId: Int, startTime: String, endTime: String, timeZone: String) {
+    fun bookAppointment(
+        providerId: Int,
+        startTime: String,
+        endTime: String,
+        timeZone: String,
+        onResponse: () -> Unit
+    ) {
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val response = providersUseCase(providerId, startTime, endTime, timeZone)
             pauseLoadingState()
-            _appointments.emit(response.appointments ?: emptyList())
+            onResponse.invoke()
+            _appointments.emit(response)
         }
     }
 

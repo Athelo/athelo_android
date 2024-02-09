@@ -72,13 +72,12 @@ import coil.compose.AsyncImage
 import com.athelohealth.mobile.R
 import com.athelohealth.mobile.extensions.DATE_FORMAT_1
 import com.athelohealth.mobile.extensions.DATE_FORMAT_3
-import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.extensions.getCurrentTimezone
+import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.presentation.ui.base.MainButton
 import com.athelohealth.mobile.presentation.ui.base.Toolbar
 import com.athelohealth.mobile.presentation.ui.theme.background
-import com.athelohealth.mobile.presentation.ui.theme.black
 import com.athelohealth.mobile.presentation.ui.theme.darkPurple
 import com.athelohealth.mobile.presentation.ui.theme.dividerColor
 import com.athelohealth.mobile.presentation.ui.theme.gray
@@ -131,10 +130,8 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
     val contentFullViewState = viewModel.contentfulViewState.collectAsState()
     val context = LocalContext.current
     val appointmentBookedState = viewModel.appointments.collectAsState().value
-
-    debugPrint("Checking booked appointment size ==> ${appointmentBookedState.size}")
-
-    if (appointmentBookedState.isNotEmpty()) viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked)
+    if (appointmentBookedState.isNotEmpty())
+        viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked)
 
     val isExpandedMap = rememberSavableSnapshotStateMap {
         List(contentFullViewState.value.size) { index: Int -> index to false }
@@ -150,7 +147,7 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
                     context = context,
                     id = provider.id ?: -1,
                     name = provider.displayName,
-                    hobby = "Test",
+                    hobby = "Car Navigator",
                     providerAvatar = provider.photo,
                     isExpanded = isExpandedMap[index] ?: false,
                     viewModel = viewModel,
@@ -245,12 +242,12 @@ fun LazyListScope.HeaderSection(
                 context = context,
                 id = id,
                 viewModel = viewModel,
-                onCTAButtonClicked = {
+                collpaseView = {
                     onHeaderClicked.invoke()
-                })
+                }
+            )
         }
     }
-
 }
 
 @Composable
@@ -258,7 +255,7 @@ fun SectionItemContent(
     context: Context,
     id: Int,
     viewModel: ScheduleAppointmentViewModel,
-    onCTAButtonClicked: () -> Unit
+    collpaseView: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -320,25 +317,24 @@ fun SectionItemContent(
                             }
 
                             if (id != -1) {
-                                val starTime = formatDateTime(selectedTime, DATE_FORMAT_3, DATE_FORMAT_1, false)
-                                val endTime = formatDateTime(selectedTime, DATE_FORMAT_3, DATE_FORMAT_1, true)
-
-                                debugPrint("Converted Time ==> $starTime ==> $endTime")
+                                val starTime = formatDateTime(
+                                    selectedTime,
+                                    DATE_FORMAT_3,
+                                    DATE_FORMAT_1,
+                                    false
+                                )
+                                val endTime =
+                                    formatDateTime(selectedTime, DATE_FORMAT_3, DATE_FORMAT_1, true)
 
                                 viewModel.bookAppointment(
                                     providerId = id,
                                     startTime = starTime,
                                     endTime = endTime,
                                     getCurrentTimezone()
-                                )
+                                )  {
+                                    collpaseView.invoke()
+                                }
                             }
-                            onCTAButtonClicked.invoke()
-
-                            /*viewModel::handleEvent.invoke(
-                                ScheduleAppointmentEvent.OnAppointmentScheduled(
-                                    "Great! Your appointment has been scheduled successfully!"
-                                )
-                            )*/
                         }
 
                         R.string.apply_button -> {
@@ -346,12 +342,20 @@ fun SectionItemContent(
                             viewModel.getProvidersAvailability(
                                 apiFormattedSelectedDate,
                                 getCurrentTimezone()
-                            )
+                            ) { isEmptyData ->
+                                if (isEmptyData) {
+                                    viewModel.sendBaseEvent(
+                                        BaseEvent.DisplayError(
+                                            "Time slot is not available for the selected date. Please choose another date!"
+                                        )
+                                    )
+                                } else {
+                                    isDateSelectionUiVisible = !isDateSelectionUiVisible
+                                    isCTAButtonEnabled = !isCTAButtonEnabled
+                                }
+                            }
                         }
                     }
-
-                    isDateSelectionUiVisible = !isDateSelectionUiVisible
-                    isCTAButtonEnabled = !isCTAButtonEnabled
                 }
             }
         )
@@ -427,12 +431,15 @@ fun ChooseTime(
 
         var selected by remember { mutableStateOf<Int?>(null) }
 
+        //The reason behind this code is we can not use LazyVertical Grid in ColumnScope,
+        // So workaround is we need to set fix height to the LazyVerticalGrid
         var height = when {
             timeSlots.size <= 3 -> 74.dp
             timeSlots.size <= 6 -> 129.dp
-            timeSlots.size > 6 -> 186.dp
+            timeSlots.size <= 9 -> 186.dp
+            timeSlots.size <= 12 -> 245.dp
             else -> {
-                186.dp
+                306.dp
             }
         }
 
@@ -459,37 +466,25 @@ fun ChooseTime(
                 thickness = 2.dp
             )
 
-            if(timeSlots.isEmpty()) {
-                Text(
-                    text = "Time slot is not available for the selected date. Please choose another date!",
-                    color = black,
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2
-                )
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height)
-                        .padding(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(timeSlots) { timeSlot ->
-                        GridItem(
-                            timeSlot = timeSlot,
-                            isSelected = selected == timeSlots.indexOf(timeSlot),
-                            onSelected = { selectedTime ->
-                                selected = if (selected == timeSlots.indexOf(timeSlot)) null
-                                else timeSlots.indexOf(timeSlot)
-                                onTimeSelected.invoke(selectedTime)
-                            }
-                        )
-                    }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(timeSlots) { timeSlot ->
+                    GridItem(
+                        timeSlot = timeSlot,
+                        isSelected = selected == timeSlots.indexOf(timeSlot),
+                        onSelected = { selectedTime ->
+                            selected = if (selected == timeSlots.indexOf(timeSlot)) null
+                            else timeSlots.indexOf(timeSlot)
+                            onTimeSelected.invoke(selectedTime)
+                        }
+                    )
                 }
             }
         }
@@ -555,7 +550,12 @@ fun <K, V> snapshotStateMapSaver() = Saver<SnapshotStateMap<K, V>, Any>(
 fun <K, V> rememberSavableSnapshotStateMap(init: () -> SnapshotStateMap<K, V>): SnapshotStateMap<K, V> =
     rememberSaveable(saver = snapshotStateMapSaver(), init = init)
 
-fun formatDateTime(dateString: String, inputFormat: String, outputFormat: String, shouldAddMin: Boolean): String {
+fun formatDateTime(
+    dateString: String,
+    inputFormat: String,
+    outputFormat: String,
+    shouldAddMin: Boolean
+): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         formatDateTimeApi26AndAbove(dateString, inputFormat, outputFormat, shouldAddMin)
     } else {
@@ -573,7 +573,7 @@ fun formatDateTimeApi26AndAbove(
     val inputFormatter = DateTimeFormatter.ofPattern(inputFormat)
     val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
 
-    val dateTime = if(shouldAddMin) {
+    val dateTime = if (shouldAddMin) {
         LocalDateTime.parse(dateString, inputFormatter).plusMinutes(30)
     } else {
         LocalDateTime.parse(dateString, inputFormatter)
@@ -593,7 +593,7 @@ fun formatDateTimeBelowApi26(
     val date = inputFormatter.parse(dateString)
 
     date?.let {
-        val newDate = if(shouldAddMin) {
+        val newDate = if (shouldAddMin) {
             val cal = Calendar.getInstance()
             cal.time = date
             cal.add(Calendar.MINUTE, 30)

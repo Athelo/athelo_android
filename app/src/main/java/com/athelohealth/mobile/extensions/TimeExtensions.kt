@@ -25,6 +25,8 @@ import kotlin.math.abs
 const val DATE_FORMAT_1 = "yyyy-MM-dd'T'HH:mm:ss"
 const val DATE_FORMAT_2 = "MMM dd, EEEE"
 const val DATE_FORMAT_3 = "MM/dd/yyyy hh:mm a"
+const val DATE_FORMAT_4 = "hh:mm a"
+const val DATE_FORMAT_5 = "dd MMM, hh:mm a"
 
 fun Date?.displayAsString(
     format: String,

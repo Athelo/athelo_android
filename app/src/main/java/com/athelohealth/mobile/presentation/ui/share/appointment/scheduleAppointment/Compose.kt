@@ -45,14 +45,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -133,10 +129,7 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
     if (appointmentBookedState.isNotEmpty())
         viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked)
 
-    val isExpandedMap = rememberSavableSnapshotStateMap {
-        List(contentFullViewState.value.size) { index: Int -> index to false }
-            .toMutableStateMap()
-    }
+    val selectedItem = rememberSaveable { mutableStateOf(-1) }
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -149,10 +142,14 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
                     name = provider.displayName,
                     hobby = "Car Navigator",
                     providerAvatar = provider.photo,
-                    isExpanded = isExpandedMap[index] ?: false,
+                    isExpanded = selectedItem.value == index,
                     viewModel = viewModel,
                     onHeaderClicked = {
-                        isExpandedMap[index] = !(isExpandedMap[index] ?: false)
+                        if(selectedItem.value == index) {
+                            selectedItem.value = -1
+                        } else {
+                            selectedItem.value = index
+                        }
                     }
                 )
             }
@@ -538,18 +535,6 @@ fun ContentPreview() {
 //    ChooseDate {}
 //    SectionItemContent()
 }
-
-fun <K, V> snapshotStateMapSaver() = Saver<SnapshotStateMap<K, V>, Any>(
-    save = { state -> state.toList() },
-    restore = { value ->
-        @Suppress("UNCHECKED_CAST")
-        (value as? List<Pair<K, V>>)?.toMutableStateMap() ?: mutableStateMapOf<K, V>()
-    }
-)
-
-@Composable
-fun <K, V> rememberSavableSnapshotStateMap(init: () -> SnapshotStateMap<K, V>): SnapshotStateMap<K, V> =
-    rememberSaveable(saver = snapshotStateMapSaver(), init = init)
 
 fun formatDateTime(
     dateString: String,

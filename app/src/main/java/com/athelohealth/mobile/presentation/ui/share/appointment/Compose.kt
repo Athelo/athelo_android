@@ -89,10 +89,13 @@ fun AppointmentScreen(viewModel: AppointmentViewModel) {
     val viewState = viewModel.viewState.collectAsState()
     val appointments = viewModel.appointments.collectAsState().value
     val isAppointmentDeleted = viewModel.isAppointmentDeleted.collectAsState().value
-    if(isAppointmentDeleted)
-        viewModel.sendBaseEvent(BaseEvent.DisplaySuccess(
-            "Never mind! You can schedule new appointment!"
-        ))
+    if(isAppointmentDeleted) {
+        viewModel.sendBaseEvent(
+            BaseEvent.DisplaySuccess(
+                "Never mind! You can schedule new appointment!"
+            )
+        )
+    }
 
     BoxScreen(
         viewModel = viewModel,

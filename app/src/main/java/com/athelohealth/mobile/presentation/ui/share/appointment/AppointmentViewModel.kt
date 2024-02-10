@@ -1,7 +1,6 @@
 package com.athelohealth.mobile.presentation.ui.share.appointment
 
-import android.os.Build
-import com.athelohealth.mobile.extensions.debugPrint
+import com.athelohealth.mobile.extensions.update
 import com.athelohealth.mobile.presentation.model.appointment.Appointments
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
@@ -34,6 +33,7 @@ class AppointmentViewModel @Inject constructor(
     }
 
     override fun loadData() {
+        changeDeletedAppointmentState(false)
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
             val user =
@@ -60,23 +60,22 @@ class AppointmentViewModel @Inject constructor(
             notifyStateChange(currentState.copy(isLoading = true))
             val isAppointmentDeleted = loadAppointmentsUseCase(appointmentId)
             if (isAppointmentDeleted) {
-
-                val mutableList = _appointments.value.toMutableList()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    mutableList.removeIf { it.id == appointmentId }
-                } else {
-                    for (appointment in mutableList) {
-                        if (appointment.id == appointmentId) {
-                            debugPrint("Size ==> ${mutableList.size}")
-                            mutableList.remove(appointment)
-                        }
+                val newList = mutableListOf<Appointments.Appointment>()
+                _appointments.update { list ->
+                    list.forEach {
+                        if (it.id != appointmentId) newList.add(it)
                     }
+                    return@update newList
                 }
-
-                _appointments.value = mutableList
             }
             pauseLoadingState()
-            _isAppointmentDeleted.emit(isAppointmentDeleted)
+            changeDeletedAppointmentState(isAppointmentDeleted)
+        }
+    }
+
+    private fun changeDeletedAppointmentState(state: Boolean) {
+        launchRequest {
+            _isAppointmentDeleted.emit(state)
         }
     }
 
@@ -96,16 +95,10 @@ class AppointmentViewModel @Inject constructor(
 
             is AppointmentEvent.ShowSuccessMessage -> {
                 sendBaseEvent(BaseEvent.DisplaySuccess(event.msg))
-                launchRequest {
-                    _isAppointmentDeleted.emit(false)
-                }
             }
 
             is AppointmentEvent.DeleteAppointment -> {
                 deleteAppointment(event.appointmentId)
-                launchRequest {
-                    _isAppointmentDeleted.emit(false)
-                }
             }
         }
     }

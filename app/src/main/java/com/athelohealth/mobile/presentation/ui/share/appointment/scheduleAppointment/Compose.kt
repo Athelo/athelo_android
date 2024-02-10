@@ -331,7 +331,7 @@ fun SectionItemContent(
                                     startTime = starTime,
                                     endTime = endTime,
                                     getCurrentTimezone()
-                                )  {
+                                ) {
                                     collpaseView.invoke()
                                 }
                             }
@@ -340,6 +340,7 @@ fun SectionItemContent(
                         R.string.apply_button -> {
                             // Get the time slot for the selected date from the API
                             viewModel.getProvidersAvailability(
+                                id.toString(),
                                 apiFormattedSelectedDate,
                                 getCurrentTimezone()
                             ) { isEmptyData ->

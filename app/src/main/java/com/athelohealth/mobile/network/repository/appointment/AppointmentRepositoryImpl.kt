@@ -10,15 +10,19 @@ import com.athelohealth.mobile.network.repository.BaseRepository
 import com.athelohealth.mobile.utils.UserManager
 import javax.inject.Inject
 
-class AppointmentRepositoryImpl @Inject constructor(userManager: UserManager):
+class AppointmentRepositoryImpl @Inject constructor(userManager: UserManager) :
     BaseRepository<AppointmentApi>(AppointmentApi::class.java, userManager), AppointmentRepository {
 
     override suspend fun loadProviders(): ProvidersDto {
         return service.loadProviders()
     }
 
-    override suspend fun getProvidersAvailability(date: String, timeZone: String): ProvidersAvailabilityDto {
-        return service.getProvidersAvailability(date = date, timeZone = timeZone)
+    override suspend fun getProvidersAvailability(
+        id: String,
+        date: String,
+        timeZone: String
+    ): ProvidersAvailabilityDto {
+        return service.getProvidersAvailability(id = id, date = date, timeZone = timeZone)
     }
 
     override suspend fun getAppointments(): AppointmentsDto {

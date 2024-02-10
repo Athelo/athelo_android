@@ -39,10 +39,10 @@ class ScheduleAppointmentViewModel @Inject constructor(
         }
     }
 
-    fun getProvidersAvailability(date: String, timeZone: String, isResponseEmpty: (Boolean) -> Unit) {
+    fun getProvidersAvailability(id: String,date: String, timeZone: String, isResponseEmpty: (Boolean) -> Unit) {
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
-            val response = providersUseCase(date, timeZone)
+            val response = providersUseCase(id,date, timeZone)
             pauseLoadingState()
             val responseList = response.results ?: emptyList()
             _providersAvailability.emit(responseList)

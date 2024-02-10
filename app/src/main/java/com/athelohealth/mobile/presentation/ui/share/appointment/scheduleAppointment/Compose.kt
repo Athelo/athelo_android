@@ -436,10 +436,14 @@ fun ChooseTime(
             timeSlots.size <= 6 -> 129.dp
             timeSlots.size <= 9 -> 186.dp
             timeSlots.size <= 12 -> 245.dp
+            timeSlots.size <= 15 -> 306.dp
+            timeSlots.size <= 18 -> 369.dp
+            timeSlots.size <= 21 -> 434.dp
             else -> {
-                306.dp
+                501.dp
             }
         }
+
 
         Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
             Text(

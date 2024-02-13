@@ -344,5 +344,22 @@
             android:id="@+id/deepLink38"
             app:uri="atheloapp://scheduleAppointment" />
     </fragment>
+    <fragment
+        android:id="@+id/joinAppointment"
+        android:name="com.athelohealth.mobile.presentation.ui.share.appointment.joinAppointment.JoinAppointmentFragment"
+        android:label="Join Appointment">
+
+        <argument
+            android:name="appointmentId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+        <argument
+            android:name="sessionKey"
+            app:argType="string"
+            android:defaultValue=""/>
+        <deepLink
+            android:id="@+id/deepLink39"
+            app:uri="atheloapp://joinAppointment?id={appointmentId}&amp;sessionId={sessionKey}" />
+    </fragment>
 
 </navigation>

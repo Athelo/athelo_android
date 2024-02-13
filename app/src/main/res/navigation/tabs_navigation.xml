@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/appointmentFragment"
-        android:name="com.athelohealth.mobile.presentation.ui.share.appointment.AppointmentFragment"
+        android:name="com.athelohealth.mobile.presentation.ui.share.appointment.appointmentList.AppointmentFragment"
         android:label="AppointmentFragment">
     <!--    <deepLink
             android:id="@+id/deepLink18"

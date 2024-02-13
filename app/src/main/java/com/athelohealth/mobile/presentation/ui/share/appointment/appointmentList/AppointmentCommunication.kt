@@ -1,4 +1,4 @@
-package com.athelohealth.mobile.presentation.ui.share.appointment
+package com.athelohealth.mobile.presentation.ui.share.appointment.appointmentList
 
 
 import com.athelohealth.mobile.presentation.model.member.User
@@ -22,6 +22,7 @@ sealed interface AppointmentEvent : BaseEvent {
     object MenuClick : AppointmentEvent
     object MyProfileClick : AppointmentEvent
     object ScheduleMyAppointmentClick : AppointmentEvent
+    data class JoinAppointmentClick(val appointmentId: Int, val sessionKey: String) : AppointmentEvent
     data class ShowSuccessMessage(val msg: String): AppointmentEvent
     data class DeleteAppointment(val appointmentId: Int): AppointmentEvent
 }
@@ -30,4 +31,5 @@ sealed interface AppointmentEffect : BaseEffect {
     object ShowMenuScreen : AppointmentEffect
     object ShowMyProfileScreen : AppointmentEffect
     object ShowScheduleMyAppointment : AppointmentEffect
+    data class JoinAppointment(val appointmentId: Int, val sessionKey: String) : AppointmentEffect
 }

@@ -261,5 +261,7 @@
     <string name="apply_button">Apply</string>
     <string name="schedule_button">Schedule</string>
     <string name="cancer_status">Cancer Status: %s</string>
+    <string name="title_settings_dialog">Permissions Required</string>
+    <string name="rationale_video_app">This app needs access to your camera and mic to make video calls</string>
 
 </resources>

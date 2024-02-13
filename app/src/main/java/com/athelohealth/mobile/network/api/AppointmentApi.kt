@@ -3,6 +3,7 @@ package com.athelohealth.mobile.network.api
 import com.athelohealth.mobile.network.dto.appointment.AppointmentsDto
 import com.athelohealth.mobile.network.dto.appointment.BookAppointmentDto
 import com.athelohealth.mobile.network.dto.appointment.BookAppointmentRequestDto
+import com.athelohealth.mobile.network.dto.appointment.JoinAppointmentTokenDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersAvailabilityDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersDto
 import retrofit2.Response
@@ -43,4 +44,9 @@ interface AppointmentApi {
     suspend fun deleteAppointment(
         @Path("id") id: String
     ): Response<Unit>
+
+    @GET("api/v1/appointment/{appointmentId}/vonage-appointment-details/")
+    suspend fun getJoinAppointmentToken(
+        @Path("appointmentId") id: String,
+    ): JoinAppointmentTokenDto
 }

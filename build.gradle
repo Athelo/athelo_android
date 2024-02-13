@@ -8,6 +8,8 @@ buildscript {
         glide_version = '4.13.0'
         compat_version = '1.5.0'
         coroutines_version = '1.6.4'
+        extOpentokSdkVersion="2.27.1"
+        extEasyPermissionsVersion="3.0.0"
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

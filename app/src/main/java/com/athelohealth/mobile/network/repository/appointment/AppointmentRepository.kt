@@ -2,6 +2,7 @@ package com.athelohealth.mobile.network.repository.appointment
 
 import com.athelohealth.mobile.network.dto.appointment.AppointmentsDto
 import com.athelohealth.mobile.network.dto.appointment.BookAppointmentDto
+import com.athelohealth.mobile.network.dto.appointment.JoinAppointmentTokenDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersAvailabilityDto
 import com.athelohealth.mobile.network.dto.appointment.ProvidersDto
 
@@ -17,4 +18,5 @@ interface AppointmentRepository {
         timeZone: String
     ): BookAppointmentDto
     suspend fun deleteAppointment(id: Int): Boolean
+    suspend fun getJoinAppointmentToken(appointmentId: Int): JoinAppointmentTokenDto
 }

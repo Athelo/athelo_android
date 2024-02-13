@@ -1,9 +1,10 @@
-package com.athelohealth.mobile.presentation.ui.share.appointment
+package com.athelohealth.mobile.presentation.ui.share.appointment.appointmentList
 
 import androidx.compose.runtime.Composable
 import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
+import com.athelohealth.mobile.utils.routeToJoinAppointment
 import com.athelohealth.mobile.utils.routeToMyProfile
 import com.athelohealth.mobile.utils.routeToScheduleMyAppointment
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,13 +21,17 @@ class AppointmentFragment : BaseComposeFragment<AppointmentViewModel>() {
 
         viewModel.effect.onEachCollect(viewLifecycleOwner) { effect ->
             when (effect) {
-                AppointmentEffect.ShowMenuScreen -> openMenu()
+                is AppointmentEffect.ShowMenuScreen -> openMenu()
 
-                AppointmentEffect.ShowMyProfileScreen -> routeToMyProfile()
+                is AppointmentEffect.ShowMyProfileScreen -> routeToMyProfile()
 
-                AppointmentEffect.ShowScheduleMyAppointment -> {
+                is AppointmentEffect.ShowScheduleMyAppointment -> {
                     routeToScheduleMyAppointment()
                 }
+
+                is AppointmentEffect.JoinAppointment -> routeToJoinAppointment(
+                    effect.appointmentId, effect.sessionKey
+                )
             }
         }
     }

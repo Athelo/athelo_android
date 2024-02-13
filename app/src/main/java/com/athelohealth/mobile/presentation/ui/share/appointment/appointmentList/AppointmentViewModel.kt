@@ -1,4 +1,4 @@
-package com.athelohealth.mobile.presentation.ui.share.appointment
+package com.athelohealth.mobile.presentation.ui.share.appointment.appointmentList
 
 import com.athelohealth.mobile.extensions.update
 import com.athelohealth.mobile.presentation.model.appointment.Appointments
@@ -99,6 +99,12 @@ class AppointmentViewModel @Inject constructor(
 
             is AppointmentEvent.DeleteAppointment -> {
                 deleteAppointment(event.appointmentId)
+            }
+
+            is AppointmentEvent.JoinAppointmentClick -> {
+                notifyEffectChanged(AppointmentEffect.JoinAppointment(
+                    event.appointmentId, event.sessionKey
+                ))
             }
         }
     }

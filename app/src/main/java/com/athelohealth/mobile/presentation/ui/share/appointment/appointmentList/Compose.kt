@@ -3,7 +3,7 @@
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
-package com.athelohealth.mobile.presentation.ui.share.appointment
+package com.athelohealth.mobile.presentation.ui.share.appointment.appointmentList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -254,6 +254,7 @@ fun AppointmentList(
                     hobby = "Car Navigator",
                     photo = appointment.providerPhoto.orEmpty(),
                     appointmentDate = appointment.startTime.orEmpty(),
+                    vonageSessionKey = appointment.vonageSessionKey,
                     handleEvent = viewModel::handleEvent
                 )
             }
@@ -268,6 +269,7 @@ fun ScheduledAppointmentCell(
     hobby: String,
     photo: String,
     appointmentDate: String,
+    vonageSessionKey: String?,
     handleEvent: (AppointmentEvent) -> Unit
 ) {
 
@@ -339,6 +341,7 @@ fun ScheduledAppointmentCell(
                 DropDownMenu(
                     expanded = expanded,
                     appointmentId = appointmentId,
+                    vonageSessionKey = vonageSessionKey,
                     handleEvent = handleEvent
                 ) {
                     expanded = it
@@ -387,6 +390,7 @@ fun ScheduledAppointmentCell(
 fun DropDownMenu(
     expanded: Boolean,
     appointmentId: Int?,
+    vonageSessionKey: String?,
     handleEvent: (AppointmentEvent) -> Unit,
     onStateChange: (Boolean) -> Unit
 ) {
@@ -410,6 +414,9 @@ fun DropDownMenu(
             onClick = {
                 onStateChange.invoke(false)
                 openDialog.value = false
+                handleEvent(AppointmentEvent.JoinAppointmentClick(
+                    appointmentId ?: -1, vonageSessionKey.orEmpty()
+                ))
             }
         )
 

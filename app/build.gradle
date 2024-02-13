@@ -33,7 +33,7 @@ android {
 //    }
     defaultConfig {
         applicationId "com.athelohealth.mobile"
-        minSdk 21
+        minSdk 23
         targetSdk 33
         versionCode 1
         versionName "1.1.5"
@@ -45,6 +45,7 @@ android {
         manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         buildConfigField "String", "CONTENTFUL_TOKEN_ID", "\"QuqNdE_HgvDiEm4N1qOWqTxqk9Zzf73YxKtL-gmH4rc\""
         buildConfigField "String", "CONTENTFUL_SPACE_ID", "\"l655w91l0oq8\""
+        buildConfigField "String", "OPEN_TOK_API_KEY", "\"47853731\""
 
     }
 
@@ -145,6 +146,9 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0")
+
+    //Swipe to refresh
     implementation "com.google.accompanist:accompanist-swiperefresh:0.24.13-rc"
     implementation "com.google.accompanist:accompanist-flowlayout:0.24.13-rc"
 
@@ -219,7 +223,11 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0")
+    //Opentok Sdk for Video Meeting
+    implementation "com.opentok.android:opentok-android-sdk:${extOpentokSdkVersion}"
+
+    //Easy Permission Library
+    implementation "pub.devrel:easypermissions:${extEasyPermissionsVersion}"
 }
 
 kapt {

@@ -3,15 +3,17 @@ package com.athelohealth.mobile.presentation.ui.share.appointment.joinAppointmen
 import android.Manifest
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.compose.runtime.Composable
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.BuildConfig
 import com.athelohealth.mobile.R
+import com.athelohealth.mobile.databinding.AppointmentMeetingRoomBinding
 import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.extensions.onEachCollect
-import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
 import com.athelohealth.mobile.presentation.ui.base.BaseEvent
+import com.athelohealth.mobile.presentation.ui.base.BaseFragment
 import com.athelohealth.mobile.utils.routeToBackScreen
 import com.opentok.android.BaseVideoRenderer
 import com.opentok.android.OpentokError
@@ -29,11 +31,8 @@ import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks
 
 
 @AndroidEntryPoint
-class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
+class JoinAppointmentFragment : BaseFragment<JoinAppointmentViewModel>(),
     PermissionCallbacks {
-
-    override val composeContent: @Composable () -> Unit
-        get() = { AppointmentRoom(viewModel = viewModel) }
 
     override val viewModel: JoinAppointmentViewModel by viewModels()
 
@@ -45,6 +44,18 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
         Manifest.permission.CAMERA,
         Manifest.permission.RECORD_AUDIO
     )
+
+    private lateinit var _binding: AppointmentMeetingRoomBinding
+    private val binding get() = _binding
+
+    override fun createContentView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = AppointmentMeetingRoomBinding.inflate(inflater)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -58,7 +69,6 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
                 is JoinAppointmentEffect.JoinAppointmentTokenEffect -> {
                     if (event.token.isNotEmpty()) {
                         initializeSession(
-                            BuildConfig.OPEN_TOK_API_KEY,
                             viewModel.sessionId.value,
                             event.token
                         )
@@ -71,29 +81,7 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
     @AfterPermissionGranted(PERMISSIONS_REQUEST_CODE)
     private fun requestPermissions() {
         if (EasyPermissions.hasPermissions(requireContext(), *permissions)) {
-            //viewModel.loadData()
-            /*initializeSession(
-                BuildConfig.OPEN_TOK_API_KEY,
-                viewModel.sessionId.value,
-                viewModel.token.value
-            )*/
-
-            /*if (ServerConfig.hasChatServerUrl()) {
-                // Custom server URL exists - retrieve session config
-                if (!ServerConfig.isValid) {
-                    finishWithMessage("Invalid chat server url: ${ServerConfig.CHAT_SERVER_URL}")
-                    return
-                }
-                initRetrofit()
-                getSession()
-            } else {
-                // Use hardcoded session config
-                if (!OpenTokConfig.isValid) {
-                    finishWithMessage("Invalid OpenTokConfig. ${OpenTokConfig.description}")
-                    return
-                }
-                initializeSession(OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID, OpenTokConfig.TOKEN)
-            }*/
+            viewModel.getToken()
         } else {
             EasyPermissions.requestPermissions(
                 this,
@@ -133,9 +121,9 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
                 BaseVideoRenderer.STYLE_VIDEO_FILL
             )
 
-            viewModel.setPublisherView(publisher?.view)
+//            viewModel.setPublisherView(publisher?.view)
+            binding.publisherContainer.addView(publisher?.view)
 
-            //publisherViewContainer.addView(publisher?.view)
             if (publisher?.view is GLSurfaceView) {
                 (publisher?.view as GLSurfaceView).setZOrderOnTop(true)
             }
@@ -159,8 +147,8 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
                 }
 
                 session.subscribe(subscriber)
-                viewModel.setSubscriberView(publisher?.view)
-                //subscriberViewContainer.addView(subscriber?.view)
+//                viewModel.setSubscriberView(publisher?.view)
+                binding.subscriberContainer.addView(subscriber?.view)
             }
         }
 
@@ -168,8 +156,8 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
             debugPrint("onStreamDropped: Stream Dropped: ${stream.streamId} in session: ${session.sessionId}")
             if (subscriber != null) {
                 subscriber = null
-                viewModel.removeAllViewOfSubscriber()
-                //subscriberViewContainer.removeAllViews()
+//                viewModel.removeAllViewOfSubscriber()
+                binding.subscriberContainer.removeAllViews()
             }
         }
 
@@ -220,15 +208,14 @@ class JoinAppointmentFragment : BaseComposeFragment<JoinAppointmentViewModel>(),
         }
     }
 
-    private fun initializeSession(apiKey: String, sessionId: String, token: String) {
-        debugPrint("Api Key ==> $apiKey \n sessionId ==> $sessionId \n token ==> $token")
+    private fun initializeSession(sessionId: String, token: String) {
 
         /*
         The context used depends on the specific use case, but usually, it is desired for the session to
         live outside of the Activity e.g: live between activities. For a production applications,
         it's convenient to use Application context instead of Activity context.
          */
-        session = Session.Builder(requireContext(), apiKey, sessionId).build().also {
+        session = Session.Builder(requireContext(), BuildConfig.OPEN_TOK_API_KEY, sessionId).build().also {
             it.setSessionListener(sessionListener)
             it.connect(token)
         }

@@ -60,6 +60,9 @@ class JoinAppointmentFragment : BaseFragment<JoinAppointmentViewModel>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requestPermissions()
+        binding.ivBack.setOnClickListener {
+            routeToBackScreen()
+        }
     }
 
     override fun setupObservers() {

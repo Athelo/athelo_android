@@ -10,7 +10,11 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import com.athelohealth.mobile.MainNavigationDirections
 import com.athelohealth.mobile.R
-import com.athelohealth.mobile.extensions.*
+import com.athelohealth.mobile.extensions.defaultNavOptionWithPushAnimation
+import com.athelohealth.mobile.extensions.navigateTo
+import com.athelohealth.mobile.extensions.openMail
+import com.athelohealth.mobile.extensions.openURL
+import com.athelohealth.mobile.extensions.splashNavOptionWithPushAnimation
 import com.athelohealth.mobile.presentation.model.calendar.Day
 import com.athelohealth.mobile.presentation.model.feedback.FeedbackScreenType
 import com.athelohealth.mobile.presentation.model.health.Symptom
@@ -21,7 +25,6 @@ import com.athelohealth.mobile.presentation.ui.patient.wellbeing.WellbeingFragme
 import com.athelohealth.mobile.presentation.ui.share.authorization.landing.AuthorizationLandingFragmentDirections
 import com.athelohealth.mobile.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailFragmentDirections
 import com.athelohealth.mobile.presentation.ui.share.splash.SplashFragmentDirections
-import com.athelohealth.mobile.utils.consts.*
 
 internal const val DEEPLINK_MY_PROFILE = "atheloapp://myProfile"
 internal const val DEEPLINK_LOG_OUT = "atheloapp://logOut"
@@ -60,6 +63,7 @@ internal const val LOST_CAREGIVER_ACCESS = "atheloapp://lost_caregiver_access"
 internal const val MY_CAREGIVERS = "atheloapp://myCaregiversList"
 internal const val DEEPLINK_SCHEDULE_MY_APPOINTMENT = "atheloapp://scheduleAppointment"
 internal const val DEEPLINK_JOIN_WITH_APPOINTMENT = "atheloapp://joinAppointment?id=%s&sessionId=%s"
+internal const val DEEPLINK_APPOINTMENTS = "atheloapp://appointmentFragment?loadNewData=%b"
 
 fun Fragment.routeToBackScreen() =
     requireActivity().onBackPressed()

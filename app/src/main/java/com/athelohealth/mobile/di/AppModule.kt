@@ -1,7 +1,10 @@
 package com.athelohealth.mobile.di
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import com.athelohealth.mobile.BuildConfig
+import com.athelohealth.mobile.extensions.PREF_NAME
 import com.athelohealth.mobile.network.repository.member.MemberRepository
 import com.athelohealth.mobile.presentation.model.enums.Enums
 import com.athelohealth.mobile.useCase.member.UserAuthorizationTestUseCase
@@ -69,4 +72,16 @@ object AppModule {
             spaceId = BuildConfig.CONTENTFUL_SPACE_ID,
             spaceToken = BuildConfig.CONTENTFUL_TOKEN_ID
         )
+
+    @Singleton
+    @Provides
+    fun provideSharePreference(
+        @ApplicationContext context: Context
+    ): SharedPreferences {
+        return context.getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+    }
+
+    @Singleton
+    @Provides
+    fun providePrefsEditor(pref: SharedPreferences) = pref.edit()
 }

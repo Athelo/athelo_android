@@ -89,7 +89,7 @@ fun AppointmentScreen(viewModel: AppointmentViewModel) {
     val viewState = viewModel.viewState.collectAsState()
     val appointments = viewModel.appointments.collectAsState().value
     val isAppointmentDeleted = viewModel.isAppointmentDeleted.collectAsState().value
-    if(isAppointmentDeleted) {
+    if (isAppointmentDeleted) {
         viewModel.sendBaseEvent(
             BaseEvent.DisplaySuccess(
                 "Never mind! You can schedule new appointment!"
@@ -239,7 +239,7 @@ fun AppointmentList(
     }
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = false),
-        onRefresh = { viewModel.loadData() }) {
+        onRefresh = { viewModel.getAppointments() }) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -414,9 +414,11 @@ fun DropDownMenu(
             onClick = {
                 onStateChange.invoke(false)
                 openDialog.value = false
-                handleEvent(AppointmentEvent.JoinAppointmentClick(
-                    appointmentId ?: -1, vonageSessionKey.orEmpty()
-                ))
+                handleEvent(
+                    AppointmentEvent.JoinAppointmentClick(
+                        appointmentId ?: -1, vonageSessionKey.orEmpty()
+                    )
+                )
             }
         )
 
@@ -526,11 +528,12 @@ fun getLocalTimeFromUtc(dateString: String, inputFormat: String, outputFormat: S
 
     val date = inputFormatter.parse(dateString)
     return date?.let {
-         outputFormatter.format(it)
+        outputFormatter.format(it)
     } ?: ""
 }
 
 private val timeZoneName = TimeZone.getDefault()
-.getDisplayName(
-false,
-TimeZone.SHORT)
+    .getDisplayName(
+        false,
+        TimeZone.SHORT
+    )

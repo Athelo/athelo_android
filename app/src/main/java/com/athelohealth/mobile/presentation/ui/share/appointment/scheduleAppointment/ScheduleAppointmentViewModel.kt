@@ -73,7 +73,11 @@ class ScheduleAppointmentViewModel @Inject constructor(
     override fun handleEvent(event: ScheduleAppointmentEvent) {
         when(event) {
             is ScheduleAppointmentEvent.OnBackButtonClicked -> {
-                notifyEffectChanged(ScheduleAppointmentEffect.ShowPrevScreen)
+                notifyEffectChanged(
+                    ScheduleAppointmentEffect.ShowPrevScreen(
+                    event.shouldLoadAppointments
+                    )
+                )
             }
 
             is ScheduleAppointmentEvent.OnAppointmentScheduled -> {

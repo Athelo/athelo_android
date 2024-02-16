@@ -13,3 +13,9 @@ fun errorPrint(vararg messages: String?) {
         Timber.e(it)
     }
 }
+
+fun debugPrintWithTag(tag:String, vararg messages: Any?) {
+    messages.forEach {
+        Timber.tag(tag).d(it.toString())
+    }
+}

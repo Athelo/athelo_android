@@ -32,7 +32,9 @@ class AppointmentViewModel @Inject constructor(
         notifyStateChange(currentState.copy(isLoading = false))
     }
 
-    override fun loadData() {
+    override fun loadData() {}
+
+    fun getAppointments() {
         changeDeletedAppointmentState(false)
         notifyStateChange(currentState.copy(isLoading = true))
         launchRequest {
@@ -57,7 +59,6 @@ class AppointmentViewModel @Inject constructor(
 
     private fun deleteAppointment(appointmentId: Int) {
         launchRequest {
-            notifyStateChange(currentState.copy(isLoading = true))
             val isAppointmentDeleted = loadAppointmentsUseCase(appointmentId)
             if (isAppointmentDeleted) {
                 val newList = mutableListOf<Appointments.Appointment>()
@@ -68,7 +69,6 @@ class AppointmentViewModel @Inject constructor(
                     return@update newList
                 }
             }
-            pauseLoadingState()
             changeDeletedAppointmentState(isAppointmentDeleted)
         }
     }

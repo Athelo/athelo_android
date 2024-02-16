@@ -4,16 +4,14 @@
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.athelohealth.mobile.presentation.ui.share.appointment.scheduleAppointment
 
 import android.content.Context
-import android.os.Build
 import android.widget.CalendarView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -81,9 +79,10 @@ import com.athelohealth.mobile.presentation.ui.theme.lightOlivaceous
 import com.athelohealth.mobile.presentation.ui.theme.purple
 import com.athelohealth.mobile.presentation.ui.theme.typography
 import com.athelohealth.mobile.presentation.ui.theme.white
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
@@ -102,8 +101,6 @@ fun ScheduleMyAppointment(viewModel: ScheduleAppointmentViewModel) {
     }
 }
 
-data class AppointmentData(val name: String, val hobby: String)
-
 @Composable
 fun HeaderContent(viewModel: ScheduleAppointmentViewModel) {
 
@@ -113,7 +110,7 @@ fun HeaderContent(viewModel: ScheduleAppointmentViewModel) {
             screenName = stringResource(id = R.string.schedule_my_appointment),
             showBack = true,
             onBackClick = {
-                handleEvent.invoke(ScheduleAppointmentEvent.OnBackButtonClicked)
+                handleEvent.invoke(ScheduleAppointmentEvent.OnBackButtonClicked(false))
             })
 
         ExpandableList(viewModel)
@@ -127,34 +124,38 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
     val context = LocalContext.current
     val appointmentBookedState = viewModel.appointments.collectAsState().value
     if (appointmentBookedState.isNotEmpty())
-        viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked)
+        viewModel.handleEvent(ScheduleAppointmentEvent.OnBackButtonClicked(true))
 
     val selectedItem = rememberSaveable { mutableStateOf(-1) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(all = 12.dp),
-        content = {
-            contentFullViewState.value.forEachIndexed { index, provider ->
-                HeaderSection(
-                    context = context,
-                    id = provider.id ?: -1,
-                    name = provider.displayName,
-                    hobby = "Car Navigator",
-                    providerAvatar = provider.photo,
-                    isExpanded = selectedItem.value == index,
-                    viewModel = viewModel,
-                    onHeaderClicked = {
-                        if(selectedItem.value == index) {
-                            selectedItem.value = -1
-                        } else {
-                            selectedItem.value = index
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = false),
+        onRefresh = { viewModel.loadData() }) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(all = 12.dp),
+            content = {
+                contentFullViewState.value.forEachIndexed { index, provider ->
+                    HeaderSection(
+                        context = context,
+                        id = provider.id ?: -1,
+                        name = provider.displayName,
+                        hobby = "Car Navigator",
+                        providerAvatar = provider.photo,
+                        isExpanded = selectedItem.value == index,
+                        viewModel = viewModel,
+                        onHeaderClicked = {
+                            if (selectedItem.value == index) {
+                                selectedItem.value = -1
+                            } else {
+                                selectedItem.value = index
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 fun LazyListScope.HeaderSection(
@@ -541,37 +542,6 @@ fun ContentPreview() {
 }
 
 fun formatDateTime(
-    dateString: String,
-    inputFormat: String,
-    outputFormat: String,
-    shouldAddMin: Boolean
-): String {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        formatDateTimeApi26AndAbove(dateString, inputFormat, outputFormat, shouldAddMin)
-    } else {
-        formatDateTimeBelowApi26(dateString, inputFormat, outputFormat, shouldAddMin)
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun formatDateTimeApi26AndAbove(
-    dateString: String,
-    inputFormat: String,
-    outputFormat: String,
-    shouldAddMin: Boolean
-): String {
-    val inputFormatter = DateTimeFormatter.ofPattern(inputFormat)
-    val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
-
-    val dateTime = if (shouldAddMin) {
-        LocalDateTime.parse(dateString, inputFormatter).plusMinutes(30)
-    } else {
-        LocalDateTime.parse(dateString, inputFormatter)
-    }
-    return dateTime.format(outputFormatter)
-}
-
-fun formatDateTimeBelowApi26(
     dateString: String,
     inputFormat: String,
     outputFormat: String,

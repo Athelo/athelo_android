@@ -27,6 +27,8 @@ const val DATE_FORMAT_2 = "MMM dd, EEEE"
 const val DATE_FORMAT_3 = "MM/dd/yyyy hh:mm a"
 const val DATE_FORMAT_4 = "hh:mm a"
 const val DATE_FORMAT_5 = "dd MMM, hh:mm a"
+const val PREF_NAME = "Athelo_Prefs"
+const val PREF_KEY_SHOULD_LOAD_DATA = "should_load_appointments"
 
 fun Date?.displayAsString(
     format: String,

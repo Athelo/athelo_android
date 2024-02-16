@@ -34,6 +34,10 @@ class AppointmentViewModel @Inject constructor(
 
     override fun loadData() {}
 
+    init {
+        getAppointments()
+    }
+
     fun getAppointments() {
         changeDeletedAppointmentState(false)
         notifyStateChange(currentState.copy(isLoading = true))

@@ -140,7 +140,7 @@ fun ExpandableList(viewModel: ScheduleAppointmentViewModel) {
                         context = context,
                         id = provider.id ?: -1,
                         name = provider.displayName,
-                        hobby = "Car Navigator",
+                        hobby = "Care Navigator",
                         providerAvatar = provider.photo,
                         isExpanded = selectedItem.value == index,
                         viewModel = viewModel,

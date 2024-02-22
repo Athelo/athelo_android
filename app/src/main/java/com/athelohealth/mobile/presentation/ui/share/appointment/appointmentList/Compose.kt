@@ -251,7 +251,7 @@ fun AppointmentList(
                 ScheduledAppointmentCell(
                     appointmentId = appointment.id,
                     name = appointment.providerName.orEmpty(),
-                    hobby = "Car Navigator",
+                    hobby = "Care Navigator",
                     photo = appointment.providerPhoto.orEmpty(),
                     appointmentDate = appointment.startTime.orEmpty(),
                     vonageSessionKey = appointment.vonageSessionKey,

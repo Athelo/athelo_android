@@ -49,4 +49,5 @@ interface AppointmentApi {
     suspend fun getJoinAppointmentToken(
         @Path("appointmentId") id: String,
     ): JoinAppointmentTokenDto
+
 }

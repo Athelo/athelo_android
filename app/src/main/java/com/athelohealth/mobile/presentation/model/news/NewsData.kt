@@ -15,7 +15,7 @@ data class NewsData(
     val shouldOpenInBrowser: Boolean = false,
     val browserUrl: String? = null,
     val bottomLogo: String = "",
-
+    val tags: List<String> = emptyList()
 ) {
 
     companion object {
@@ -27,6 +27,7 @@ data class NewsData(
             val browserUrl: String? = data.getField("browserUrl")
             val bottomLogo: CDAAsset? = data.getField("bottomLogo")
             val date = data.getAttribute<String>("updatedAt").toDate() ?: Date()
+            val tags = data.metadata().tags.mapNotNull { it.id() }
             return NewsData(
                 key = key,
                 title = title,
@@ -35,7 +36,8 @@ data class NewsData(
                 date = date,
                 shouldOpenInBrowser = shouldOpenInBrowser,
                 browserUrl = browserUrl,
-                bottomLogo = bottomLogo?.let { "https:" + it.url() } ?: ""
+                bottomLogo = bottomLogo?.let { "https:" + it.url() } ?: "",
+                tags = tags
             )
         }
     }

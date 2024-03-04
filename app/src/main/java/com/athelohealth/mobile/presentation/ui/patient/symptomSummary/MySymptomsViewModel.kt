@@ -34,11 +34,7 @@ class MySymptomsViewModel @Inject constructor(
     override fun handleEvent(event: MySymptomsEvent) {
         when (event) {
             MySymptomsEvent.BackButtonClick -> notifyEffectChanged(MySymptomsEffect.ShowPrevScreen)
-            is MySymptomsEvent.CellClick -> notifyEffectChanged(
-                MySymptomsEffect.ShowSymptomDetail(
-                    event.item.id
-                )
-            )
+            is MySymptomsEvent.CellClick -> notifyEffectChanged(MySymptomsEffect.ShowChronologyScreen)
             is MySymptomsEvent.TabChanged -> {
                 notifyStateChange(
                     currentState.copy(

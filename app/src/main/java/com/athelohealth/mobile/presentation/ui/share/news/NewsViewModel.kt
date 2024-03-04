@@ -44,6 +44,7 @@ class NewsViewModel @Inject constructor(
         launchRequest {
             val user = loadCachedUserUseCase() ?: loadMyProfileUseCase().also { storeProfile(it) } ?: throw AuthorizationException()
             newsList = contentfulClient.getAllNews()
+            selectedCategories = emptyList()
             fetchFavouriteValues()
             _contentfulViewState.emit(currentNewsList())
             notifyStateChange(
@@ -94,7 +95,9 @@ class NewsViewModel @Inject constructor(
 
     private fun updateCategoriesAndReloadList(newCategories: List<Category>) {
         selectedCategories = newCategories
-        resetAndLoad()
+        launchRequest {
+            _contentfulViewState.emit(currentNewsList())
+        }
     }
 
     private fun displayFavouriteMode() {
@@ -141,6 +144,7 @@ class NewsViewModel @Inject constructor(
             favouriteList
 //            if (newsList.isNotEmpty()) listOf(newsList.last()) else listOf()
         }.filter {
+            it.tags.containsAll(selectedCategories.map { tag -> tag.id }) &&
             if (query.trim().isNotEmpty()) it.title.contains(query.trim(), ignoreCase = true) else true
         }
     }

@@ -172,9 +172,10 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
-      //      add(HomeItems.HeaderHome("Have you checked your activity and sleep levels today? This new article might be interesting"))
-           add(HomeItems.ButtonHome(R.drawable.ic_person, "How can we make today a better day?",
-                   R.drawable.ic_arrow_gray,"ShowTrackWellbeingScreen"))
+//            add(HomeItems.HeaderHome("Have you checked your activity and sleep levels today? This new article might be interesting"))
+            add(HomeItems.HeaderHome("This new article might be interesting"))
+//           add(HomeItems.ButtonHome(R.drawable.ic_person, "How can we make today a better day?",
+//                   R.drawable.ic_arrow_gray,"ShowTrackWellbeingScreen"))
 //            if (fitbitState != FitbitState.Connected) {
 //                add(
 //                    HomeItems.ButtonHome(
@@ -187,20 +188,20 @@ class HomeViewModel @Inject constructor(
 //            }
             add(
                 HomeItems.ButtonHome(
+                    R.drawable.ic_community,
+                    "Let's find you a community to chat ",
+                    R.drawable.ic_arrow_gray,
+                    "ShowChatScreen"
+                )
+            )
+            add(
+                HomeItems.ButtonHome(
                     R.drawable.news_on,
                     "Let's find interesting articles for you",
                     R.drawable.ic_arrow_gray,
                     "ShowNewsScreen"
                 )
             )
-//            add(
-//                HomeItems.ButtonHome(
-//                    R.drawable.ic_community,
-//                    "Let's find you a community to chat ",
-//                    R.drawable.ic_arrow_gray,
-//                    "ShowChatScreen"
-//                )
-//            )
         }
     }
 }

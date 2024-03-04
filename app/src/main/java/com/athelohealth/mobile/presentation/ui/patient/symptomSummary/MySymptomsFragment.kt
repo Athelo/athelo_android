@@ -5,6 +5,7 @@ import androidx.fragment.app.viewModels
 import com.athelohealth.mobile.extensions.onEachCollect
 import com.athelohealth.mobile.presentation.ui.base.BaseComposeFragment
 import com.athelohealth.mobile.utils.routeToBackScreen
+import com.athelohealth.mobile.utils.routeToSymptomChronologyScreen
 import com.athelohealth.mobile.utils.routeToSymptomDetail
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,6 +22,7 @@ class MySymptomsFragment : BaseComposeFragment<MySymptomsViewModel>() {
         viewModel.effect.onEachCollect(viewLifecycleOwner) { effect ->
             when (effect) {
                 MySymptomsEffect.ShowPrevScreen -> routeToBackScreen()
+                MySymptomsEffect.ShowChronologyScreen -> routeToSymptomChronologyScreen()
                 is MySymptomsEffect.ShowSymptomDetail -> routeToSymptomDetail(effect.symptomId)
             }
         }

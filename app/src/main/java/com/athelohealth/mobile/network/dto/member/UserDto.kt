@@ -45,7 +45,7 @@ class UserDto(
             isFriend = isFriend,
             lastName = lastName,
             photo = photo?.toImage(),
-            userId = user?.username,
+            userId = id.toString(),
             status = status.toUserStatus(),
             profileId = userProfileId,
             privateProfile = profileFriendVisibleOnly,

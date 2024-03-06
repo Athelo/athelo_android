@@ -1,6 +1,8 @@
 package com.athelohealth.mobile.network.api
 
+import com.athelohealth.mobile.network.dto.application.FAQDto
 import com.athelohealth.mobile.network.dto.base.PageResponseDto
+import com.athelohealth.mobile.network.dto.chat.ChatMessages
 import com.athelohealth.mobile.network.dto.chat.ChatTokenDto
 import com.athelohealth.mobile.network.dto.chat.ConversationDto
 import com.athelohealth.mobile.network.dto.chat.PrivateConversationDto
@@ -32,10 +34,16 @@ interface ChatApi {
     @GET("api/v1/chats/conversations/{id}/")
     suspend fun getConversation(@Path("id") conversationId: Int): PrivateConversationDto
 
-    @GET("api/v1/chats/group-conversations/{id}/join/")
+    @GET("api/v1/community-threads/{id}/posts/")
+    suspend fun getCommunityThreads(@Path("id") conversationId: Int): PageResponseDto<ChatMessages>
+
+    @PUT("api/v1/community-threads/{id}/posts/")
+    suspend fun putCommunityThreads(@Path("id") conversationId: Int, @Body body: FAQDto): ChatMessages
+
+    @PUT("api/v1/chats/group-conversations/{id}/join/")
     suspend fun getJoinConversation(@Path("id") conversationId: Int): Response<Unit>
 
-    @GET("api/v1/chats/group-conversations/{id}/leave/")
+    @PUT("api/v1/chats/group-conversations/{id}/leave/")
     suspend fun getLeaveConversation(@Path("id") conversationId: Int): Response<Unit>
 
     @POST("api/v1/chats/conversations/")

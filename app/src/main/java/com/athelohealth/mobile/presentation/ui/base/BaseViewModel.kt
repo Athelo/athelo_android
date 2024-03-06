@@ -100,6 +100,7 @@ abstract class BaseViewModel<Ev, Ef, st>(state: st) : ViewModel() where Ev : Bas
 
     protected open fun handleError(throwable: Throwable) {
         pauseLoadingState()
+        throwable.printStackTrace()
         when (throwable) {
             is AuthorizationException -> handleAuthorizationException(throwable)
             is NetWorkDisconnectedException, is IOException -> errorNoInternet()

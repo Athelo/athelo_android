@@ -229,6 +229,9 @@ dependencies {
 
     //Easy Permission Library
     implementation "pub.devrel:easypermissions:${extEasyPermissionsVersion}"
+
+    //deeplink
+    implementation 'io.branch.sdk.android:library:5.10.0'
 }
 
 kapt {

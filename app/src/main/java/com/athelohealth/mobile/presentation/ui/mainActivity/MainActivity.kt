@@ -2,6 +2,7 @@ package com.athelohealth.mobile.presentation.ui.mainActivity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,7 @@ import com.athelohealth.mobile.extensions.showSystemUI
 import com.athelohealth.mobile.presentation.ui.base.BoxScreen
 import com.athelohealth.mobile.utils.fitbit.FitbitConnectionHelper
 import dagger.hilt.android.AndroidEntryPoint
+import io.branch.referral.Branch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,8 +53,56 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        Branch.sessionBuilder(this).withCallback { branchUniversalObject, linkProperties, error ->
+            if (error != null) {
+                Log.e("BranchSDK_Tester", "branch init failed. Caused by -" + error.message)
+            } else {
+                Log.i(
+                    "BranchSDK_Tester",
+                    "branch init complete! " + branchUniversalObject + " = " + linkProperties
+                )
+                if (branchUniversalObject != null) {
+                    Log.i("BranchSDK_Tester", "title " + branchUniversalObject.title)
+                    Log.i(
+                        "BranchSDK_Tester",
+                        "CanonicalIdentifier " + branchUniversalObject.canonicalIdentifier
+                    )
+                    Log.i(
+                        "BranchSDK_Tester",
+                        "metadata " + branchUniversalObject.contentMetadata.convertToJson()
+                    )
+                }
+                if (linkProperties != null) {
+                    Log.i("BranchSDK_Tester", "Channel " + linkProperties.channel)
+                    Log.i("BranchSDK_Tester", "control params " + linkProperties.controlParams)
+                    Log.i(
+                        "BranchSDK_Tester",
+                        "control params " + linkProperties.controlParams.get("\$deeplink_path")
+                    )
+                }
+            }
+        }.withData(this.intent.data).init()
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        this.setIntent(intent)
+        if (intent != null && intent.hasExtra("branch_force_new_session") && intent.getBooleanExtra(
+                "branch_force_new_session",
+                false
+            )
+        ) {
+            Branch.sessionBuilder(this).withCallback { referringParams, error ->
+                if (error != null) {
+                    Log.e("BranchSDK_Tester", "if " + error.message)
+                } else if (referringParams != null) {
+                    Log.i("BranchSDK_Tester", "else " + referringParams.toString())
+                }
+            }.reInit()
+        }
+
         debugPrint("Hello new Intent! ${intent?.data ?: " null data "}")
         if (intent != null) {
             lifecycleScope.launch {

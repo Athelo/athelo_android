@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Process
 import com.athelohealth.mobile.utils.conectivity.provider.ConnectivityProvider
 import dagger.hilt.android.HiltAndroidApp
+import io.branch.referral.Branch
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -14,6 +15,13 @@ class AtheloApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Branch logging for debugging
+        Branch.enableLogging()
+
+        // Branch object initialization
+        Branch.getAutoInstance(this)
+
         Timber.plant(Timber.DebugTree())
         setupNetworkConnection()
     }

@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalSerializationApi::class)
 abstract class BaseRepository<T>(clazz: Class<T>, private val userManager: UserManager) {
@@ -23,6 +24,8 @@ abstract class BaseRepository<T>(clazz: Class<T>, private val userManager: UserM
     }
     protected val service: T by lazy {
         val httpClient = OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
         httpClient.addInterceptor { chain ->
 //            if (NetWorkManager.isDisconnected) {
 //                throw NetWorkDisconnectedException()

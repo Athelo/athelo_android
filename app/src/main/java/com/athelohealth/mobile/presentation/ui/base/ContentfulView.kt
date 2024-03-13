@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,7 @@ fun ShowContentfulNews(data: NewsData) {
             AsyncImage(
                 model = data.image,
                 contentDescription = stringResource(id = R.string.app_name),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
@@ -75,7 +77,7 @@ fun ShowContentfulNews(data: NewsData) {
                         color = darkPurple,
                         textAlign = TextAlign.End
                     ),
-                    modifier = Modifier.alignByBaseline()
+                    modifier = Modifier.padding(start = 16.dp).alignByBaseline()
                 )
             }
             AndroidView(
@@ -85,9 +87,11 @@ fun ShowContentfulNews(data: NewsData) {
                     ContentfulClient.getDataView(context, data.body)
                 }
             )
+            Spacer(modifier = Modifier.height(20.dp))
             AsyncImage(
                 model = data.bottomLogo,
                 contentDescription = stringResource(id = R.string.app_name),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Spacer(modifier = Modifier.height(76.dp))

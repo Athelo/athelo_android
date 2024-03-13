@@ -11,6 +11,6 @@ data class CategoryDto(
     @SerialName("name") val name: String? = null
 ) {
     fun toCategory(): Category {
-        return Category(id ?: -1, name ?: "")
+        return Category(id.toString(), name ?: "")
     }
 }

@@ -39,9 +39,7 @@ fun FilterScreen(viewModel: CategoryFilterViewModel) {
             .fillMaxSize(),
         backgroundColor = black.copy(alpha = 0.3f),
         includeStatusBarPadding = false,
-        showProgressProvider = {
-            false
-        },
+        showProgressProvider = { viewState.value.isLoading },
         viewModel = viewModel
     ) {
         val configuration = LocalConfiguration.current
@@ -51,7 +49,6 @@ fun FilterScreen(viewModel: CategoryFilterViewModel) {
         }
         LaunchedEffect(key1 = true) {
             coroutineScope.launch {
-                delay(300)
                 show.value = true
             }
         }
@@ -59,7 +56,7 @@ fun FilterScreen(viewModel: CategoryFilterViewModel) {
             visible = show.value,
             enter = fadeIn() + slideInVertically(
                 initialOffsetY = { configuration.screenHeightDp },
-                animationSpec = tween(300, easing = LinearOutSlowInEasing)
+                animationSpec = tween(easing = LinearOutSlowInEasing)
             ),
             modifier = Modifier
                 .align(Alignment.Center)
@@ -131,6 +128,6 @@ fun ChooseOptionRow(
             contentDescription = "",
             modifier = Modifier.padding(end = 24.dp),
         )
-        Text(text = category.name, style = MaterialTheme.typography.textField.copy(color = gray))
+        Text(text = category.name.uppercase(), style = MaterialTheme.typography.textField.copy(color = gray))
     }
 }

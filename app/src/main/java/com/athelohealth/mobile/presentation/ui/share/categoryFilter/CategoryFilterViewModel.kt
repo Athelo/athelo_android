@@ -3,39 +3,32 @@ package com.athelohealth.mobile.presentation.ui.share.categoryFilter
 import androidx.lifecycle.SavedStateHandle
 import com.athelohealth.mobile.presentation.model.news.Category
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
-import com.athelohealth.mobile.presentation.ui.share.authorization.signInWithEmail.SignInWithEmailViewState
-import com.athelohealth.mobile.useCase.news.LoadNewsCategoriesUseCase
+import com.athelohealth.mobile.utils.contentful.ContentfulClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class CategoryFilterViewModel @Inject constructor(
-    private val loadCategories: LoadNewsCategoriesUseCase,
+    private val contentfulClient: ContentfulClient,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel<CategoryFilterEvent, CategoryFilterEffect, CategoryFilterViewState>(CategoryFilterViewState()) {
     private val initialCategories =
         CategoryFilterDialogArgs.fromSavedStateHandle(savedStateHandle).initial
-    private val selectedCategories = mutableListOf<Category>()
+    private var selectedCategories = mutableListOf<Category>()
 
     override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
 
-    init {
-        if (initialCategories.isNotEmpty()) {
-            selectedCategories.addAll(initialCategories)
-        }
-    }
-
     override fun loadData() {
-        notifyStateChange(currentState.copy(isLoading = false))
         launchRequest {
-            val categories = loadCategories()
+            val categories = contentfulClient.fetchCategories()
+            val categoryIds = categories.map { it.id }
+            val filteredCategory = initialCategories.filter { categoryIds.contains(it.id) }
+            selectedCategories.addAll(filteredCategory)
             notifyStateChange(
                 currentState.copy(
                     isLoading = false,
-                    canLoadMore = !categories.next.isNullOrBlank(),
-                    allFilters = categories.result,
+                    canLoadMore = false,
+                    allFilters = categories,
                     selectedFilters = selectedCategories
                 )
             )

@@ -3,7 +3,9 @@ package com.athelohealth.mobile.network.repository.chat
 import com.athelohealth.mobile.extensions.getBodyOrThrow
 import com.athelohealth.mobile.extensions.parseResponseWithoutBody
 import com.athelohealth.mobile.network.api.ChatApi
+import com.athelohealth.mobile.network.dto.application.FAQDto
 import com.athelohealth.mobile.network.dto.base.PageResponseDto
+import com.athelohealth.mobile.network.dto.chat.ChatMessages
 import com.athelohealth.mobile.network.dto.chat.ChatTokenDto
 import com.athelohealth.mobile.network.dto.chat.ConversationDto
 import com.athelohealth.mobile.network.dto.chat.PrivateConversationDto
@@ -67,4 +69,11 @@ class ChatRepositoryImpl(userManager: UserManager) :
             .parseResponseWithoutBody()
     }
 
+    override suspend fun getChat(conversationId: Int): PageResponseDto<ChatMessages> {
+        return service.getCommunityThreads(conversationId)
+    }
+
+    override suspend fun putChat(conversationId: Int, content: String): ChatMessages {
+        return service.putCommunityThreads(conversationId, FAQDto(content = content))
+    }
 }

@@ -126,7 +126,10 @@ private fun Content(
                                 keyboardActions = KeyboardActions(onSearch = {
                                     focusManager.clearFocus()
                                 }),
-                                hint = stringResource(id = R.string.Search)
+                                hint = stringResource(id = R.string.Search),
+                                tailingIconClick = {
+                                    handleEvent(NewsEvent.FilterOptionClick)
+                                }
                             )
                         }
                     }

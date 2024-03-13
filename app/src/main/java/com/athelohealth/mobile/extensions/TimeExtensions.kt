@@ -4,13 +4,31 @@ import com.athelohealth.mobile.presentation.model.timeDate.BirthDate
 import com.athelohealth.mobile.presentation.model.timeDate.Year
 import com.athelohealth.mobile.presentation.model.timeDate.parse
 import com.athelohealth.mobile.utils.DateTimeFormat
-import com.athelohealth.mobile.utils.consts.*
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_2
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_3
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_ISO_NO_TIMEZONE
+import com.athelohealth.mobile.utils.consts.DATE_FORMAT_SIMPLE_DAY
+import com.athelohealth.mobile.utils.consts.isoNoTimezoneRegex
 import com.athelohealth.mobile.utils.consts.isoRegex
+import com.athelohealth.mobile.utils.consts.isoRegex2
+import com.athelohealth.mobile.utils.consts.isoRegex3
 import com.athelohealth.mobile.utils.consts.yyyyMMddRegex
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+
+const val DATE_FORMAT_1 = "yyyy-MM-dd'T'HH:mm:ss"
+const val DATE_FORMAT_2 = "MMM dd, EEEE"
+const val DATE_FORMAT_3 = "MM/dd/yyyy hh:mm a"
+const val DATE_FORMAT_4 = "hh:mm a"
+const val DATE_FORMAT_5 = "dd MMM, hh:mm a"
+const val PREF_NAME = "Athelo_Prefs"
+const val PREF_KEY_SHOULD_LOAD_DATA = "should_load_appointments"
 
 fun Date?.displayAsString(
     format: String,
@@ -147,4 +165,9 @@ fun Calendar.getEndOfDay(): Calendar {
         set(Calendar.SECOND, 59)
         set(Calendar.MILLISECOND, 999)
     }
+}
+
+fun getCurrentTimezone(): String {
+    val calendar = Calendar.getInstance()
+    return calendar.timeZone.id
 }

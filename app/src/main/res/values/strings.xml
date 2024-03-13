@@ -257,6 +257,11 @@
     <string name="welcome_to_the_appointments">Welcome to the Appointments!</string>
     <string name="appointment_not_scheduled_msg">It looks like you haven\'t booked any appointments yet. Would you like to? You can click the \"Schedule My Appointment\" button at the lower right corner of your menu</string>
     <string name="schedule_my_appointment">Schedule My Appointment</string>
+    <string name="schedule_new_appointment">Schedule New Appointment</string>
+    <string name="apply_button">Apply</string>
+    <string name="schedule_button">Schedule</string>
     <string name="cancer_status">Cancer Status: %s</string>
+    <string name="title_settings_dialog">Permissions Required</string>
+    <string name="rationale_video_app">This app needs access to your camera and mic to make video calls</string>
 
 </resources>

@@ -23,4 +23,5 @@
     <color name="deepSleepColor">#FFDEEEC3</color>
     <color name="totalSleepGradientStart">#FF2B4302</color>
     <color name="totalSleepGradientEnd">#FF7B9157</color>
+    <color name="transparent">#0D000000</color>
 </resources>

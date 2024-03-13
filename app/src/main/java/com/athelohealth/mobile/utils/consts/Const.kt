@@ -17,6 +17,9 @@ object Const {
 
     const val QUESTION_ID = "5"
     const val QUESTION_LABEL = "Question"
+
+    const val ARG_KEY_APPOINTMENT_ID = "appointmentId"
+    const val ARG_KEY_VONAGE_KEY = "vonageKey"
 }
 
 internal val TAB_BAR_HEIGHT = 56.dp

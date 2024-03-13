@@ -24,5 +24,6 @@ sealed interface MySymptomsEvent : BaseEvent {
 
 sealed interface MySymptomsEffect : BaseEffect {
     object ShowPrevScreen : MySymptomsEffect
+    object ShowChronologyScreen : MySymptomsEffect
     class ShowSymptomDetail(val symptomId: Int) : MySymptomsEffect
 }

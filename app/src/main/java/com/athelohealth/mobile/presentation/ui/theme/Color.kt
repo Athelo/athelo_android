@@ -27,3 +27,4 @@ val darkPurple = Color(0xFF623E61)
 
 val blue = Color(0xFF1877F2)
 val cyanBlue = Color(0xFF94A3B8)
+val dividerColor = Color(0xFFE5E5E5)

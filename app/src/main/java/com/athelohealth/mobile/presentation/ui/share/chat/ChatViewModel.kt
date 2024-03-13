@@ -13,6 +13,7 @@ import com.athelohealth.mobile.utils.AuthorizationException
 import com.athelohealth.mobile.utils.PreferenceHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -27,6 +28,8 @@ class ChatViewModel @Inject constructor(
     private val observeNewChatMessages: ObserveNewChatMessagesUseCase,
     private val sendChatMessage: SendChatMessageUseCase,
     private val preferences: PreferenceHelper,
+    private val getChatMessagesUseCase: GetChatMessagesUseCase,
+    private val postChatMessagesUseCase: PostChatMessagesUseCase,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel<ChatEvent, ChatEffect, ChatViewState>(ChatViewState(privateChat = true)) {
     private val isGroupConversation: Boolean =
@@ -36,7 +39,7 @@ class ChatViewModel @Inject constructor(
 
     private var conversation: Conversation? = null
 
-    private var canLoadNextPage: Boolean = true
+    private var canLoadNextPage: Boolean = false
     private var lastMessageId: Long? = null
 
     private val allMessages = mutableListOf<ConversationInfo.ConversationMessage>()
@@ -44,6 +47,8 @@ class ChatViewModel @Inject constructor(
 
     init {
         notifyStateChange(ChatViewState(privateChat = !isGroupConversation))
+        preferences.setShowHello(conversationId, false)
+        notifyStateChange(currentState.copy(shouldShowHello = false))
     }
 
     private val pageSize = 100
@@ -73,7 +78,7 @@ class ChatViewModel @Inject constructor(
             ChatEvent.JoinConversationClicked -> joinTheConversation()
             is ChatEvent.MoreClick -> handleMoreMenuAction(event.action)
             is ChatEvent.SendMessageClicked -> {
-                sendChatMessage(event.message)
+                sendChatMessage(event.message.trim())
             }
             is ChatEvent.LastVisibleElement -> lastVisibleElement = event.element
             ChatEvent.SayHelloToEveryone -> sendHelloMessage()
@@ -82,19 +87,25 @@ class ChatViewModel @Inject constructor(
 
     private fun loadNextPage() {
         launchRequest {
-            if (!::user.isInitialized)
-                user = loadProfile() ?: throw AuthorizationException()
-            val conversation = this.conversation ?: return@launchRequest
-            val result =
-                loadConversationHistory(
-                    conversation.chatRoomId,
-                    lastMessageId = lastMessageId,
-                    limit = pageSize
-                )
-
-            canLoadNextPage = result.size == pageSize
-
-            sendNewMessagesToUi(result, false)
+            while (true) {
+                if (currentState.isLoading) {
+                    delay(5000)
+                    continue
+                }
+                val chatMessages = getChatMessagesUseCase(conversationId)
+                sendNewMessagesToUi(chatMessages, false)
+                delay(5000)
+            }
+//            val conversation = this.conversation ?: return@launchRequest
+//            val result =
+//                loadConversationHistory(
+//                    conversation.chatRoomId,
+//                    lastMessageId = lastMessageId,
+//                    limit = pageSize
+//                )
+//
+//            canLoadNextPage = result.size == pageSize
+//            sendNewMessagesToUi(result, false)
         }
     }
 
@@ -127,6 +138,8 @@ class ChatViewModel @Inject constructor(
     }
 
     private suspend fun loadConversationDetails() {
+        if (!::user.isInitialized)
+            user = loadProfile() ?: throw AuthorizationException()
         val conversation = loadConversation(conversationId, isGroupConversation)
         this.conversation = conversation
         notifyStateChange(
@@ -163,7 +176,7 @@ class ChatViewModel @Inject constructor(
     private fun startObservingNewMessages(chatId: String) {
         if (messageObserveJob != null) return
         messageObserveJob = observeNewChatMessages(chatId).onEach {
-            sendNewMessagesToUi(listOf(it), true)
+//            sendNewMessagesToUi(listOf(it), true)
         }.launchIn(viewModelScope)
     }
 
@@ -192,12 +205,18 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun sendChatMessage(message: String) {
-        val chatId = conversation?.chatRoomId ?: return
-        if (message.isBlank()) return
-
-        preferences.setShowHello(conversationId, false)
-        notifyStateChange(currentState.copy(shouldShowHello = false))
-
-        sendChatMessage(chatId, message.trim())
+        launchRequest {
+            if (message.isEmpty()) return@launchRequest
+            notifyStateChange(currentState.copy(isLoading = true))
+            val chatMessage = postChatMessagesUseCase(conversationId, message)
+            sendNewMessagesToUi(listOf(chatMessage), true)
+        }
+//        val chatId = conversation?.chatRoomId ?: return
+//        if (message.isBlank()) return
+//
+//        preferences.setShowHello(conversationId, false)
+//        notifyStateChange(currentState.copy(shouldShowHello = false))
+//
+//        sendChatMessage(chatId, message.trim())
     }
 }

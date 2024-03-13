@@ -33,7 +33,7 @@ android {
 //    }
     defaultConfig {
         applicationId "com.athelohealth.mobile"
-        minSdk 21
+        minSdk 23
         targetSdk 33
         versionCode 1
         versionName "1.1.5"
@@ -45,6 +45,7 @@ android {
         manifestPlaceholders = ['appAuthRedirectScheme': 'com.athelohealth.mobile']
         buildConfigField "String", "CONTENTFUL_TOKEN_ID", "\"QuqNdE_HgvDiEm4N1qOWqTxqk9Zzf73YxKtL-gmH4rc\""
         buildConfigField "String", "CONTENTFUL_SPACE_ID", "\"l655w91l0oq8\""
+        buildConfigField "String", "OPEN_TOK_API_KEY", "\"47853731\""
 
     }
 
@@ -141,19 +142,23 @@ dependencies {
     implementation "com.google.accompanist:accompanist-insets-ui:0.24.9-beta"
     implementation "com.google.accompanist:accompanist-pager-indicators:0.24.9-beta"
     implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-viewbinding:$compose_version"
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0")
+
+    //Swipe to refresh
     implementation "com.google.accompanist:accompanist-swiperefresh:0.24.13-rc"
     implementation "com.google.accompanist:accompanist-flowlayout:0.24.13-rc"
 
     // Services
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0'
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0'
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
-
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.10.0'
     // Support libs
     implementation "androidx.appcompat:appcompat:$compat_version"
     implementation "net.openid:appauth:0.11.1"
@@ -163,10 +168,6 @@ dependencies {
 
     // libphonenumber
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.9.9'
-    //firebase - waiting for setup project in console
-    implementation platform('com.google.firebase:firebase-bom:29.0.4')
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-analytics'
 
     //Glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
@@ -212,15 +213,22 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
     implementation 'androidx.browser:browser:1.5.0'
+
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:31.2.1"))
-
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0")
+    //Opentok Sdk for Video Meeting
+    implementation "com.opentok.android:opentok-android-sdk:${extOpentokSdkVersion}"
+
+    //Easy Permission Library
+    implementation "pub.devrel:easypermissions:${extEasyPermissionsVersion}"
 }
 
 kapt {

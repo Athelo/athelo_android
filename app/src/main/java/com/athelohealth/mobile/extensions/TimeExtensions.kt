@@ -29,6 +29,7 @@ const val DATE_FORMAT_4 = "hh:mm a"
 const val DATE_FORMAT_5 = "dd MMM, hh:mm a"
 const val PREF_NAME = "Athelo_Prefs"
 const val PREF_KEY_SHOULD_LOAD_DATA = "should_load_appointments"
+const val DEEPLINK_CODE = "deeplink_code"
 
 fun Date?.displayAsString(
     format: String,

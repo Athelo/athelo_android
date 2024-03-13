@@ -1,9 +1,11 @@
 package com.athelohealth.mobile.presentation.ui.share.authorization.landing
 
+import android.util.Log
 import com.athelohealth.mobile.extensions.findGoogleAuthorizationEnum
 import com.athelohealth.mobile.presentation.model.enums.Enums
 import com.athelohealth.mobile.presentation.model.member.Token
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
+import com.athelohealth.mobile.presentation.ui.mainActivity.MainActivity
 import com.athelohealth.mobile.useCase.SetupPersonalConfigUseCase
 import com.athelohealth.mobile.useCase.member.PostUserProfile
 import com.athelohealth.mobile.useCase.member.StoreSessionUseCase
@@ -25,8 +27,13 @@ class AuthorizationLandingViewModel @Inject constructor(
     private val enums: Enums,
     private val setupPersonalInfo: SetupPersonalConfigUseCase,
     private val postUserProfile: PostUserProfile,
-) : BaseViewModel<AuthorizationLandingEvent, AuthorizationLandingEffect, AuthorizationLandingViewState>(AuthorizationLandingViewState(false, 0)) {
-    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+) : BaseViewModel<AuthorizationLandingEvent, AuthorizationLandingEffect, AuthorizationLandingViewState>(
+    AuthorizationLandingViewState(false, 0)
+) {
+    override fun pauseLoadingState() {
+        notifyStateChange(currentState.copy(isLoading = false))
+    }
+
     override fun loadData() {}
 
     override fun handleError(throwable: Throwable) {
@@ -40,42 +47,53 @@ class AuthorizationLandingViewModel @Inject constructor(
             AuthorizationLandingEvent.SignWithAppleClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithAppleScreen)
             }
+
             AuthorizationLandingEvent.SignInWithEmailClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignInWithEmailScreen)
             }
+
             AuthorizationLandingEvent.SignUpWithEmailClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignUpWithEmailScreen)
             }
+
             AuthorizationLandingEvent.SignWithFacebookClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithFacebookScreen)
             }
+
             AuthorizationLandingEvent.SignInWithGoogleClick -> selfBlockRun {
                 launchOnUI {
                     notifyEffectChanged(AuthorizationLandingEffect.ShowSignInWithGoogleScreen)
                 }
             }
+
             AuthorizationLandingEvent.SignUpWithGoogleClick -> selfBlockRun {
                 launchOnUI {
                     notifyEffectChanged(AuthorizationLandingEffect.ShowSignUpWithGoogleScreen)
                 }
             }
+
             AuthorizationLandingEvent.SignWithTwitterClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowSignWithTwitterScreen)
             }
+
             AuthorizationLandingEvent.PPLinkClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowPrivacyPolicyScreen)
             }
+
             AuthorizationLandingEvent.TosLinkClick -> selfBlockRun {
                 notifyEffectChanged(AuthorizationLandingEffect.ShowTermsOfUseScreen)
             }
+
             is AuthorizationLandingEvent.TabClick -> {
                 notifyStateChange(currentState.copy(selectedTabIndex = event.index))
             }
+
             is AuthorizationLandingEvent.SignInWithGoogleResult -> {
                 currentState = currentState.copy(isLoading = true)
                 notifyStateChange()
                 handleSignInWithGoogleResponse(event)
             }
+
             is AuthorizationLandingEvent.SignUpWithGoogleResult -> {
                 currentState = currentState.copy(isLoading = true)
                 notifyStateChange()
@@ -95,7 +113,8 @@ class AuthorizationLandingViewModel @Inject constructor(
                     return@launchRequest
                 } else if (ex != null) throw ex
                 else if (token != null && type != null) {
-                    val authCredential = GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
+                    val authCredential =
+                        GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
                     FirebaseAuth.getInstance().signInWithCredential(authCredential)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -112,7 +131,12 @@ class AuthorizationLandingViewModel @Inject constructor(
                                                 it.result.expirationTimestamp.toInt()
                                             )
                                             storeSessionUseCase(token)
-                                            postUserProfile(userName = userName?:"")
+                                            Log.e("TAG>>> autho 1 ", "postUserProfile: " + MainActivity.deeplinkCode ?: "")
+
+                                            postUserProfile(
+                                                userName = userName ?: "",
+                                                code = MainActivity.deeplinkCode ?: ""
+                                            )
                                             // Sign in success, update UI with the signed-in user's information
                                             val profile = setupPersonalInfo(
                                                 Token(
@@ -126,8 +150,16 @@ class AuthorizationLandingViewModel @Inject constructor(
 
 
                                             if (profile == null)
-                                                withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowAdditionalInformationScreen) }
-                                            else withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowHomeScreen) }
+                                                withContext(Dispatchers.Main) {
+                                                    _effect.emit(
+                                                        AuthorizationLandingEffect.ShowAdditionalInformationScreen
+                                                    )
+                                                }
+                                            else withContext(Dispatchers.Main) {
+                                                _effect.emit(
+                                                    AuthorizationLandingEffect.ShowHomeScreen
+                                                )
+                                            }
                                             pauseLoadingState()
                                         }
                                     } else errorMessage("Something went wrong.")
@@ -150,7 +182,8 @@ class AuthorizationLandingViewModel @Inject constructor(
                     return@launchRequest
                 } else if (ex != null) throw ex
                 else if (token != null && type != null) {
-                    val authCredential = GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
+                    val authCredential =
+                        GoogleAuthProvider.getCredential(response.idToken, response.accessToken)
                     FirebaseAuth.getInstance().signInWithCredential(authCredential)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -168,12 +201,26 @@ class AuthorizationLandingViewModel @Inject constructor(
                                                 it.result.expirationTimestamp.toInt()
                                             )
                                             storeSessionUseCase(accessToken)
-                                            postUserProfile(userName ?: "")
+
+                                            Log.e("TAG>>> autho 2 ", "postUserProfile: " + MainActivity.deeplinkCode ?: "")
+
+                                            postUserProfile(
+                                                userName ?: "",
+                                                MainActivity.deeplinkCode
+                                            )
                                             // Sign in success, update UI with the signed-in user's information
                                             val profile = setupPersonalInfo(accessToken, userName)
                                             if (profile == null)
-                                                withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowAdditionalInformationScreen) }
-                                            else withContext(Dispatchers.Main) { _effect.emit(AuthorizationLandingEffect.ShowHomeScreen) }
+                                                withContext(Dispatchers.Main) {
+                                                    _effect.emit(
+                                                        AuthorizationLandingEffect.ShowAdditionalInformationScreen
+                                                    )
+                                                }
+                                            else withContext(Dispatchers.Main) {
+                                                _effect.emit(
+                                                    AuthorizationLandingEffect.ShowHomeScreen
+                                                )
+                                            }
                                             pauseLoadingState()
                                         }
                                     } else errorMessage("Something went wrong.")

@@ -53,5 +53,5 @@ interface MemberRepository {
     suspend fun loadUserDataFromGoogle(token: String): GoogleUserDto
     suspend fun deleteAccount(): Boolean
 
-    suspend fun postUserProfile(displayName: String): Response<Unit>
+    suspend fun postUserProfile(displayName: String, code: String): Response<Unit>
 }

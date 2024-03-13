@@ -26,6 +26,7 @@ class UserDto(
     @SerialName("has_fitbit_user_profile") val hasFitbitUserProfile: Boolean? = null,
     @SerialName("is_caregiver") val isCaregiver: Boolean? = null,
     @SerialName("is_patient") val isPatient: Boolean? = null,
+    @SerialName("code") val code: String? = null,
 ) {
     val fullName: String
         get() = when {

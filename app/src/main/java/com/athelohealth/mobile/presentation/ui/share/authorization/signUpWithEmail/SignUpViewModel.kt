@@ -1,9 +1,11 @@
 package com.athelohealth.mobile.presentation.ui.share.authorization.signUpWithEmail
 
+import android.util.Log
 import com.athelohealth.mobile.extensions.debugPrint
 import com.athelohealth.mobile.presentation.model.base.InputType
 import com.athelohealth.mobile.presentation.model.member.Token
 import com.athelohealth.mobile.presentation.ui.base.BaseViewModel
+import com.athelohealth.mobile.presentation.ui.mainActivity.MainActivity
 import com.athelohealth.mobile.useCase.SetupPersonalConfigUseCase
 import com.athelohealth.mobile.useCase.member.PostUserProfile
 import com.athelohealth.mobile.useCase.member.StoreSessionUseCase
@@ -26,7 +28,9 @@ class SignUpViewModel @Inject constructor(
     private var email = ""
     private var password = ""
     private var confirmPassword = ""
-    override fun pauseLoadingState() { notifyStateChange(currentState.copy(isLoading = false)) }
+    override fun pauseLoadingState() {
+        notifyStateChange(currentState.copy(isLoading = false))
+    }
 
     override fun loadData() {}
 
@@ -48,18 +52,22 @@ class SignUpViewModel @Inject constructor(
                 password = input.value
                 currentState = currentState.copy(passwordError = false)
             }
+
             is InputType.ConfirmPassword -> {
                 confirmPassword = input.value
                 currentState = currentState.copy(confirmPasswordError = password != confirmPassword)
             }
+
             is InputType.Email -> {
                 email = input.value
                 currentState = currentState.copy(emailError = false)
             }
+
             is InputType.PersonName -> {
                 username = input.value
                 currentState = currentState.copy(usernameError = false)
             }
+
             else -> {/*ignore not used types*/
             }
         }
@@ -110,7 +118,9 @@ class SignUpViewModel @Inject constructor(
                                     it.result.expirationTimestamp.toInt()
                                 )
                                 storeSessionUseCase(token)
-                                postUserProfile(userName = username)
+                                Log.e("TAG>>> sign 1  ", "postUserProfile: " + MainActivity.deeplinkCode ?: "")
+
+                                postUserProfile(userName = username, MainActivity.deeplinkCode)
                                 // Sign in success, update UI with the signed-in user's information
                                 val profile = setupPersonalInfo(token, username)
 

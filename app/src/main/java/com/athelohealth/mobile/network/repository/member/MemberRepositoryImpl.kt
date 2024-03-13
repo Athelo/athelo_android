@@ -1,5 +1,6 @@
 package com.athelohealth.mobile.network.repository.member
 
+import android.util.Log
 import com.athelohealth.mobile.network.api.MemberApi
 import com.athelohealth.mobile.network.dto.base.PageResponseDto
 import com.athelohealth.mobile.network.dto.base.RetrofitNullableStringParam
@@ -120,12 +121,14 @@ class MemberRepositoryImpl @Inject constructor(userManager: UserManager) :
         return service.deleteUser().isSuccessful
     }
 
-    override suspend fun postUserProfile(displayName: String): Response<Unit> {
+    override suspend fun postUserProfile(displayName: String, code: String): Response<Unit> {
         val user = UserDto(
             firstName = "",
             lastName = "",
-            displayName = displayName
+            displayName = displayName,
+            code = code
         )
+        Log.e("TAG>>>", "postUserProfile: " + code)
         return service.postUserProfile(user)
     }
 }

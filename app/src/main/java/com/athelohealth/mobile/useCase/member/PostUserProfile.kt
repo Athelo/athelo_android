@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class PostUserProfile @Inject constructor(private val memberRepository: MemberRepository) {
 
-    suspend operator fun invoke(userName: String): Response<Unit> {
-        return memberRepository.postUserProfile(displayName = userName)
+    suspend operator fun invoke(userName: String, code: String): Response<Unit> {
+        return memberRepository.postUserProfile(displayName = userName, code = code)
     }
 }

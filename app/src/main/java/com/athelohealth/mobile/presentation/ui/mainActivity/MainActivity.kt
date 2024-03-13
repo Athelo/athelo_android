@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by viewModels()
 
+
     @Inject
     lateinit var fitbitConnectionHelper: FitbitConnectionHelper
 
@@ -81,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                         "BranchSDK_Tester",
                         "control params " + linkProperties.controlParams.get("\$deeplink_path")
                     )
+                    deeplinkCode = linkProperties.controlParams.get("\$deeplink_path")!!
                 }
             }
         }.withData(this.intent.data).init()
@@ -188,4 +190,14 @@ class MainActivity : AppCompatActivity() {
             savedStateHandle.remove<T>(key)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        deeplinkCode = ""
+    }
+
+    companion object {
+        open var deeplinkCode: String = ""
+    }
+
 }

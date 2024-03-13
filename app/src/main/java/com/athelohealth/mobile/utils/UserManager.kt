@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -152,7 +154,9 @@ class UserManager internal constructor(
     }
 
     private fun getSession(): String? {
-        return sharedPreferences.getString("session", null)
+        return runBlocking {
+            FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
+        }
     }
 
     private fun storeOrRemoveUser(user: String?) {

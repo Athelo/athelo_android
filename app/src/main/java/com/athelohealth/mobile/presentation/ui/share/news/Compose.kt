@@ -71,7 +71,7 @@ private fun Content(
                     .padding(horizontal = 16.dp),
                 buttons = arrayOf(
                     RadioButton(
-                        text = stringResource(id = R.string.All_News),
+                        text = stringResource(id = R.string.All_Articles),
                         onClick = {
                             handleEvent(NewsEvent.ListButtonClick)
                         }

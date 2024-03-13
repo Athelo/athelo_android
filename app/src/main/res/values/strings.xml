@@ -44,7 +44,7 @@
     <string name="Sleep">Sleep</string>
     <string name="Activity">Activity</string>
     <string name="Community">Community</string>
-    <string name="News">News</string>
+    <string name="Articles">Articles</string>
     <string name="Welcome_format">Welcome, %s!</string>
     <string name="My_Profile">My Profile</string>
     <string name="Delete_An_Account">Delete An Account</string>
@@ -111,7 +111,7 @@
     <string name="Connect_Fitbit_account_Again">Connect Fitbit Again</string>
     <string name="Go_To_Activity_Page">Go To Activity Page</string>
     <string name="Skip">Skip</string>
-    <string name="All_News">All News</string>
+    <string name="All_Articles">All Articles</string>
     <string name="Favorites">Favorites</string>
     <string name="Search">Search</string>
     <string name="No_content_available">No content available</string>
